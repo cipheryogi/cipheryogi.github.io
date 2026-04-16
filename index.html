@@ -60,6 +60,18 @@
             font-size: 0.95rem;
         }
         .header-links a:hover { text-decoration: underline; }
+        .notice {
+            margin-top: 20px;
+            padding: 12px 20px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
 
         /* Stats bar */
         .stats {
@@ -140,6 +152,52 @@
         .cat-governance { background: #3b1a1a; color: #fca5a5; }
         .cat-tooling { background: #2a2a1a; color: #d4d48a; }
         .cat-guide { background: #1a3b2a; color: #86efac; }
+        .cat-mainframe { background: #2d2a1a; color: #fcd34d; }
+
+        /* Article list */
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+        }
+        .article-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            transition: border-color 0.2s, transform 0.2s;
+            text-decoration: none;
+            display: block;
+        }
+        .article-card:hover {
+            border-color: #fbbf24;
+            transform: translateY(-2px);
+        }
+        .article-card h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+        .article-card p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+        .article-card .arrow {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 8px;
+            display: block;
+        }
+        .article-card:hover .arrow { color: #fbbf24; }
+        .sub-heading {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text);
+            margin: 28px 0 14px;
+        }
+        .sub-heading:first-of-type { margin-top: 8px; }
 
         /* Footer */
         footer {
@@ -167,8 +225,9 @@
         <p>ServiceNow AI Development — Agentic AI research, solution designs, and production-grade builds on the ServiceNow platform</p>
         <div class="header-links">
             <a href="https://github.com/cipheryogi">GitHub</a>
-            <a href="https://www.linkedin.com/in/yogeshshinde/">LinkedIn</a>
+            <a href="https://www.linkedin.com/in/ypshinde/">LinkedIn</a>
         </div>
+        <div class="notice">The source repository is <strong>private</strong>. Access to specific projects, agents, or integrations can be enabled on request.</div>
     </div>
 </header>
 
@@ -189,6 +248,10 @@
         <div class="stat-item">
             <div class="stat-num">2</div>
             <div class="stat-label">Integrations</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-num">30</div>
+            <div class="stat-label">Mainframe Articles</div>
         </div>
     </div>
 </div>
@@ -438,6 +501,177 @@
             </div>
 
         </div>
+    </section>
+
+    <!-- Mainframe Technical Articles -->
+    <section>
+        <h2>Mainframe Technical Articles</h2>
+        <p style="color: var(--text-muted); margin-bottom: 24px; margin-top: -16px; font-size: 0.9rem;">Technical articles written since 2007, covering COBOL, CICS, JCL, REXX, and z/OS utilities.</p>
+
+        <div class="sub-heading">COBOL Programming</div>
+        <div class="articles-grid">
+            <a class="article-card" href="articles/cobol-call-vs-cics-link.html">
+                <h4>COBOL CALL vs CICS LINK</h4>
+                <p>Technical differences between COBOL CALL statements and EXEC CICS LINK commands, comparing program state management, debugging, and performance.</p>
+                <span class="arrow">Read article &#8594;</span>
+            </a>
+            <a class="article-card" href="articles/high-values-and-low-values.html">
+                <h4>HIGH-VALUES and LOW-VALUES</h4>
+                <p>How to use HIGH-VALUES and LOW-VALUES constants in file merging operations where one file is exhausted before the other.</p>
+                <span class="arrow">Read article &#8594;</span>
+            </a>
+            <a class="article-card" href="articles/group-move-move-corresponding.html">
+                <h4>Group MOVE / MOVE CORRESPONDING</h4>
+                <p>Using the MOVE statement to assign values to group data items, including MOVE CORRESPONDING for identically named subordinate items.</p>
+                <span class="arrow">Read article &#8594;</span>
+            </a>
+            <a class="article-card" href="articles/checkpoint-restart-logic.html">
+                <h4>Checkpoint-Restart Logic</h4>
+                <p>Checkpoint-restart mechanisms for batch programs, demonstrating how to resume from failure using a COBOL-DB2-VSAM checkpoint table approach.</p>
+                <span class="arrow">Read article &#8594;</span>
+            </a>
+            <a class="article-card" href="articles/vsam-file-status-codes.html">
+                <h4>VSAM File Status Codes — Ready-to-Use Copybook</h4>
+                <p>Comprehensive COBOL copybook for handling VSAM file status codes (00-97) and extended error codes with sample diagnostic code.</p>
+                <span class="arrow">Read article &#8594;</span>
+            </a>
+        </div>
+
+        <div class="sub-heading">CICS</div>
+        <div class="articles-grid">
+            <a class="article-card" href="articles/cics-commands.html">
+                <h4>CICS Commands Reference</h4>
+                <p>Reference guide to common CICS commands with COBOL syntax, including notation conventions for optional and required parameters.</p>
+                <span class="arrow">Read article &#8594;</span>
+            </a>
+            <a class="article-card" href="articles/compress-cics-libraries.html">
+                <h4>Compressing CICS Libraries (PDS)</h4>
+                <p>Instructions and sample JCL for compressing PDS libraries used by CICS regions using the IEBCOPY utility to reclaim unused space.</p>
+                <span class="arrow">Read article &#8594;</span>
+            </a>
+        </div>
+
+        <div class="sub-heading">JCL and z/OS Utilities</div>
+        <div class="articles-grid">
+            <a class="article-card" href="articles/quick-fix-s0c7-abends.html">
+                <h4>Quick Fix for S0C7 Abends</h4>
+                <p>Practical JCL solution using FILEAID to filter records with corrupted packed/numeric data causing S0C7 abends.</p>
+                <span class="arrow">Read article &#8594;</span>
+            </a>
+            <a class="article-card" href="articles/copying-vsam-to-ps.html">
+                <h4>Copying VSAM Dataset into PS Dataset</h4>
+                <p>Alternative method using FILE-AID to copy data from a VSAM indexed file to a flat dataset when IDCAMS REPRO fails.</p>
+                <span class="arrow">Read article &#8594;</span>
+            </a>
+            <a class="article-card" href="articles/define-iam-files.html">
+                <h4>How to Define IAM Files</h4>
+                <p>Guide to defining IAM (Indexed Access Method) files, highlighting the key OWNER($IAM) keyword distinction from standard VSAM KSDS.</p>
+                <span class="arrow">Read article &#8594;</span>
+            </a>
+            <a class="article-card" href="articles/ikjeft01-ikjeft1a-ikjeft1b.html">
+                <h4>IKJEFT01, IKJEFT1A, and IKJEFT1B</h4>
+                <p>Comparison of three TSO/E Terminal Monitor Program variants and how they handle return codes differently.</p>
+                <span class="arrow">Read article &#8594;</span>
+            </a>
+            <a class="article-card" href="articles/intrdr-submit-job-from-job.html">
+                <h4>INTRDR — Submitting a Job from a Job</h4>
+                <p>How to use the Internal Reader to submit a second job from within an executing job by routing JCL through INTRDR.</p>
+                <span class="arrow">Read article &#8594;</span>
+            </a>
+            <a class="article-card" href="articles/syncsort-file-split.html">
+                <h4>Syncsort — File Split</h4>
+                <p>Using SYNCSORT SKIPREC and STOPAFT parameters to split a master file into multiple output files with selective record copying.</p>
+                <span class="arrow">Read article &#8594;</span>
+            </a>
+            <a class="article-card" href="articles/compare-load-modules-amblist.html">
+                <h4>Compare Load Modules — AMBLIST Utility</h4>
+                <p>Using the z/OS AMBLIST utility to generate reports on load modules, including object module listings and control section maps.</p>
+                <span class="arrow">Read article &#8594;</span>
+            </a>
+            <a class="article-card" href="articles/compressing-libraries-prod-qa-dev.html">
+                <h4>Compressing Libraries (Prod, QA, Dev)</h4>
+                <p>JCL job example for compressing baseline and production libraries using the IEBCOPY utility program.</p>
+                <span class="arrow">Read article &#8594;</span>
+            </a>
+            <a class="article-card" href="articles/pds-alter-space-attributes.html">
+                <h4>PDS Command — Alter Space Attributes</h4>
+                <p>Using PDS commands to modify space attributes of datasets on mainframe systems.</p>
+                <span class="arrow">Read article &#8594;</span>
+            </a>
+            <a class="article-card" href="articles/ispf-utilities.html">
+                <h4>ISPF Utilities — Compare and Search</h4>
+                <p>Using ISPF batch utilities ISRSUPC for file comparison (DELTAL) and string search (SRCHCMP) within partitioned datasets.</p>
+                <span class="arrow">Read article &#8594;</span>
+            </a>
+            <a class="article-card" href="articles/tso-column-deletion.html">
+                <h4>TSO Command — Column Deletion</h4>
+                <p>Using the TSO "change all" command to remove data from specific columns, keeping only job names within defined ranges.</p>
+                <span class="arrow">Read article &#8594;</span>
+            </a>
+        </div>
+
+        <div class="sub-heading">REXX Scripting</div>
+        <div class="articles-grid">
+            <a class="article-card" href="articles/dslist-through-rexx.html">
+                <h4>DSLIST through REXX</h4>
+                <p>REXX code using ISPF LMDLIST to generate a dataset list with wildcard support, similar to the 3.4 list utility.</p>
+                <span class="arrow">Read article &#8594;</span>
+            </a>
+            <a class="article-card" href="articles/dataset-attribute-report-rexx.html">
+                <h4>Dataset Attribute Report Using REXX (Batch)</h4>
+                <p>Execute REXX in batch mode via JCL to generate reports of dataset attributes using the LISTDSI function.</p>
+                <span class="arrow">Read article &#8594;</span>
+            </a>
+            <a class="article-card" href="articles/save-list-report-rexx.html">
+                <h4>Generating SAVE LIST Report Using REXX</h4>
+                <p>REXX script using ISPEXEC services to list PDS members and save results to a group-named output file.</p>
+                <span class="arrow">Read article &#8594;</span>
+            </a>
+        </div>
+
+        <div class="sub-heading">Xpediter Debugging</div>
+        <div class="articles-grid">
+            <a class="article-card" href="articles/xpediter-commands.html">
+                <h4>Xpediter Commands Reference</h4>
+                <p>Primary commands for XPEDITER/CICS debugging: breakpoints (AFTER, BEFORE), execution control (GO, GOTO), data examination (KEEP, USING).</p>
+                <span class="arrow">Read article &#8594;</span>
+            </a>
+            <a class="article-card" href="articles/xpediter-merging-profiles.html">
+                <h4>Xpediter — Merging User Profiles</h4>
+                <p>How to merge XPEDITER user profiles from alternate users and automate debugging actions with test scripts.</p>
+                <span class="arrow">Read article &#8594;</span>
+            </a>
+            <a class="article-card" href="articles/expanding-proc-xpediter.html">
+                <h4>Expanding PROC in JCL Using Xpediter</h4>
+                <p>Step-by-step instructions for using XPEDITER to expand and view PROC statements within JCL jobs.</p>
+                <span class="arrow">Read article &#8594;</span>
+            </a>
+        </div>
+
+        <div class="sub-heading">Serena ChangeMan</div>
+        <div class="articles-grid">
+            <a class="article-card" href="articles/changeman-batch-xml-services.html">
+                <h4>ChangeMan Batch XML Services</h4>
+                <p>Using SERXMLBC batch program with XML scripts to automate package creation in Serena ChangeMan v5.6.0+.</p>
+                <span class="arrow">Read article &#8594;</span>
+            </a>
+            <a class="article-card" href="articles/setting-up-xmlserv.html">
+                <h4>Setting Up XMLSERV — ChangeMan XML Services</h4>
+                <p>Configuration guide for customizing the XMLSERV REXX member to enable online XML services for ChangeMan administrators.</p>
+                <span class="arrow">Read article &#8594;</span>
+            </a>
+            <a class="article-card" href="articles/xml-script-changeman-zmf-package.html">
+                <h4>XML Script to Create a ChangeMan ZMF Package</h4>
+                <p>XML template for creating packages within Serena ChangeMan using batch XML services with required header structure and variables.</p>
+                <span class="arrow">Read article &#8594;</span>
+            </a>
+            <a class="article-card" href="articles/changeman-promotional-edits.html">
+                <h4>ChangeMan Promotional Edits (Productivity Tool)</h4>
+                <p>Auto-modifying JCL, PROC, and BIND cards when promoting code across environments (DEV, QA, UAT, PROD).</p>
+                <span class="arrow">Read article &#8594;</span>
+            </a>
+        </div>
+
     </section>
 
 </div>

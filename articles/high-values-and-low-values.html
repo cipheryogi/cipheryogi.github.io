@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HIGH-VALUES and LOW-VALUES — Yogesh Shinde</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --border: #334155;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --tag-bg: #1e3a5f;
+            --tag-text: #7dd3fc;
+            --code-bg: #0d1117;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+        }
+        .container { max-width: 820px; margin: 0 auto; padding: 0 24px; }
+        nav {
+            border-bottom: 1px solid var(--border);
+            padding: 16px 0;
+        }
+        nav a {
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        nav a:hover { text-decoration: underline; }
+        article { padding: 40px 0 60px; }
+        article h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        .meta {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 32px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        article h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 32px 0 12px;
+            color: #fff;
+        }
+        article h3 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin: 24px 0 8px;
+            color: var(--accent);
+        }
+        article p { margin-bottom: 16px; color: var(--text); }
+        article ul, article ol {
+            margin: 0 0 16px 24px;
+            color: var(--text);
+        }
+        article li { margin-bottom: 6px; }
+        pre {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+        code {
+            font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+            color: #e6db74;
+        }
+        p code {
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        th, td {
+            border: 1px solid var(--border);
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        th { background: var(--surface); color: var(--accent); font-weight: 600; }
+        td { color: var(--text); }
+        strong { color: #fff; }
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 24px 0;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+        @media (max-width: 640px) {
+            article h1 { font-size: 1.4rem; }
+            pre { font-size: 0.78rem; padding: 12px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <nav><a href="/">&larr; Back to Portfolio</a></nav>
+    <article>
+
+        <h1>HIGH-VALUES and LOW-VALUES</h1>
+        <div class="meta">Category: COBOL Programming</div>
+
+        <h2>Overview</h2>
+        <p>This article explains how to use <code>HIGH-VALUES</code> and <code>LOW-VALUES</code> constants in COBOL programming to represent infinitely high or low values.</p>
+
+        <h2>Practical Application: File Merging</h2>
+        <p>The guide demonstrates a practical use case: merging two files sorted by surname as the primary key.</p>
+
+        <h3>Data Structure</h3>
+<pre><code>FD FILE-1.
+01 RECORD-1.
+    03 IN-NAME-1 PIC X(20).
+    03 FILLER    PIC X(50).
+
+FD MERGE-FILE.
+01 RECORD-OUT    PIC X(70).</code></pre>
+
+        <h3>Processing Logic</h3>
+        <ol>
+            <li>Reads records from both files sequentially</li>
+            <li>When EOF is reached on either file, sets that file's name field to <code>HIGH-VALUES</code></li>
+            <li>Compares the name fields based on ASCII values</li>
+            <li>Writes the record with the lower name value to the merge file</li>
+            <li>Continues until both files are exhausted</li>
+        </ol>
+
+        <h3>Code Example</h3>
+<pre><code>PERFORM WITH TEST AFTER EOF-FLAG-1 AND EOF-FLAG-2
+    READ FILE-1
+        AT END SET EOF-FLAG-1 TO TRUE
+        MOVE HIGH-VALUES TO IN-NAME-1
+    END-READ
+
+    READ FILE-2
+        AT END SET EOF-FLAG-2 TO TRUE
+        MOVE HIGH-VALUES TO IN-NAME-2
+    END-READ
+
+    IF IN-NAME-1 IS &lt; IN-NAME-2 THEN
+        WRITE RECORD-OUT FROM RECORD-1
+    ELSE
+        WRITE RECORD-OUT FROM RECORD-2
+    END-IF
+END-PERFORM</code></pre>
+
+        <h2>Important Constraint</h2>
+        <p>HIGH-VALUES and LOW-VALUES are <strong>alphanumeric in type</strong>, meaning numeric variables cannot directly receive these values without implicit redefinition.</p>
+
+    </article>
+</div>
+<footer>
+    <div class="container">
+        <p>&copy; 2026 Yogesh Shinde</p>
+    </div>
+</footer>
+</body>
+</html>
