@@ -2,16 +2,451 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="5;url=https://sites.google.com/view/yshinde/home">
-    <title>cipheryogi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yogesh Shinde — ServiceNow AI Development Portfolio</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --border: #334155;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-dim: #0ea5e9;
+            --tag-bg: #1e3a5f;
+            --tag-text: #7dd3fc;
+            --green: #4ade80;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+        /* Header */
+        header {
+            border-bottom: 1px solid var(--border);
+            padding: 48px 0 40px;
+            text-align: center;
+        }
+        header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+        header h1 span { color: var(--accent); }
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .header-links {
+            margin-top: 16px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+        .header-links a {
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+        .header-links a:hover { text-decoration: underline; }
+
+        /* Stats bar */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+            padding: 28px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .stat-item { text-align: center; }
+        .stat-num { font-size: 1.8rem; font-weight: 700; color: var(--accent); }
+        .stat-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Section */
+        section { padding: 40px 0; }
+        section h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--accent);
+            display: inline-block;
+        }
+
+        /* Project cards */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 24px;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+        .card:hover {
+            border-color: var(--accent-dim);
+            transform: translateY(-2px);
+        }
+        .card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+        .card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+        }
+        .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+        .tag {
+            background: var(--tag-bg);
+            color: var(--tag-text);
+            font-size: 0.75rem;
+            padding: 3px 10px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        /* Category label */
+        .category {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .cat-agent { background: #1e3a2f; color: #4ade80; }
+        .cat-skill { background: #3b1f4a; color: #c084fc; }
+        .cat-integration { background: #3b2f1a; color: #fbbf24; }
+        .cat-whitepaper { background: #1a2e3b; color: #67e8f9; }
+        .cat-governance { background: #3b1a1a; color: #fca5a5; }
+        .cat-tooling { background: #2a2a1a; color: #d4d48a; }
+        .cat-guide { background: #1a3b2a; color: #86efac; }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 32px 0;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            header h1 { font-size: 1.6rem; }
+            .stats { gap: 24px; }
+            .stat-num { font-size: 1.4rem; }
+            .card { padding: 18px; }
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>cipheryogi.github.io</h1>
-    </header>
-    <main>
-        <p>Currently the website is under construction. Will be up soon. Stay tuned.</p>
-        <p>If you are not redirected within 5 seconds, <a href="https://sites.google.com/view/yshinde/home">click here</a>.</p>
-    </main>
+
+<header>
+    <div class="container">
+        <h1>Yogesh Shinde <span>// cipheryogi</span></h1>
+        <p>ServiceNow AI Development — Agentic AI research, solution designs, and production-grade builds on the ServiceNow platform</p>
+        <div class="header-links">
+            <a href="https://github.com/cipheryogi">GitHub</a>
+            <a href="https://www.linkedin.com/in/yogeshshinde/">LinkedIn</a>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <div class="stats">
+        <div class="stat-item">
+            <div class="stat-num">15</div>
+            <div class="stat-label">AI Projects</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-num">9</div>
+            <div class="stat-label">AI Agents</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-num">3</div>
+            <div class="stat-label">Custom Skills</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-num">2</div>
+            <div class="stat-label">Integrations</div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- AI Agents -->
+    <section>
+        <h2>AI Agents</h2>
+        <div class="projects-grid">
+
+            <div class="card">
+                <span class="category cat-agent">AI Agent</span>
+                <h3>Major Incident Evaluation and AutoPromote</h3>
+                <p>AI agent that evaluates incidents against KB-based Major Incident criteria using multi-source reasoning (incident, CMDB CI, related incidents, SLA status), produces confidence-scored verdicts, and can auto-promote high-confidence cases.</p>
+                <div class="tags">
+                    <span class="tag">AI Agent Studio</span>
+                    <span class="tag">Major Incident Management</span>
+                    <span class="tag">CMDB CI Enrichment</span>
+                    <span class="tag">Confidence Scoring</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="category cat-agent">AI Agent</span>
+                <h3>Duplicate Incident Prevention — AI Governance Agent</h3>
+                <p>Two-layer governance control preventing duplicate incidents: Layer 1 (deterministic Business Rule blocks exact matches) + Layer 2 (AI agent cancels semantic duplicates with 80%+ similarity scoring).</p>
+                <div class="tags">
+                    <span class="tag">AI Agent Studio</span>
+                    <span class="tag">Business Rules</span>
+                    <span class="tag">Semantic Matching</span>
+                    <span class="tag">Two-Layer Governance</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="category cat-agent">AI Agent</span>
+                <h3>Incident Quality Documentation Improvement</h3>
+                <p>Quality scoring agent evaluating incident documentation across 9 criteria (short description, work notes, close notes, categorization, CI linked, reassignments, reopens) with 0-100 scoring and A-D tier classification.</p>
+                <div class="tags">
+                    <span class="tag">AI Agent Studio</span>
+                    <span class="tag">LLM Quality Evaluation</span>
+                    <span class="tag">PA Dashboards</span>
+                    <span class="tag">Audit Table</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="category cat-agent">AI Agent</span>
+                <h3>Create Problem — AI Agent</h3>
+                <p>Conversational AI agent enabling Problem Managers to create Problem tickets from incidents, validates patterns using GAF clusters, deduplicates existing problems, and links similar incidents as a batch.</p>
+                <div class="tags">
+                    <span class="tag">AI Agent Studio</span>
+                    <span class="tag">GAF Clustering</span>
+                    <span class="tag">Flow Actions</span>
+                    <span class="tag">Human-in-the-Loop</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="category cat-agent">AI Agent</span>
+                <h3>Image Processor Agent Using ServiceNow Lens</h3>
+                <p>Agent for screenshot analysis via AI Lens with KB search, report generation, and incident creation. Combines multi-modal image analysis with automated knowledge retrieval.</p>
+                <div class="tags">
+                    <span class="tag">AI Lens</span>
+                    <span class="tag">Multi-Modal Analysis</span>
+                    <span class="tag">AI Search Profiles</span>
+                    <span class="tag">Script Tools</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="category cat-agent">AI Agent</span>
+                <h3>LTM SAM Use Case — Software Entitlement Validation</h3>
+                <p>Two-layer software entitlement validation: Layer 1 (deterministic BR enriches approval with customer name matching + license availability) + Layer 2 (autonomous AI agent auto-approves/rejects high-confidence software requests).</p>
+                <div class="tags">
+                    <span class="tag">AI Agent Studio</span>
+                    <span class="tag">SAM / ALM</span>
+                    <span class="tag">CMDB Software Models</span>
+                    <span class="tag">Auto-Decisioning</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="category cat-agent">AI Agent</span>
+                <h3>LTM SPM Risk Articulation</h3>
+                <p>Autonomous AI agent that enhances SPM Risk records by validating and refining Event/Trigger/Consequence articulation, detecting duplicate risks, predicting field values, and posting suggestions for PM approval.</p>
+                <div class="tags">
+                    <span class="tag">AI Agent Studio</span>
+                    <span class="tag">Strategic Portfolio Management</span>
+                    <span class="tag">Semantic Analysis</span>
+                    <span class="tag">NACM Extension</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="category cat-agent">AI Agent</span>
+                <h3>ABFRL Email and WhatsApp AI Intake</h3>
+                <p>AI-powered email and WhatsApp intake system that filters noise, validates intent, detects threads/duplicates, and auto-enriches ticket fields with ABFRL business context (BU, Region, Location, Store Code).</p>
+                <div class="tags">
+                    <span class="tag">AI Agent Studio</span>
+                    <span class="tag">Inbound Email Actions</span>
+                    <span class="tag">WhatsApp Business API</span>
+                    <span class="tag">RAG / AI Search</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="category cat-agent">AI Agent</span>
+                <h3>AI Adoption Advisor</h3>
+                <p>Multi-agent application for AI maturity assessment, use case recommendations, roadmap generation, and expert services routing with PPTX/HTML output support.</p>
+                <div class="tags">
+                    <span class="tag">AI Agent Studio</span>
+                    <span class="tag">PACE Playbooks</span>
+                    <span class="tag">Maturity Assessment</span>
+                    <span class="tag">Roadmap Visualization</span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Custom Skills -->
+    <section>
+        <h2>Now Assist Custom Skills</h2>
+        <div class="projects-grid">
+
+            <div class="card">
+                <span class="category cat-skill">Custom Skill</span>
+                <h3>Knowledge Article Enhancer</h3>
+                <p>Batch processing skill that enhances multiple KB articles asynchronously by applying organizational writing standards, enforcing templates, redacting PII, improving accessibility, and creating review-gated enhanced versions.</p>
+                <div class="tags">
+                    <span class="tag">Now Assist Skill Kit</span>
+                    <span class="tag">OneExtend Framework</span>
+                    <span class="tag">Batch Processing</span>
+                    <span class="tag">Article Lifecycle</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="category cat-skill">Custom Skill</span>
+                <h3>Custom Agentic Evaluation Metrics</h3>
+                <p>Framework for defining and calculating custom evaluation metrics to measure AI agent resolution plan quality across knowledge alignment, actionability, and completeness.</p>
+                <div class="tags">
+                    <span class="tag">Evaluation Metrics</span>
+                    <span class="tag">Quality Scoring</span>
+                    <span class="tag">Resolution Plans</span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Integrations -->
+    <section>
+        <h2>Platform Integrations</h2>
+        <div class="projects-grid">
+
+            <div class="card">
+                <span class="category cat-integration">Integration</span>
+                <h3>Google A2A Protocol — ServiceNow Agent2Agent</h3>
+                <p>End-to-end proof of concept enabling external A2A-compliant clients to discover and invoke ServiceNow AI Agents via Google A2A v2 protocol endpoints using OAuth 2.0 Client Credentials.</p>
+                <div class="tags">
+                    <span class="tag">A2A Protocol</span>
+                    <span class="tag">JSON-RPC 2.0</span>
+                    <span class="tag">OAuth 2.0</span>
+                    <span class="tag">Linux Foundation</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="category cat-integration">Integration</span>
+                <h3>Federated Search in Google Chat</h3>
+                <p>ServiceNow-side configuration enabling Google Gemini Enterprise Search to query ServiceNow Knowledge articles in real-time via Google Cloud ServiceNow Connector.</p>
+                <div class="tags">
+                    <span class="tag">Federated Search</span>
+                    <span class="tag">OAuth 2.0</span>
+                    <span class="tag">Google Cloud Connector</span>
+                    <span class="tag">Table API</span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Whitepapers & Guides -->
+    <section>
+        <h2>Whitepapers, Guides, and Tooling</h2>
+        <div class="projects-grid">
+
+            <div class="card">
+                <span class="category cat-whitepaper">Whitepaper</span>
+                <h3>ServiceNow AI Agent Context Token Management</h3>
+                <p>Deep dive on 128K context token window, ReAct orchestration loop, token accumulation across iterations, STM/LTM memory architecture, and best practices for cost/stability control.</p>
+                <div class="tags">
+                    <span class="tag">Context Tokens</span>
+                    <span class="tag">ReAct Pattern</span>
+                    <span class="tag">Memory Architecture</span>
+                    <span class="tag">LLM Orchestration</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="category cat-guide">Guide</span>
+                <h3>DocIntel Custom Table Implementation</h3>
+                <p>End-to-end guide for implementing ServiceNow Document Intelligence on custom tables, addressing flow triggering, attachment handling, ML confidence thresholds, and two-flow orchestration pattern.</p>
+                <div class="tags">
+                    <span class="tag">Document Intelligence</span>
+                    <span class="tag">ML Processing</span>
+                    <span class="tag">Custom Tables</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="category cat-guide">Guide</span>
+                <h3>Lilly Production Deployment Checklist</h3>
+                <p>Comprehensive 10-point production deployment checklist for five AI agents covering platform prerequisites, service accounts/RBAC, custom fields, agent configuration, monitoring, and rollback procedures.</p>
+                <div class="tags">
+                    <span class="tag">Production Readiness</span>
+                    <span class="tag">RBAC</span>
+                    <span class="tag">Audit Logging</span>
+                    <span class="tag">Safety Guardrails</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="category cat-tooling">Tooling</span>
+                <h3>Genius Results in New Tab</h3>
+                <p>JavaScript customization enabling Genius Search results to open in new browser tabs instead of replacing the current window.</p>
+                <div class="tags">
+                    <span class="tag">Service Portal</span>
+                    <span class="tag">Genius Search</span>
+                    <span class="tag">JavaScript</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="category cat-tooling">Claude Skills</span>
+                <h3>Claude Code Custom Skills</h3>
+                <p>Custom AI skills for development productivity: AI Solution Design Generator (interactive runbook creation), Markdown-to-DOCX Converter (branded Word documents with Graphviz diagrams), and Community Articles Creator (ServiceNow portal-formatted articles).</p>
+                <div class="tags">
+                    <span class="tag">Claude Code</span>
+                    <span class="tag">Python</span>
+                    <span class="tag">python-docx</span>
+                    <span class="tag">Graphviz</span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+</div>
+
+<footer>
+    <div class="container">
+        <p>&copy; 2026 Yogesh Shinde. Built with ServiceNow AI expertise and Claude Code.</p>
+    </div>
+</footer>
+
 </body>
 </html>
