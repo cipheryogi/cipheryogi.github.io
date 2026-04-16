@@ -82,8 +82,11 @@
             border-bottom: 1px solid var(--border);
         }
         .stat-item { text-align: center; }
-        .stat-num { font-size: 1.8rem; font-weight: 700; color: var(--accent); }
-        .stat-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+        .stat-item a { text-decoration: none; display: block; }
+        .stat-item a:hover .stat-num { color: #7dd3fc; }
+        .stat-item a:hover .stat-label { color: var(--text); }
+        .stat-num { font-size: 1.8rem; font-weight: 700; color: var(--accent); transition: color 0.2s; }
+        .stat-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; transition: color 0.2s; }
 
         /* Section */
         section { padding: 40px 0; }
@@ -234,24 +237,34 @@
 <div class="container">
     <div class="stats">
         <div class="stat-item">
-            <div class="stat-num">15</div>
-            <div class="stat-label">AI Projects</div>
+            <a href="#agents">
+                <div class="stat-num">9</div>
+                <div class="stat-label">AI Agents</div>
+            </a>
         </div>
         <div class="stat-item">
-            <div class="stat-num">9</div>
-            <div class="stat-label">AI Agents</div>
+            <a href="#skills">
+                <div class="stat-num">2</div>
+                <div class="stat-label">Custom Skills</div>
+            </a>
         </div>
         <div class="stat-item">
-            <div class="stat-num">3</div>
-            <div class="stat-label">Custom Skills</div>
+            <a href="#integrations">
+                <div class="stat-num">2</div>
+                <div class="stat-label">Integrations</div>
+            </a>
         </div>
         <div class="stat-item">
-            <div class="stat-num">2</div>
-            <div class="stat-label">Integrations</div>
+            <a href="#guides">
+                <div class="stat-num">5</div>
+                <div class="stat-label">Guides &amp; Tooling</div>
+            </a>
         </div>
         <div class="stat-item">
-            <div class="stat-num">30</div>
-            <div class="stat-label">Mainframe Articles</div>
+            <a href="#mainframe">
+                <div class="stat-num">28</div>
+                <div class="stat-label">Mainframe Articles</div>
+            </a>
         </div>
     </div>
 </div>
@@ -259,7 +272,7 @@
 <div class="container">
 
     <!-- AI Agents -->
-    <section>
+    <section id="agents">
         <h2>AI Agents</h2>
         <div class="projects-grid">
 
@@ -375,7 +388,7 @@
     </section>
 
     <!-- Custom Skills -->
-    <section>
+    <section id="skills">
         <h2>Now Assist Custom Skills</h2>
         <div class="projects-grid">
 
@@ -406,7 +419,7 @@
     </section>
 
     <!-- Integrations -->
-    <section>
+    <section id="integrations">
         <h2>Platform Integrations</h2>
         <div class="projects-grid">
 
@@ -438,14 +451,14 @@
     </section>
 
     <!-- Whitepapers & Guides -->
-    <section>
+    <section id="guides">
         <h2>Whitepapers, Guides, and Tooling</h2>
         <div class="projects-grid">
 
             <div class="card">
                 <span class="category cat-whitepaper">Whitepaper</span>
                 <h3>ServiceNow AI Agent Context Token Management</h3>
-                <p>Deep dive on 128K context token window, ReAct orchestration loop, token accumulation across iterations, STM/LTM memory architecture, and best practices for cost/stability control.</p>
+                <p>Deep dive on 128K context token window, ReAct orchestration loop, token accumulation across iterations, STM/long-term memory architecture, and best practices for cost/stability control.</p>
                 <div class="tags">
                     <span class="tag">Context Tokens</span>
                     <span class="tag">ReAct Pattern</span>
@@ -504,7 +517,7 @@
     </section>
 
     <!-- Mainframe Technical Articles -->
-    <section>
+    <section id="mainframe">
         <h2>Mainframe Technical Articles</h2>
         <p style="color: var(--text-muted); margin-bottom: 24px; margin-top: -16px; font-size: 0.9rem;">Technical articles written since 2007, covering COBOL, CICS, JCL, REXX, and z/OS utilities.</p>
 
