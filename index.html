@@ -82,11 +82,19 @@
             border-bottom: 1px solid var(--border);
         }
         .stat-item { text-align: center; }
-        .stat-item a { text-decoration: none; display: block; }
-        .stat-item a:hover .stat-num { color: #7dd3fc; }
-        .stat-item a:hover .stat-label { color: var(--text); }
-        .stat-num { font-size: 1.8rem; font-weight: 700; color: var(--accent); transition: color 0.2s; }
-        .stat-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; transition: color 0.2s; }
+        .stat-item a {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .stat-item a:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
 
         /* Section */
         section { padding: 40px 0; }
@@ -237,34 +245,19 @@
 <div class="container">
     <div class="stats">
         <div class="stat-item">
-            <a href="#agents">
-                <div class="stat-num">9</div>
-                <div class="stat-label">AI Agents</div>
-            </a>
+            <a href="#agents">AI Agents</a>
         </div>
         <div class="stat-item">
-            <a href="#skills">
-                <div class="stat-num">2</div>
-                <div class="stat-label">Custom Skills</div>
-            </a>
+            <a href="#skills">Custom Skills</a>
         </div>
         <div class="stat-item">
-            <a href="#integrations">
-                <div class="stat-num">5</div>
-                <div class="stat-label">Integrations</div>
-            </a>
+            <a href="#integrations">Integrations</a>
         </div>
         <div class="stat-item">
-            <a href="#guides">
-                <div class="stat-num">5</div>
-                <div class="stat-label">Guides &amp; Tooling</div>
-            </a>
+            <a href="#guides">Guides &amp; Tooling</a>
         </div>
         <div class="stat-item">
-            <a href="#mainframe">
-                <div class="stat-num">28</div>
-                <div class="stat-label">Mainframe Articles</div>
-            </a>
+            <a href="#mainframe">Mainframe Articles</a>
         </div>
     </div>
 </div>
