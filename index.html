@@ -237,6 +237,7 @@
         <div class="header-links">
             <a href="https://github.com/cipheryogi">GitHub</a>
             <a href="https://www.linkedin.com/in/ypshinde/">LinkedIn</a>
+            <a href="https://www.servicenow.com/community/user/viewprofilepage/user-id/289739" target="_blank">SN Community</a>
         </div>
         <div class="notice">The source repository is <strong>private</strong>. Access to specific projects, agents, or integrations can be enabled on request.</div>
     </div>
@@ -491,6 +492,19 @@
             </div>
 
             <div class="card">
+                <span class="category cat-whitepaper">Research</span>
+                <h3>Google ADK + ServiceNow — Integration Patterns</h3>
+                <p>Use case exploration documenting three integration patterns between Google Agent Development Kit (ADK) and ServiceNow: ADK consuming ServiceNow via MCP, ADK exposed as an A2A server for ServiceNow to call, and ADK as a multi-system orchestrator with ServiceNow AI Agents as A2A peers. Identifies where ADK adds genuine value — multi-system incident correlation, Gemini multimodal document processing, Google Workspace RAG, and pre-change risk scoring with external signals — and where ServiceNow-native capabilities are sufficient.</p>
+                <div class="tags">
+                    <span class="tag">Google ADK</span>
+                    <span class="tag">A2A Protocol</span>
+                    <span class="tag">MCP Protocol</span>
+                    <span class="tag">Gemini</span>
+                    <span class="tag">Multi-System Orchestration</span>
+                </div>
+            </div>
+
+            <div class="card">
                 <span class="category cat-integration">Integration</span>
                 <h3>How to Leverage MCP in ServiceNow — Cross-Instance PoC</h3>
                 <p>Cross-instance AI agentic interoperability using MCP Server Console with OAuth 2.0 Auth Code flow — enables ServiceNow agents to invoke tools hosted on another ServiceNow instance.</p>
@@ -665,6 +679,45 @@
                     <span class="tag">Python FastMCP</span>
                     <span class="tag">AI Agent Studio</span>
                     <span class="tag">Natural-Language Build</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="category cat-tooling">Tooling</span>
+                <h3>AI Solution Designer MCP Server</h3>
+                <p>Self-contained Python MCP server packaging the AI Solution Design Generator V2 skill for distribution. Any Claude Code user can install via pip or uvx, configure two environment variables, and access the full V2 design capability — prompts, resources, and tools bundled with no dependency on personal memory paths or private MCP subscriptions.</p>
+                <div class="tags">
+                    <span class="tag">Python FastMCP</span>
+                    <span class="tag">MCP Protocol</span>
+                    <span class="tag">Claude Code</span>
+                    <span class="tag">PyPI Distribution</span>
+                    <span class="tag">AI Solution Design</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="category cat-tooling">Tooling</span>
+                <h3>ServiceNow Instance MCP Server</h3>
+                <p>Distributable Python FastMCP server exposing a ServiceNow instance&rsquo;s full AI Agent Studio, agentic workflows, tools, triggers, workers, execution logs, GenAI logs, and general-purpose table CRUD as MCP tools. Supports Basic Auth and OAuth 2.0 Client Credentials — configure two environment variables and get full read/write access from Claude Code without a native MCP subscription.</p>
+                <div class="tags">
+                    <span class="tag">Python FastMCP</span>
+                    <span class="tag">MCP Protocol</span>
+                    <span class="tag">ServiceNow REST APIs</span>
+                    <span class="tag">OAuth 2.0</span>
+                    <span class="tag">AI Agent Studio</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="category cat-guide">Guide</span>
+                <h3>Now Assist Document Intelligence — HRSD Form Field Extraction</h3>
+                <p>NADI implementation for HRSD Workforce Administration: auto-extracts structured field values from uploaded PDF forms (EPF/EPS membership answers) at case creation, writes results to case fields, and alerts the agent when extraction confidence is below threshold — eliminating manual transcription for every new-joiner onboarding case.</p>
+                <div class="tags">
+                    <span class="tag">Now Assist Document Intelligence</span>
+                    <span class="tag">HRSD</span>
+                    <span class="tag">PDF Extraction</span>
+                    <span class="tag">Flow Designer</span>
+                    <span class="tag">NADI Use Case</span>
                 </div>
             </div>
 
