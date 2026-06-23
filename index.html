@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/favicon.svg">
+    <script>document.documentElement.classList.add('js');</script>
 
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-74GCEV3B83"></script>
@@ -26,8 +30,9 @@
     <meta property="og:title" content="Yogesh Shinde | ServiceNow AI Architect — AI Agents, Agentic AI, Now Assist">
     <meta property="og:description" content="Production-grade ServiceNow AI agents, agentic workflows, Now Assist integrations, and MCP/A2A protocol PoCs. Built and documented by Yogesh Shinde, AI Architect at ServiceNow.">
     <meta property="og:image" content="https://cipheryogi.github.io/og-image.jpg">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
+    <meta property="og:image:width" content="1096">
+    <meta property="og:image:height" content="1234">
+    <meta property="og:image:alt" content="Yogesh Shinde — ServiceNow AI Architect">
     <meta property="og:site_name" content="cipheryogi">
 
     <!-- Twitter Card -->
@@ -85,6 +90,8 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
             background: var(--bg);
@@ -93,6 +100,43 @@
         }
 
         .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+        /* Accessibility: skip link + visible focus */
+        .skip-link {
+            position: absolute;
+            left: -9999px;
+            top: 0;
+            background: var(--accent);
+            color: #00131f;
+            padding: 10px 16px;
+            border-radius: 0 0 8px 0;
+            font-weight: 600;
+            z-index: 200;
+        }
+        .skip-link:focus { left: 0; }
+        a:focus-visible,
+        input:focus-visible,
+        button:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+
+        /* Scroll reveal (progressive enhancement: applies only when JS is active) */
+        .js .card,
+        .js .article-card {
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .js .card.is-visible,
+        .js .article-card.is-visible { opacity: 1; transform: none; }
+
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            .js .card,
+            .js .article-card { opacity: 1 !important; transform: none !important; transition: none; }
+        }
 
         /* Header */
         header {
@@ -138,27 +182,68 @@
             margin-right: auto;
         }
 
-        /* Stats bar */
-        .stats {
-            display: flex;
-            justify-content: center;
-            gap: 48px;
-            padding: 28px 0;
+        /* Sticky section nav + search */
+        .topnav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: saturate(150%) blur(10px);
+            -webkit-backdrop-filter: saturate(150%) blur(10px);
             border-bottom: 1px solid var(--border);
         }
-        .stat-item { text-align: center; }
-        .stat-item a {
+        .topnav-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 12px 24px;
+            flex-wrap: wrap;
+        }
+        .navlinks {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .navlinks a {
             text-decoration: none;
             color: var(--text-muted);
-            font-size: 0.95rem;
-            padding: 8px 16px;
+            font-size: 0.9rem;
+            padding: 7px 14px;
             border: 1px solid var(--border);
             border-radius: 20px;
-            transition: border-color 0.2s, color 0.2s;
+            transition: border-color 0.2s, color 0.2s, background 0.2s;
+            white-space: nowrap;
         }
-        .stat-item a:hover {
+        .navlinks a:hover { border-color: var(--accent); color: var(--accent); }
+        .navlinks a.active {
             border-color: var(--accent);
             color: var(--accent);
+            background: var(--tag-bg);
+        }
+        .search-wrap { position: relative; flex: 0 1 260px; }
+        #search {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--text);
+            font-size: 0.9rem;
+            padding: 8px 16px;
+            font-family: inherit;
+        }
+        #search::placeholder { color: var(--text-muted); }
+        #search:focus { border-color: var(--accent); outline: none; }
+        .search-status {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            padding: 0 24px 12px;
+        }
+        .no-results {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 60px 0;
+            font-size: 1rem;
         }
 
         /* Section */
@@ -287,13 +372,17 @@
         /* Responsive */
         @media (max-width: 640px) {
             header h1 { font-size: 1.6rem; }
-            .stats { gap: 24px; }
-            .stat-num { font-size: 1.4rem; }
             .card { padding: 18px; }
+            .topnav-inner { flex-direction: column; align-items: stretch; gap: 10px; }
+            .navlinks { justify-content: center; }
+            .search-wrap { flex-basis: auto; }
+            .navlinks a { font-size: 0.82rem; padding: 6px 11px; }
         }
     </style>
 </head>
 <body>
+
+<a class="skip-link" href="#agents">Skip to content</a>
 
 <header>
     <div class="container">
@@ -308,25 +397,21 @@
     </div>
 </header>
 
-<div class="container">
-    <div class="stats">
-        <div class="stat-item">
+<nav class="topnav" id="topnav" aria-label="Section navigation">
+    <div class="container topnav-inner">
+        <div class="navlinks">
             <a href="#agents">AI Agents</a>
-        </div>
-        <div class="stat-item">
             <a href="#skills">Custom Skills</a>
-        </div>
-        <div class="stat-item">
             <a href="#integrations">Integrations</a>
-        </div>
-        <div class="stat-item">
             <a href="#guides">Guides &amp; Tooling</a>
-        </div>
-        <div class="stat-item">
             <a href="#mainframe">Mainframe Articles</a>
         </div>
+        <div class="search-wrap">
+            <input type="search" id="search" placeholder="Search projects &amp; articles&hellip;" aria-label="Search projects and articles" autocomplete="off">
+        </div>
     </div>
-</div>
+    <p class="search-status" id="searchStatus" role="status" aria-live="polite" hidden></p>
+</nav>
 
 <div class="container">
 
@@ -1141,6 +1226,119 @@
         <p>&copy; 2026 Yogesh Shinde. Built with ServiceNow AI expertise and Claude Code.</p>
     </div>
 </footer>
+
+<script>
+(function () {
+    'use strict';
+    var cards = Array.prototype.slice.call(
+        document.querySelectorAll('.card, .article-card')
+    );
+
+    /* --- Scroll reveal --- */
+    var reduceMotion = window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (reduceMotion || !('IntersectionObserver' in window)) {
+        cards.forEach(function (c) { c.classList.add('is-visible'); });
+    } else {
+        var io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    io.unobserve(entry.target);
+                }
+            });
+        }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
+        cards.forEach(function (c) { io.observe(c); });
+    }
+
+    /* --- Scrollspy: highlight active section in nav --- */
+    var navLinks = Array.prototype.slice.call(
+        document.querySelectorAll('.navlinks a')
+    );
+    var sections = navLinks
+        .map(function (a) { return document.querySelector(a.getAttribute('href')); })
+        .filter(Boolean);
+
+    if ('IntersectionObserver' in window && sections.length) {
+        var spy = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    var id = entry.target.id;
+                    navLinks.forEach(function (a) {
+                        a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+                        if (a.classList.contains('active')) {
+                            a.setAttribute('aria-current', 'true');
+                        } else {
+                            a.removeAttribute('aria-current');
+                        }
+                    });
+                }
+            });
+        }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
+        sections.forEach(function (s) { spy.observe(s); });
+    }
+
+    /* --- Live search filter --- */
+    var input = document.getElementById('search');
+    var status = document.getElementById('searchStatus');
+    var sectionEls = Array.prototype.slice.call(document.querySelectorAll('section'));
+
+    /* Cache lowercased searchable text per card */
+    cards.forEach(function (c) {
+        c.dataset.search = (c.textContent || '').toLowerCase().replace(/\s+/g, ' ');
+    });
+
+    function applyFilter() {
+        var q = input.value.trim().toLowerCase();
+        var matches = 0;
+
+        cards.forEach(function (c) {
+            var hit = !q || c.dataset.search.indexOf(q) !== -1;
+            c.style.display = hit ? '' : 'none';
+            if (hit) { matches++; }
+        });
+
+        /* Hide section headings / sub-headings that have no visible cards */
+        sectionEls.forEach(function (sec) {
+            var visible = sec.querySelectorAll('.card, .article-card');
+            var anyVisible = Array.prototype.some.call(visible, function (c) {
+                return c.style.display !== 'none';
+            });
+            sec.style.display = anyVisible ? '' : 'none';
+        });
+
+        /* Hide empty article sub-headings + their grids individually */
+        document.querySelectorAll('.articles-grid').forEach(function (grid) {
+            var anyVisible = Array.prototype.some.call(
+                grid.querySelectorAll('.article-card'),
+                function (c) { return c.style.display !== 'none'; }
+            );
+            grid.style.display = anyVisible ? '' : 'none';
+            var prev = grid.previousElementSibling;
+            if (prev && prev.classList.contains('sub-heading')) {
+                prev.style.display = anyVisible ? '' : 'none';
+            }
+        });
+
+        if (q) {
+            status.hidden = false;
+            status.textContent = matches + (matches === 1 ? ' result' : ' results') + ' for “' + input.value.trim() + '”';
+        } else {
+            status.hidden = true;
+            status.textContent = '';
+        }
+    }
+
+    if (input) {
+        input.addEventListener('input', applyFilter);
+        /* Esc clears the search */
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') { input.value = ''; applyFilter(); }
+        });
+    }
+})();
+</script>
 
 </body>
 </html>
