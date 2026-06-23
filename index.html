@@ -499,6 +499,20 @@
                 </div>
             </div>
 
+            <div class="card">
+                <span class="category cat-agent">Multi-Agent Design</span>
+                <h3>Multi-Agent ITSM &amp; SPM Solution Design — Architect Capstone</h3>
+                <p>End-to-end design and build runbook for two AI workloads on a fictional banking scenario, produced as a Certified Technical Architect capstone. Use Case 1: a single multi-functional Incident agent — conversational status and comment updates in Virtual Agent plus autonomous triage of new incidents using Predictive Intelligence Workflow Classification (category, subcategory, and a custom CI-prediction solution) with confidence-based autonomy. Use Case 2: an SPM Portfolio Guardian agent. Includes the OOB capabilities assessment, gap analysis, tool design, and the full as-built debugging story.</p>
+                <div class="tags">
+                    <span class="tag">AI Agent Studio</span>
+                    <span class="tag">Virtual Agent</span>
+                    <span class="tag">Predictive Intelligence</span>
+                    <span class="tag">Workflow Classification</span>
+                    <span class="tag">SPM</span>
+                    <span class="tag">Solution Architecture</span>
+                </div>
+            </div>
+
         </div>
     </section>
 
@@ -720,12 +734,13 @@
             <div class="card">
                 <span class="category cat-tooling">Claude Skills</span>
                 <h3>Claude Code Custom Skills</h3>
-                <p>Custom AI skills for development productivity: AI Solution Design Generator (interactive runbook creation), Markdown-to-DOCX Converter (branded Word documents with Graphviz diagrams), and Community Articles Creator (ServiceNow portal-formatted articles).</p>
+                <p>A growing suite of custom AI skills for ServiceNow delivery and productivity: AI Solution Design Generator (interactive runbook creation with a maker-checker quality pass), Markdown-to-DOCX Converter (branded Word documents with mermaid/Graphviz diagrams), Community Articles Creator (portal-formatted articles), branded PowerPoint generation, AI Agent instruction authoring and review, and accomplishment-deck automation. Each skill is self-contained with its own README and bundled scripts/templates.</p>
                 <div class="tags">
                     <span class="tag">Claude Code</span>
+                    <span class="tag">Skill Authoring</span>
                     <span class="tag">Python</span>
-                    <span class="tag">python-docx</span>
-                    <span class="tag">Graphviz</span>
+                    <span class="tag">python-docx / pptx</span>
+                    <span class="tag">Mermaid / Graphviz</span>
                 </div>
             </div>
 
@@ -839,6 +854,109 @@
                     <span class="tag">Qwen3-Coder</span>
                     <span class="tag">VS Code</span>
                     <span class="tag">Claude Code</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="category cat-guide">Guide</span>
+                <h3>Group Action Framework — Activation &amp; Troubleshooting</h3>
+                <p>Practical guide to the Now Platform Group Action Framework (GAF) — the capability that clusters related records (incidents, cases, KB articles) with machine learning and runs LLM-driven actions across the cluster to generate summaries, resolution steps, and pattern-level insights. Covers what GAF is, why cluster-level context beats single-record reasoning for AI agents, and how to verify and troubleshoot GAF activation on an instance.</p>
+                <div class="tags">
+                    <span class="tag">Group Action Framework</span>
+                    <span class="tag">Record Clustering</span>
+                    <span class="tag">Machine Learning</span>
+                    <span class="tag">Now Assist</span>
+                    <span class="tag">Pattern Insights</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="category cat-guide">Guide</span>
+                <h3>Agentic AI Security &amp; Governance Checklist Response</h3>
+                <p>A documentation-grounded reference answering the architecture and security questions enterprise governance teams raise about ServiceNow AI Agents: whether a vector database is used, where short-term and long-term agent memory is stored (sn_aia_memory, instance-resident, on MariaDB or RaptorDB), inference data zero-persistence, and the observability stack — Generative AI Controller logs, Now Assist Guardian runtime safety, and AI Control Tower governance and anomaly signals. Every position is cited to published product documentation.</p>
+                <div class="tags">
+                    <span class="tag">AI Governance</span>
+                    <span class="tag">Security Review</span>
+                    <span class="tag">Agent Memory</span>
+                    <span class="tag">Now Assist Guardian</span>
+                    <span class="tag">AI Control Tower</span>
+                    <span class="tag">RaptorDB</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="category cat-tooling">Tooling</span>
+                <h3>Deep Research + Solution Design Writer — Multi-Agent MCP System</h3>
+                <p>Two-server multi-agent system built on Python FastMCP: a goal-directed Deep Research agent (ReAct loop over web search, web pages, and video transcripts that reflects on evidence gaps before compiling a research artifact) hands off to a constrained Solution Design Writer running an evaluator-optimizer (maker-checker) loop with deterministic structure checks, producing a ServiceNow AI Solution Design and Build Runbook. Clean separation of research from writing, hard stop conditions on every loop.</p>
+                <div class="tags">
+                    <span class="tag">Python FastMCP</span>
+                    <span class="tag">Multi-Agent</span>
+                    <span class="tag">ReAct Research Loop</span>
+                    <span class="tag">Evaluator-Optimizer</span>
+                    <span class="tag">Claude API</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="category cat-tooling">Tooling</span>
+                <h3>markitdown MCP — Local Document-to-Markdown</h3>
+                <p>Research and reference on running the markitdown MCP server as a local process to convert PDF, PPTX, DOCX, HTML, and XLSX (from local files or URLs) into clean Markdown before it enters the model context. The conversion happens on-device, so only compact Markdown reaches the API — fewer tokens billed and large, text-heavy documents become readable to the agent.</p>
+                <div class="tags">
+                    <span class="tag">MCP Protocol</span>
+                    <span class="tag">markitdown</span>
+                    <span class="tag">Document Conversion</span>
+                    <span class="tag">Token Efficiency</span>
+                    <span class="tag">Local Process</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="category cat-tooling">Tooling</span>
+                <h3>Open-Source Coding Agent Setup (OpenCode)</h3>
+                <p>Setup guide for running OpenCode — a fully open-source AI coding agent CLI — as a no-cost backup to keep development moving when a primary assistant hits session token caps. Connects to many LLM providers and free curated coding models, configured on Apple Silicon alongside the existing VS Code toolchain without disturbing it.</p>
+                <div class="tags">
+                    <span class="tag">OpenCode</span>
+                    <span class="tag">AI Coding Agent</span>
+                    <span class="tag">Open Source</span>
+                    <span class="tag">LLM Gateway</span>
+                    <span class="tag">Apple Silicon</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="category cat-guide">Guide</span>
+                <h3>Porting Claude Code Skills to the Claude App</h3>
+                <p>Root-cause analysis and porting guide for moving a large Claude Code skill to the hosted Claude app. Maps the platform capability gaps — persistent file system, named MCP servers, cross-session memory files, and local script execution — that change skill behaviour when ported, and gives concrete fixes: trimming oversized skill instructions, replacing memory-dependent phases, and adapting document generation to the hosted code-execution sandbox.</p>
+                <div class="tags">
+                    <span class="tag">Claude Skills</span>
+                    <span class="tag">Skill Portability</span>
+                    <span class="tag">MCP Connectors</span>
+                    <span class="tag">Platform Gaps</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="category cat-whitepaper">Whitepaper</span>
+                <h3>Claude Code Capabilities Reference</h3>
+                <p>A verified reference of the Claude Code CLI surface — core and deferred tools, subagents, skills, permission modes, configuration and customization, enterprise development strategies, and anti-patterns to avoid. Written as a practitioner's map for getting the most out of an agentic coding environment, with each capability checked against the live runtime rather than documentation alone.</p>
+                <div class="tags">
+                    <span class="tag">Claude Code</span>
+                    <span class="tag">Agentic Coding</span>
+                    <span class="tag">Subagents</span>
+                    <span class="tag">Skills</span>
+                    <span class="tag">Developer Reference</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="category cat-guide">Guide</span>
+                <h3>AI Agent Studio — Tool Types Reference</h3>
+                <p>Field reference for the tool types available to ServiceNow AI Agents (Catalog Item, Script, Flow Action, Subflow, Record Operation, and others), the universal constraints that apply across all of them (string-only inputs/outputs, name and description driving orchestrator selection, supervised vs. autonomous execution, output transformation strategies, and assist-consumption rules), and the limitations to design around for each type.</p>
+                <div class="tags">
+                    <span class="tag">AI Agent Studio</span>
+                    <span class="tag">Tool Types</span>
+                    <span class="tag">Orchestration</span>
+                    <span class="tag">Now Assist</span>
                 </div>
             </div>
 
