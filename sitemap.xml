@@ -9,6 +9,14 @@
     <priority>1.0</priority>
   </url>
 
+  <!-- Whitepaper: Cosine Similarity deep dive -->
+  <url>
+    <loc>https://cipheryogi.github.io/Cosine_Similarity_Vector_Search_And_Reranking_Deep_Dive.html</loc>
+    <lastmod>2026-10-02</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
   <!-- Mainframe Technical Articles -->
   <url>
     <loc>https://cipheryogi.github.io/articles/cobol-call-vs-cics-link.html</loc>

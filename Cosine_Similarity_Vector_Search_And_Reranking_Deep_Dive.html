@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Why Cosine Similarity Powers Semantic Search — Vector Search and Reranking Deep Dive | cipheryogi</title>
+<meta name="description" content="Deep dive by Yogesh Shinde: what cosine similarity measures, why direction beats length, the training objective that makes angle meaningful, normalization to inner product for ANN/HNSW scale, and bi-encoder retrieval with cross-encoder reranking." />
+<meta name="author" content="Yogesh Shinde" />
+<link rel="canonical" href="https://cipheryogi.github.io/Cosine_Similarity_Vector_Search_And_Reranking_Deep_Dive.html" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://cipheryogi.github.io/Cosine_Similarity_Vector_Search_And_Reranking_Deep_Dive.html" />
+<meta property="og:title" content="Why Cosine Similarity Powers Semantic Search — Vector Search and Reranking Deep Dive" />
+<meta property="og:description" content="Cosine as directional alignment, the training objective that makes it meaningful, ANN/HNSW scale, and bi-encoder retrieval with cross-encoder reranking. Interactive figures included." />
+<meta property="og:image" content="https://cipheryogi.github.io/og-image.jpg" />
+<meta name="twitter:card" content="summary" />
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: true, securityLevel: 'loose', theme: 'base',
+    flowchart: { htmlLabels: true, curve: 'basis', nodeSpacing: 34, rankSpacing: 48 },
+    themeVariables: {
+      primaryColor: '#e8f1ff', primaryTextColor: '#132238', primaryBorderColor: '#3975c6',
+      lineColor: '#5b708f', secondaryColor: '#f5f8fc', tertiaryColor: '#fff7e6',
+      fontFamily: 'Segoe UI, Arial, sans-serif'
+    }
+  });
+</script>
+<script>
+  window.MathJax = { tex: { inlineMath: [['\\(','\\)']], displayMath: [['$$','$$']] },
+                     svg: { fontCache: 'global' } };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+  :root{--navy:#132238;--blue:#1769aa;--blues:#e8f1ff;--green:#157a5a;--greens:#e8f7f1;--amber:#9a6500;--ambers:#fff5dd;--red:#a93636;--reds:#fff0f0;--purple:#7b52b9;--purples:#f4eefc;--ink:#26384f;--muted:#5f7084;--line:#d8e1ec;--surface:#fff;--bg:#f3f6fa}
+  *{box-sizing:border-box} body{margin:0;font-family:"Segoe UI",Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.62}
+  header{color:#fff;background:linear-gradient(120deg,#0e2949,#1769aa 68%,#14806b);padding:46px clamp(22px,5vw,72px) 38px}
+  header h1{margin:0 0 14px;font-size:clamp(30px,4.2vw,50px);letter-spacing:-.8px} header p{margin:0 0 13px;max-width:min(1320px,95vw);font-size:17.5px;opacity:.93} header p:last-child{margin-bottom:0} header p em{font-style:italic}
+  main{width:min(1320px,95vw);margin:28px auto 56px} section{background:var(--surface);border:1px solid var(--line);border-radius:16px;margin:20px 0;box-shadow:0 8px 26px rgba(19,34,56,.055)}
+  .section-head{padding:24px 28px 4px}.section-head h2{margin:0 0 7px;color:var(--navy);font-size:25px}.section-head p{margin:0;color:var(--muted)}
+  .content{padding:20px 28px 28px} .content h3{color:var(--navy);font-size:19px;margin:26px 0 8px}.content h4{color:var(--navy);font-size:16px;margin:20px 0 6px}
+  .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.summary{border:1px solid var(--line);border-top:5px solid var(--blue);border-radius:12px;padding:16px;background:#fbfdff}.summary:nth-child(2){border-top-color:var(--green)}.summary:nth-child(3){border-top-color:var(--amber)}.summary:nth-child(4){border-top-color:var(--purple)}.summary b{display:block;color:var(--navy);margin-bottom:6px}.summary span{color:var(--muted);font-size:14px}
+  .diagram-wrap{overflow-x:auto;padding:6px;border:1px solid var(--line);border-radius:12px;background:#fff;margin:14px 0}.mermaid{min-width:720px}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px;font-size:13px;color:var(--muted)}.dot{width:11px;height:11px;border-radius:50%;display:inline-block;margin-right:5px}
+  .steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.step{border:1px solid var(--line);border-radius:13px;padding:18px;background:#fff}.step .num{float:left;width:34px;height:34px;margin:1px 12px 8px 0;display:grid;place-items:center;border-radius:10px;color:#fff;background:var(--blue);font-weight:750}.step h3{margin:0 0 7px;color:var(--navy);font-size:18px}.step p{margin:7px 0;font-size:14.5px}.step ul,.step ol{margin:8px 0 0 20px;padding:0;font-size:14px}
+  code{background:#edf2f7;border-radius:5px;padding:2px 5px;font-size:.92em;color:#28415d}
+  .callout{border-left:5px solid var(--amber);background:var(--ambers);border-radius:10px;padding:16px 18px;margin-top:16px}.callout.red{border-left-color:var(--red);background:var(--reds)}.callout.green{border-left-color:var(--green);background:var(--greens)}.callout.blue{border-left-color:var(--blue);background:var(--blues)}.callout.purple{border-left-color:var(--purple);background:var(--purples)}.callout b{color:var(--navy)}
+  .guess{border:2px dashed var(--purple);background:var(--purples);border-radius:12px;padding:16px 18px;margin:18px 0}.guess b{color:var(--purple);text-transform:uppercase;letter-spacing:.6px;font-size:12.5px;display:block;margin-bottom:6px}
+  .decision-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.decision{padding:15px;border-radius:11px;border:1px solid var(--line);background:#fbfdff}.decision b{color:var(--navy);display:block;margin-bottom:5px}.decision p{margin:0;font-size:14px}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0}th,td{text-align:left;vertical-align:top;padding:11px 12px;border-bottom:1px solid var(--line)}th{color:var(--navy);background:#f2f6fb}tr:last-child td{border-bottom:0}
+  .num-table td:not(:first-child){font-family:Consolas,monospace;font-size:13px}
+  .verdict{font-weight:700;white-space:nowrap}.v-conf{color:var(--green)}.v-corr{color:var(--red)}.v-unv{color:var(--amber)}
+  .derivation{background:#fbfdff;border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:10px;padding:4px 20px 8px;margin:14px 0}
+  footer{width:min(1320px,95vw);margin:0 auto 34px;color:var(--muted);font-size:12.5px}
+  a{color:var(--blue)} .srcnote{font-size:13px;color:var(--muted)}
+  .widget{display:grid;grid-template-columns:minmax(300px,1.15fr) minmax(260px,1fr);gap:20px;align-items:start;border:1px solid var(--line);border-radius:14px;padding:18px;background:#fbfdff;margin:16px 0}
+  .widget-panel{display:flex;flex-direction:column}
+  .widget-stage svg{width:100%;height:auto;touch-action:none;background:#fff;border:1px solid var(--line);border-radius:10px}
+  .handle{cursor:grab}.handle:active{cursor:grabbing}
+  .hint{margin:8px 0 0;font-size:12.5px;color:var(--muted);text-align:center}
+  kbd{background:#edf2f7;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:1px 5px;font-size:11.5px;font-family:Consolas,monospace}
+  .readout{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:#fff;margin-bottom:11px}
+  .readout h4{margin:0 0 9px;font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
+  .readout.hero{border-color:var(--green);border-left:4px solid var(--green);background:var(--greens)}
+  .kv{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:3px 0;font-size:14px}
+  .kv span{color:var(--muted)}.kv b{font-family:Consolas,monospace;color:var(--navy);font-size:14px}
+  .kv.big b{font-size:21px;font-weight:750}.kv.big span{font-weight:650;color:var(--ink)}
+  .formula{font-family:Consolas,monospace;font-size:12.5px;color:var(--muted);padding:5px 0 7px;border-bottom:1px dashed var(--line);margin-bottom:6px;word-break:break-word}
+  .verdict-line{margin-top:8px;font-size:13px;font-weight:650;color:var(--green)}
+  .micro{margin:7px 0 0;font-size:12px;color:var(--muted);line-height:1.45}
+  .btnrow{display:flex;flex-wrap:wrap;gap:7px}
+  .wbtn{font-family:inherit;font-size:12.5px;font-weight:650;padding:7px 11px;border-radius:7px;border:1px solid var(--line);background:#fff;color:var(--blue);cursor:pointer;transition:.15s}
+  .wbtn:hover{background:var(--blues);border-color:var(--blue)}
+  @media(max-width:860px){.widget{grid-template-columns:1fr}}
+  @media print{.widget{grid-template-columns:1fr}.btnrow,.hint{display:none}}
+  @media(max-width:900px){.summary-grid,.decision-grid,.steps{grid-template-columns:1fr}.section-head,.content{padding-left:18px;padding-right:18px}}
+  @media print{body{background:#fff}section{box-shadow:none;break-inside:avoid}.diagram-wrap{overflow:visible}.mermaid{min-width:0}}
+</style>
+</head>
+<body>
+<header>
+  <p style="margin:0 0 16px"><a href="index.html" style="color:#fff;opacity:.9">&#8592; Back to cipheryogi portfolio</a></p>
+  <h1>Why Cosine Similarity Powers Semantic Search</h1>
+  <p>
+    Semantic search rests on one arithmetic act: divide a dot product by two lengths, then read the
+    result as relevance. This paper explains what that number actually measures, why it is bounded,
+    why <em>direction</em> rather than length is the quantity worth comparing, and — the crux — what
+    has to be true of the embedding model before the angle between two vectors has anything to do
+    with meaning.
+  </p>
+  <p>
+    The central claim is a division of labour. Cosine similarity does not understand language; it is
+    a fixed geometric operation with no knowledge of anything. The <em>embedding model</em> builds a
+    space in which semantic relationships are encoded as geometric ones. Cosine then measures
+    alignment inside that learned space, and that measurement is what makes ranking — and therefore
+    search — possible.
+  </p>
+</header>
+<main>
+
+<!-- ─── ROADMAP ─── -->
+<section><div class="section-head"><h2>Overview</h2><p>The argument in four moves.</p></div>
+<div class="content"><div class="summary-grid">
+  <div class="summary"><b>Where do vectors come from?</b><span>From pooled activations of a trained encoder — not from parameters, and not from any single hidden state. §2.</span></div>
+  <div class="summary"><b>What does cosine measure?</b><span>Directional alignment: the normalized inner product, bounded in \([-1,1]\), invariant to length. §3, §4.</span></div>
+  <div class="summary"><b>Why should angle mean anything?</b><span>It need not. It does when the training objective was built to make it so. This is the paper's pivot. §5.</span></div>
+  <div class="summary"><b>Why does this scale?</b><span>Normalization turns cosine into an inner product, which ANN indexes optimise directly. §7.</span></div>
+</div>
+</div></section>
+
+<!-- ─── 1. INTRODUCTION ─── -->
+<section id="s1"><div class="section-head"><h2>1. From Words to Geometry</h2><p>Why lexical matching cannot answer the question search actually asks.</p></div>
+<div class="content">
+
+<p>
+  Keyword retrieval scores documents on lexical overlap. It is fast, interpretable, and blind in a
+  specific way: <em>"How do I reset my password?"</em> and <em>"Steps to recover account access"</em>
+  share almost no terms and nearly all of their meaning. Term-based scoring has no mechanism to see
+  that, because its only evidence is which strings coincide.
+</p>
+<p>
+  Semantic search replaces string identity with a <em>representation</em>. Each piece of text is
+  mapped to a point in a continuous space, chosen so that texts meaning similar things land in
+  similar places. Comparison then becomes arithmetic on coordinates rather than matching on tokens,
+  and the question <em>"do these mean the same thing?"</em> is answered by a proxy:
+  <em>"are these two vectors aligned?"</em>
+</p>
+<p>That substitution is the whole subject of this paper. It proceeds in one chain:</p>
+
+<div class="diagram-wrap">
+<pre class="mermaid">
+flowchart LR
+  L["Language<br/><small>query, document</small>"] --> M["Embedding model<br/><small>trained encoder</small>"]
+  M --> V["Vector representation<br/><small>fixed dimension d</small>"]
+  V --> G["Semantic relations become<br/>geometric relations"]
+  G --> C["Cosine similarity<br/><small>directional alignment</small>"]
+  C --> S["Relevance score"]
+  S --> R["Ranking"]
+  R --> I["Vector index<br/><small>scalable retrieval</small>"]
+  style M fill:#e8f1ff,stroke:#3975c6
+  style C fill:#e8f7f1,stroke:#157a5a,stroke-width:2px
+  style G fill:#fff7e6,stroke:#9a6500
+</pre>
+</div>
+
+<div class="callout blue"><b>The question that organises everything.</b> Among all the ways to compare two vectors — length, component-wise agreement, Euclidean proximity — why should the <em>angle</em> be the one that tracks meaning? The answer is not a property of cosine. It is a property of what the training process constrained, and what it left free. §3 and §4 establish what cosine measures; §5 establishes when that measurement is meaningful.</div>
+
+</div></section>
+<!-- ─── 2. WHAT AN EMBEDDING REPRESENTS ─── -->
+<section id="s2"><div class="section-head"><h2>2. What an Embedding Actually Represents</h2><p>Cosine is a function of nothing but the two vectors handed to it. Whatever geometry it reports was inherited entirely from whatever produced them.</p></div>
+<div class="content">
+
+<h3>2.1 Four things that are not the same</h3>
+<p>
+  The word "embedding" is used for at least four distinct objects. Conflating them is the single most
+  common source of confusion about why cosine sometimes works and sometimes does not.
+</p>
+
+<table>
+<tr><th>Object</th><th>What it is</th><th>Changes per input?</th></tr>
+<tr><td><b>Parameters</b> (weights)</td><td>Numbers learned during training and frozen at inference. Includes the input embedding matrix — one static vector per vocabulary token.</td><td>No</td></tr>
+<tr><td><b>Activations</b></td><td>Values computed inside the network while processing one input.</td><td>Yes</td></tr>
+<tr><td><b>Hidden states</b></td><td>The per-token activations at a given layer. For an \(n\)-token input: \(n\) vectors, not one.</td><td>Yes</td></tr>
+<tr><td><b>Pooled representation / embedding</b></td><td>The \(n\) hidden states reduced to a single \(d\)-dimensional vector by a pooling rule. This is what gets stored and compared.</td><td>Yes</td></tr>
+</table>
+
+<p>
+  Only the last is what a vector database holds. It is an <em>activation</em>, not a parameter: it
+  exists only because a specific text was passed through the model.
+</p>
+
+<div class="callout"><b>On "compression."</b> An embedding is better described as a <b>fixed-dimensional learned representation</b> than as compression. Its dimensionality \(d\) is an architectural choice fixed before any text is seen — the model must express every input in exactly \(d\) numbers whether the input is three words or three hundred. That is a <em>representational bottleneck</em>: the training objective decides which distinctions are worth the budget. Calling it compression invites the wrong inference, namely that a better codec would recover the lost detail.</div>
+
+<h3>2.2 The pipeline</h3>
+<div class="diagram-wrap">
+<pre class="mermaid">
+flowchart TB
+  T["Raw text"] --> TK["Tokenizer<br/><small>subword units</small>"]
+  TK --> LU["Static token vectors<br/><small>lookup — context-free</small>"]
+  LU --> EN["Transformer layers<br/><small>attention + feed-forward</small>"]
+  EN --> HS["Hidden states<br/><small>one vector per token</small>"]
+  HS --> PO["Pooling<br/><small>mean / CLS / last-token</small>"]
+  PO --> NM["L2 normalization<br/><small>optional but common</small>"]
+  NM --> EM["Stored embedding<br/><small>d numbers</small>"]
+  style EN fill:#e8f1ff,stroke:#3975c6
+  style PO fill:#fff7e6,stroke:#9a6500
+  style EM fill:#e8f7f1,stroke:#157a5a,stroke-width:2px
+</pre>
+</div>
+
+<h3>2.3 Contextualization is what makes the geometry possible</h3>
+<p>
+  The lookup step assigns one vector per token regardless of context, so <em>bank</em> in "river bank"
+  and "savings bank" begin identically. The transformer layers fix this: each token's representation
+  is recomputed as a function of the other tokens it is permitted to attend to. By the upper layers,
+  the two <em>bank</em> tokens have been pulled apart.
+</p>
+<div class="callout"><b>Attention is not universally all-to-all.</b> It is often said that "every token reads every other token." That holds for <b>bidirectional encoders</b> (BERT-style), where the attention mask permits every position to attend to every other. It does <em>not</em> hold for <b>causal / decoder-only</b> models, whose mask permits position \(i\) to attend only to positions \(\le i\). Which positions are visible is a property of the mask, and the mask is an architectural choice. Encoder-only, decoder-only and prefix-LM architectures therefore contextualize differently — a distinction that matters when choosing how to pool.</div>
+
+<h3>2.4 Pooling, and why the choice is not cosmetic</h3>
+<p>
+  Pooling must turn \(n\) vectors into one. Mean pooling averages all token states; CLS pooling reads
+  a designated position; last-token pooling reads the final position — the natural choice for a causal
+  model, since it is the only position that has seen the whole input.
+</p>
+<p>
+  Each rule discards different information, and none is universally correct. What matters is
+  <em>consistency with training</em>: a model fine-tuned with mean pooling in the loss will produce a
+  usable space under mean pooling and a degraded one under CLS pooling. The pooling rule is part of
+  the model's contract, not a post-hoc convenience.
+</p>
+
+<h3>2.5 The misconception that costs the most</h3>
+<div class="callout"><b>A hidden state is not automatically a good embedding, nor automatically a bad one.</b> Taking an arbitrary hidden state from a model never trained for similarity often yields a weak semantic embedding, because nothing in its objective required geometric proximity to track meaning. But this is <b>model- and method-specific, not a law.</b> Decoder-only models can be, and routinely are, fine-tuned into strong embedding models through contrastive or related objectives plus an appropriate pooling and normalization scheme. Stated precisely: whether a representation is useful for semantic similarity depends on the training objective, the extraction point, and the pooling rule — not on whether the architecture is an encoder or a decoder.</div>
+
+<h3>2.6 In one sentence</h3>
+<p>
+  An embedding is a pooled activation of a trained encoder, of a dimension fixed in advance, whose
+  usefulness for angular comparison is a consequence of the objective that shaped it.
+</p>
+
+</div></section>
+
+<!-- ─── 3. GEOMETRY OF A VECTOR ─── -->
+<section id="s3"><div class="section-head"><h2>3. The Geometry of a Vector</h2><p>Magnitude, direction, inner product, norm, angle — the five quantities the rest of the paper needs.</p></div>
+<div class="content">
+
+<h3>3.1 Two independent pieces of information</h3>
+<p>
+  A vector \(a=(a_1,\dots,a_d)\) carries exactly two separable things: <b>how long</b> it is and
+  <b>which way</b> it points. Formally, \(a = \lVert a\rVert \cdot \hat a\), where
+</p>
+$$\lVert a\rVert=\sqrt{\sum_{i=1}^{d} a_i^2}, \qquad \hat a=\frac{a}{\lVert a\rVert},\quad \lVert \hat a\rVert = 1 .$$
+<p>
+  The decomposition is unique for any \(a\neq 0\). Every similarity function is, in effect, a choice
+  about how much weight to give each part.
+</p>
+
+<h3>3.2 The inner product, and what it already knows about angle</h3>
+<p>The dot product is a sum of coordinate-wise products:</p>
+$$a\cdot b=\sum_{i=1}^{d} a_i b_i .$$
+<p>
+  It is large when the two vectors agree in sign and magnitude coordinate by coordinate, and negative
+  when they systematically disagree. It also carries angular information already — but entangled with
+  length, since scaling \(a\) by \(5\) scales \(a\cdot b\) by \(5\) without rotating anything.
+  Disentangling the two is precisely what cosine does.
+</p>
+
+<h3>3.3 Euclidean distance is magnitude-sensitive</h3>
+<p>
+  Take \(A=(2,3,5)\) and \(B=(4,6,10)=2A\). These point in <em>exactly</em> the same direction — the
+  angle between them is \(0\). Yet
+</p>
+$$\lVert A-B\rVert=\lVert A-2A\rVert=\lVert -A\rVert = \sqrt{2^2+3^2+5^2}=\sqrt{38}\approx 6.164 .$$
+<p>
+  Raw Euclidean distance calls them far apart purely because one is twice as long. If the application
+  treats \(A\) and \(2A\) as meaning the same thing, this is the wrong comparison.
+</p>
+<div class="callout"><b>A coincidence worth naming.</b> Here \(\lVert A-B\rVert\) and \(\lVert A\rVert\) coincide <em>only</em> because \(B=2A\) forces \(B-A=A\) exactly. With \(B=3A\) the distance is \(\lVert 2A\rVert=2\sqrt{38}\approx 12.33\), while \(\lVert A\rVert\) is unchanged at \(6.164\). The two quantities must therefore be computed separately: raw Euclidean distance is magnitude-sensitive, and that fact is established by the distance itself, never by substituting a norm for it.</div>
+
+</div></section>
+<!-- ─── 4. COSINE SIMILARITY ─── -->
+<section id="s4"><div class="section-head"><h2>4. Cosine Similarity: The Central Mechanism</h2><p>The core of the paper. What the quantity is, why it is bounded, and exactly what normalization keeps and discards.</p></div>
+<div class="content">
+
+<h3>4.1 The definition, and where it comes from</h3>
+<p>For nonzero \(a,b\in\mathbb{R}^d\),</p>
+$$\cos\theta = \frac{a\cdot b}{\lVert a\rVert\,\lVert b\rVert}.$$
+<p>
+  This is not a definition invented for search; it is forced by the law of cosines. For the triangle
+  with sides \(a\), \(b\) and \(a-b\):
+</p>
+<div class="derivation">
+$$\lVert a-b\rVert^2=\lVert a\rVert^2+\lVert b\rVert^2-2\lVert a\rVert\lVert b\rVert\cos\theta$$
+<p>Expanding the left side through the inner product:</p>
+$$\lVert a-b\rVert^2=(a-b)\cdot(a-b)=\lVert a\rVert^{2}-2(a\cdot b)+\lVert b\rVert^{2}$$
+<p>Equating and cancelling \(\lVert a\rVert^2+\lVert b\rVert^2\) from both sides:</p>
+$$-2(a\cdot b)=-2\lVert a\rVert\lVert b\rVert\cos\theta \quad\Longrightarrow\quad \cos\theta=\frac{a\cdot b}{\lVert a\rVert\lVert b\rVert}$$
+</div>
+<p>
+  So the division by two lengths is not a normalization applied to the dot product as an
+  afterthought. It is what the dot product was always missing in order to be an angle.
+  <b>Assumption:</b> \(a\neq 0\) and \(b\neq 0\). The zero vector has no direction and cosine is
+  undefined for it — an edge case worth handling explicitly in code, since a zero-length embedding
+  silently produces \(0/0\).
+</p>
+
+<h3>4.2 Why the value is bounded in \([-1,+1]\)</h3>
+<p>
+  The bound is not empirical. It is the Cauchy–Schwarz inequality, which states that for any
+  \(a,b\in\mathbb{R}^d\),
+</p>
+$$|a\cdot b| \le \lVert a\rVert\,\lVert b\rVert .$$
+<div class="derivation">
+<p>
+  <b>Proof sketch.</b> For any \(t\in\mathbb{R}\), \(\lVert a-tb\rVert^2 \ge 0\) because it is a sum
+  of squares. Expanding gives the quadratic in \(t\):
+</p>
+$$\lVert a\rVert^{2}-2t(a\cdot b)+t^{2}\lVert b\rVert^{2}\;\ge\;0 .$$
+<p>
+  A quadratic that is never negative has a non-positive discriminant, so
+  \(4(a\cdot b)^2-4\lVert a\rVert^2\lVert b\rVert^2\le 0\), which rearranges to
+  \((a\cdot b)^2\le\lVert a\rVert^2\lVert b\rVert^2\). Taking square roots gives the inequality;
+  dividing through by \(\lVert a\rVert\lVert b\rVert>0\) gives \(|\cos\theta|\le 1\).
+  Equality holds exactly when \(a\) and \(b\) are linearly dependent — that is, parallel or
+  antiparallel.
+</p>
+</div>
+<p>This gives the three landmark values a precise geometric reading:</p>
+<table>
+<tr><th>\(\cos\theta\)</th><th>\(\theta\)</th><th>Geometric meaning</th><th>Retrieval reading</th></tr>
+<tr><td>\(+1\)</td><td>\(0^\circ\)</td><td>Same direction; \(b=\lambda a\) for some \(\lambda&gt;0\)</td><td>Maximal alignment</td></tr>
+<tr><td>\(0\)</td><td>\(90^\circ\)</td><td>Orthogonal; \(a\cdot b=0\)</td><td>No directional relationship</td></tr>
+<tr><td>\(-1\)</td><td>\(180^\circ\)</td><td>Opposite direction; \(b=\lambda a\), \(\lambda&lt;0\)</td><td>Maximal anti-alignment</td></tr>
+</table>
+<div class="callout"><b>A caution about the negative range.</b> That \(\cos\theta\in[-1,1]\) is mathematical fact. That the negative range is <em>used</em> by a given embedding model is not. Many trained text encoders produce vectors occupying a restricted region of the sphere, so observed similarities between real texts may span a far narrower interval than \([-1,1]\) — and a score of \(0\) need not mean "unrelated" in such a space. The bound is universal; the <em>distribution</em> within it is model-specific (§5.4).</div>
+
+<h3>4.3 The interactive figure: drag the vectors</h3>
+<p>
+  Everything above is two-dimensional and visible. <b>Drag either arrowhead.</b> Watch which readouts
+  change and which refuse to. The green dashed arrow is the projection of \(a\) onto \(b\) — the
+  geometric object the dot product actually measures.
+</p>
+
+<div class="widget">
+  <div class="widget-stage">
+    <svg id="cosViz" viewBox="0 0 440 440" role="img" aria-label="Interactive vector angle figure">
+      <defs>
+        <marker id="arrowA" markerWidth="11" markerHeight="11" refX="8" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 z" fill="#1769aa"/>
+        </marker>
+        <marker id="arrowB" markerWidth="11" markerHeight="11" refX="8" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 z" fill="#7b52b9"/>
+        </marker>
+        <marker id="arrowP" markerWidth="10" markerHeight="10" refX="7" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 z" fill="#157a5a"/>
+        </marker>
+      </defs>
+      <g id="grid"></g>
+      <line x1="20" y1="220" x2="420" y2="220" stroke="#8294ab" stroke-width="1.4"/>
+      <line x1="220" y1="20" x2="220" y2="420" stroke="#8294ab" stroke-width="1.4"/>
+      <g id="ticks"></g>
+      <circle cx="220" cy="220" r="40" fill="none" stroke="#c6d3e4" stroke-dasharray="3 3"/>
+      <path id="angleArc" fill="#9a650022" stroke="#9a6500" stroke-width="1.6"/>
+      <text id="angleLabel" font-size="13" font-weight="700" fill="#9a6500"></text>
+      <line id="projLine" stroke="#157a5a" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arrowP)"/>
+      <line id="projDrop" stroke="#157a5a" stroke-width="1.1" stroke-dasharray="2 3" opacity=".75"/>
+      <line id="vecA" stroke="#1769aa" stroke-width="3.4" marker-end="url(#arrowA)"/>
+      <line id="vecB" stroke="#7b52b9" stroke-width="3.4" marker-end="url(#arrowB)"/>
+      <circle id="handleA" r="11" fill="#1769aa" stroke="#fff" stroke-width="2.5" class="handle"/>
+      <circle id="handleB" r="11" fill="#7b52b9" stroke="#fff" stroke-width="2.5" class="handle"/>
+      <text id="labelA" font-size="15" font-weight="700" fill="#1769aa">a</text>
+      <text id="labelB" font-size="15" font-weight="700" fill="#7b52b9">b</text>
+    </svg>
+    <p class="hint">Drag the circular handles. Hold <kbd>Shift</kbd> while dragging to snap to integers.</p>
+  </div>
+
+  <div class="widget-panel">
+    <div class="readout">
+      <h4>Components</h4>
+      <div class="kv"><span>a</span><b id="rA">(4.00, 1.00)</b></div>
+      <div class="kv"><span>b</span><b id="rB">(-1.00, 3.00)</b></div>
+    </div>
+
+    <div class="readout">
+      <h4>The dot product</h4>
+      <div class="formula" id="rDotCalc">4.00(-1.00) + 1.00(3.00) = -1.00</div>
+      <div class="kv"><span>a · b</span><b id="rDot">-1.00</b></div>
+      <div class="kv"><span>‖a‖</span><b id="rNA">4.12</b></div>
+      <div class="kv"><span>‖b‖</span><b id="rNB">3.16</b></div>
+    </div>
+
+    <div class="readout hero">
+      <h4>Divide by both lengths</h4>
+      <div class="formula" id="rCosCalc">-1.00 / (4.12 × 3.16)</div>
+      <div class="kv big"><span>cos θ</span><b id="rCos">-0.077</b></div>
+      <div class="kv big"><span>θ</span><b id="rTheta">94.4°</b></div>
+      <div class="verdict-line" id="rVerdict">Obtuse — negative dot product</div>
+    </div>
+
+    <div class="readout">
+      <h4>What normalization discards</h4>
+      <div class="kv"><span>â</span><b id="rUA">(0.97, 0.24)</b></div>
+      <div class="kv"><span>b̂</span><b id="rUB">(-0.32, 0.95)</b></div>
+      <div class="kv"><span>â · b̂</span><b id="rUDot">-0.077</b></div>
+      <p class="micro">On unit vectors the inner product <em>is</em> the cosine — no division remains. Press <b>Scaled ×10</b>: both lengths change by a factor of ten and <code>cos θ</code> does not move at all. That invariance is the property §5 depends on.</p>
+    </div>
+
+    <div class="btnrow">
+      <button class="wbtn" data-preset="4,1,-1,3">Original</button>
+      <button class="wbtn" data-preset="3,2,6,4">Parallel</button>
+      <button class="wbtn" data-preset="3,2,-3,-2">Antiparallel</button>
+      <button class="wbtn" data-preset="4,0,0,4">Orthogonal</button>
+      <button class="wbtn" data-preset="3,2,30,20">Scaled ×10</button>
+    </div>
+  </div>
+</div>
+
+<div class="guess"><b>Guess before you scroll</b>
+  Press <b>Parallel</b> (\(a=(3,2)\), \(b=(6,4)\)). The two arrows have visibly different lengths.
+  Does \(\cos\theta\) read \(1.000\), or something slightly below it?
+  <p style="margin:9px 0 0"><b>Answer.</b> Exactly \(1.000\). \(b=2a\), so the vectors are linearly dependent and Cauchy–Schwarz holds with equality. Length difference is invisible to cosine by construction — this is the scale invariance that makes the metric useful when text length should not drive similarity.</p>
+</div>
+
+<h3>4.4 Normalization: the same comparison, pre-paid</h3>
+<p>If every vector is scaled to unit length before storage, then \(\lVert \hat a\rVert=\lVert \hat b\rVert=1\) and</p>
+$$\hat a\cdot\hat b=\frac{a\cdot b}{\lVert a\rVert\lVert b\rVert}=\cos\theta .$$
+<p>
+  <b>Cosine similarity on raw vectors is identical to the inner product on normalized vectors.</b>
+  The division has not vanished; it has been paid once at indexing time instead of once per
+  comparison at query time. This identity is the reason §7 works at all.
+</p>
+
+<div class="diagram-wrap">
+<pre class="mermaid">
+flowchart LR
+  subgraph RAW["Raw space — length varies freely"]
+    A1["a = (4,1)<br/><small>‖a‖ = 4.12</small>"]
+    B1["b = (−1,3)<br/><small>‖b‖ = 3.16</small>"]
+  end
+  RAW -->|"divide each by its norm"| SPH
+  subgraph SPH["Unit sphere — only direction survives"]
+    A2["â<br/><small>‖â‖ = 1</small>"]
+    B2["b̂<br/><small>‖b̂‖ = 1</small>"]
+  end
+  SPH --> DP["Inner product â · b̂<br/><small>= cos θ, no division</small>"]
+  style SPH fill:#e8f7f1,stroke:#157a5a
+  style DP fill:#fff7e6,stroke:#9a6500,stroke-width:2px
+</pre>
+</div>
+
+<h3>4.5 Ranking by cosine and by Euclidean distance are the same ranking</h3>
+<p>On normalized vectors, expand the squared distance:</p>
+<div class="derivation">
+$$\lVert \hat a-\hat b\rVert^{2}=\lVert \hat a\rVert^{2}-2(\hat a\cdot\hat b)+\lVert \hat b\rVert^{2}=1-2\cos\theta+1=2-2\cos\theta$$
+</div>
+<p>
+  So \(\lVert \hat a-\hat b\rVert=\sqrt{2-2\cos\theta}\), a strictly <em>decreasing</em> function of
+  \(\cos\theta\) on \([-1,1]\). Sorting ascending by Euclidean distance and sorting descending by
+  cosine therefore produce <b>identical orderings</b> — not similar ones, identical.
+</p>
+<div class="callout green"><b>The practical consequence.</b> For normalized embeddings, "cosine versus Euclidean" is not a modelling decision; the two induce the same ranking, so a vector index offering only L2 can serve cosine queries exactly. <b>Assumption:</b> this equivalence requires normalization. On <em>un</em>-normalized vectors the two orderings genuinely differ, because \(\lVert a\rVert\) and \(\lVert b\rVert\) no longer cancel. The question that matters is whether you normalized — not which formula you typed.</div>
+
+<h3>4.6 Cosine distance is not a metric</h3>
+<p>
+  It is tempting to treat \(1-\cos\theta\) as a distance. It is non-negative and zero exactly when
+  vectors are parallel, but it <b>violates the triangle inequality.</b> Take
+  \(x=(1,0)\), \(y=(\tfrac{1}{\sqrt2},\tfrac{1}{\sqrt2})\), \(z=(0,1)\):
+</p>
+$$1-\cos(x,z)=1,\qquad \big(1-\cos(x,y)\big)+\big(1-\cos(y,z)\big)=2\left(1-\tfrac{1}{\sqrt2}\right)\approx 0.586 .$$
+<p>
+  Since \(1 &gt; 0.586\), the inequality fails. The <em>angular</em> distance
+  \(\theta/\pi\) is a true metric (here \(0.5 \le 0.25+0.25\), holding with equality), and some
+  systems use it for that reason. This matters when an algorithm's correctness depends on metric
+  axioms; for pure top-\(k\) ranking it does not, since ranking needs only monotonicity.
+</p>
+
+</div></section>
+<!-- ─── 5. WHY COSINE CAN REPRESENT SEMANTIC SIMILARITY ─── -->
+<section id="s5"><div class="section-head"><h2>5. Why Cosine Can Represent Semantic Similarity</h2><p>The conceptual bridge. Nothing in §4 mentioned meaning — and nothing in §4 could have.</p></div>
+<div class="content">
+
+<h3>5.1 The question stated honestly</h3>
+<p>
+  Section 4 established what \(\cos\theta\) is: a bounded, scale-invariant measure of directional
+  alignment, derived from the law of cosines. Every result there holds for arbitrary vectors —
+  stock prices, pixel intensities, random noise. None of it mentions language, and none of it could,
+  because cosine similarity is a function of two arrays of numbers and nothing else.
+</p>
+<p>So why should the angle between two embedding vectors have anything to do with meaning?</p>
+
+<div class="callout purple"><b>The central insight of this paper.</b><br/>
+  Cosine similarity does <b>not</b> understand semantics. It is a fixed arithmetic operation with no
+  knowledge of anything.<br/><br/>
+  The <b>embedding model</b> creates a representation space in which semantic relationships are
+  encoded as geometric ones.<br/><br/>
+  Cosine similarity then <b>measures directional alignment within that learned space</b>.<br/><br/>
+  The semantics live in the space. The geometry lives in the metric. Neither does the other's job,
+  and attributing understanding to the metric is the error that makes the rest of the subject
+  confusing.
+</div>
+
+<h3>5.2 What the training objective actually arranges</h3>
+<p>
+  A representation space in which angle tracks meaning does not arise by accident. It arises because
+  an objective function penalised the alternative. The widely used family is <b>contrastive</b>: given
+  an anchor text \(q\), a semantically related positive \(p\), and negatives \(n_i\), the loss rewards
+  high similarity for \((q,p)\) and low similarity for \((q,n_i)\). In the common InfoNCE form, with
+  similarity function \(s\) and temperature \(\tau\):
+</p>
+$$\mathcal{L} = -\log\frac{\exp\!\big(s(q,p)/\tau\big)}{\exp\!\big(s(q,p)/\tau\big)+\sum_i \exp\!\big(s(q,n_i)/\tau\big)}$$
+<p>
+  The decisive detail is that \(s\) is <em>typically cosine similarity itself</em>. Gradient descent
+  is therefore directly rewarded for arranging directions so that cosine reads high on related pairs
+  and low on unrelated ones. The geometry is not a byproduct of training — it is the thing trained.
+</p>
+<div class="callout green"><b>This is the answer to §5.1.</b> Angle tracks meaning because the objective that produced the vectors was written in terms of angle. Train with cosine in the loss and you get a space where cosine is informative; train with an unnormalized inner product and the magnitudes carry information that cosine will discard. <b>Use at inference the similarity function the model was optimised for.</b> Steck et al. (2024) make the same recommendation from the opposite direction: when a model is <em>not</em> trained for cosine, cosine on its embeddings can be arbitrary (§5.3).</div>
+<div class="callout"><b>Not the only route.</b> Contrastive learning is widely used but is not the only way to shape a usable embedding space. Related objectives — multiple-negatives ranking, distillation from a stronger model, masked-language pretraining followed by supervised similarity fine-tuning, and others — also produce spaces in which angular comparison is informative. The accurate claim is that <em>some</em> objective must make similarity structure part of what is optimised; it is not that one particular loss is mandatory.</div>
+
+<h3>5.3 When cosine is <em>not</em> meaningful: the scaling degrees of freedom</h3>
+<p>
+  There is a precise and important failure case, and it is the strongest argument for §5.2's rule.
+  Steck, Ekanadham and Kallus (2024) analyse linear matrix-factorization models and show the
+  following. Suppose embedding matrices \(A\) and \(B\) are learned such that reconstruction depends
+  only on the product \(AB^\top\). Then for any invertible diagonal matrix \(D\), the pair
+  \((AD,\,BD^{-1})\) is an equally optimal solution, because
+</p>
+$$(AD)(BD^{-1})^{\top} = A D D^{-1} B^{\top} = AB^{\top}.$$
+<p>
+  The <b>inner product is invariant</b> under this transformation. Cosine similarity is <b>not</b>:
+  \(D\) rescales individual coordinates, which changes both norms and the angle between rows. So
+  whenever the training objective constrains only \(AB^\top\), the per-coordinate scaling is
+  unidentified, and cosine similarity computed on the resulting embeddings is <em>arbitrary</em> — a
+  function of an optimisation accident rather than of the data.
+</p>
+<div class="callout red"><b>What this does and does not establish.</b> It does <b>not</b> show cosine similarity is inherently flawed. It shows cosine is only meaningful when <em>something</em> pins down the scaling freedom — which is exactly what training with cosine in the loss, or normalizing during training, accomplishes. The result is derived for linear/MF models; the authors note that deep models trained with different regularization carry analogous, if less analytically tractable, freedoms. Read correctly, this is the sharpest available statement of §5.2: <em>cosine is meaningful when the model was built for it.</em></div>
+
+<h3>5.4 Anisotropy: the space is not uniformly occupied</h3>
+<p>
+  One more model-dependent property shapes how cosine scores read. Ethayarajh (2019) measured the
+  geometry of contextual representations in ELMo, BERT and GPT-2 and found them highly
+  <b>anisotropic</b>: rather than spreading over the sphere, vectors occupy a narrow cone, so even
+  randomly chosen unrelated words exhibit substantial positive cosine similarity. In the upper layers
+  of GPT-2 the effect was most extreme, with average similarity between random words approaching
+  \(1\). To measure genuine contextuality the study had to subtract this baseline.
+</p>
+<p>Two consequences, stated carefully:</p>
+<ul>
+  <li><b>Absolute cosine values are not interpretable across models.</b> A score of \(0.8\) means one thing in a near-isotropic space and something quite different in a narrow cone. Only <em>relative</em> ordering within one space is reliable without calibration.</li>
+  <li><b>Anisotropy is a property of a specific model and layer, not a universal constant.</b> It was measured in named models under stated conditions. Modern retrieval-tuned encoders are frequently trained in ways that reduce it, and quoting a fixed numeric threshold as though it applied to all embeddings would be unsupported.</li>
+</ul>
+
+<h3>5.5 What random-vector geometry does and does not explain</h3>
+<p>
+  There is a genuine mathematical fact about high dimension. For two vectors drawn uniformly at random
+  from the unit sphere in \(\mathbb{R}^d\), the cosine of the angle between them has mean \(0\) and
+  variance \(1/d\), so its standard deviation is \(1/\sqrt{d}\). At \(d=768\) that is
+  \(1/\sqrt{768}\approx 0.036\): random directions are nearly orthogonal, and sharply concentrated
+  about orthogonality.
+</p>
+<div class="callout"><b>Why this does not explain real retrieval score distributions.</b> It is tempting to invoke random-vector concentration as the mechanism behind observed score bunching in semantic search, and to conclude that no amount of model scaling can repair it. Both steps overreach.
+<ul style="margin:9px 0 0 18px">
+  <li><b>Random unit vectors</b> are isotropic by construction. <b>Trained embeddings are not</b> — §5.4 shows them occupying a narrow cone, which is the opposite of the uniform assumption the \(1/\sqrt d\) result requires. A theorem about the uniform measure cannot be applied to a distribution known to violate it.</li>
+  <li><b>Embedding quality is not fixed by dimension.</b> It depends on architecture, training data, objective, fine-tuning and pooling. Asserting that scale or training cannot improve the separability of a learned space confuses a property of random vectors with an empirical property of trained models.</li>
+</ul>
+What the random-vector result legitimately provides is <b>geometric intuition</b>: in high dimension, directions are plentiful and near-orthogonality is the generic case, which is why a \(d\)-dimensional space can host many distinguishable concepts. Explaining any particular model's score distribution requires measuring that model.</div>
+
+<h3>5.6 Small angular gaps do not imply weak semantic distinctions</h3>
+<p>Converting two cosine scores to angles is straightforward. For \(0.92\) and \(0.88\):</p>
+$$\arccos(0.92)\approx 23.07^\circ,\qquad \arccos(0.88)\approx 28.36^\circ,$$
+<p>a gap of roughly \(5.3^\circ\).</p>
+<div class="callout"><b>What the arithmetic does not license.</b> The computation above is exact. The inference sometimes drawn from it — that a small angular gap means the semantic distinction is weak or unreliable — does not follow. Cosine is a <em>nonlinear</em> function of angle: near \(\theta=0\) its derivative \(-\sin\theta\) is small, so large score differences correspond to small angular ones, and the mapping from either quantity to semantic importance is set by the model's training, not by geometry. A \(5^\circ\) separation may be a decisive, well-calibrated distinction in a space trained to make exactly that distinction. <b>Geometry alone establishes no semantic significance in either direction.</b></div>
+
+</div></section>
+<!-- ─── 6. WHY COSINE IS USEFUL FOR SEARCH ─── -->
+<section id="s6"><div class="section-head"><h2>6. Why Cosine Is Useful for Search</h2><p>How a bounded scalar becomes a ranking — the step that turns a learned representation into a retrieval system.</p></div>
+<div class="content">
+
+<h3>6.1 The whole mechanism</h3>
+<p>
+  Retrieval requires an <em>ordering</em> over documents, and an ordering requires a single comparable
+  number per document. Cosine supplies exactly that, and its properties are what make the ordering
+  well-defined:
+</p>
+<ol>
+  <li>Encode each document \(D_j\) once, offline: \(v_j = \text{pool}(\text{encode}(D_j))\), normalized.</li>
+  <li>At query time encode the query with the <em>same</em> model: \(u = \text{pool}(\text{encode}(Q))\), normalized.</li>
+  <li>Score every document: \(s_j = u\cdot v_j = \cos\theta_j\).</li>
+  <li>Sort descending and return the top \(k\).</li>
+</ol>
+
+<div class="diagram-wrap">
+<pre class="mermaid">
+flowchart LR
+  Q["Query text"] --> QE["Encoder"] --> QV["u — query vector"]
+  D["Document corpus"] --> DE["Same encoder<br/><small>offline, once</small>"] --> DV["v₁ … v_N — stored"]
+  QV --> S["cos(u, v_j)<br/><small>one scalar per document</small>"]
+  DV --> S
+  S --> R["Sort descending"] --> K["Top-k results"]
+  style S fill:#fff7e6,stroke:#9a6500,stroke-width:2px
+  style K fill:#e8f7f1,stroke:#157a5a
+</pre>
+</div>
+
+<h3>6.2 Which properties of cosine the ranking actually relies on</h3>
+<table>
+<tr><th>Property</th><th>Why ranking needs it</th></tr>
+<tr><td><b>Bounded</b> in \([-1,1]\) (§4.2)</td><td>Scores are comparable across queries and documents; thresholds are expressible without per-query rescaling.</td></tr>
+<tr><td><b>Scale-invariant</b> (§4.1)</td><td>A long document and a short one are not advantaged or penalised by vector magnitude alone — only by direction.</td></tr>
+<tr><td><b>Total order</b> on reals</td><td>Any set of scores sorts unambiguously, so "top \(k\)" is always well-defined.</td></tr>
+<tr><td><b>Monotone in \(\theta\)</b></td><td>Higher score always means smaller angle; the ordering has an unambiguous geometric reading (§4.5).</td></tr>
+<tr><td><b>Single inner product</b> on normalized vectors</td><td>\(O(d)\) per comparison with no division or branching — the basis of §7.</td></tr>
+</table>
+
+<div class="callout blue"><b>The same encoder on both sides.</b> Query and document vectors must come from the same space, or the angle between them is meaningless. Asymmetric setups exist — some models use distinct query and document encoders trained <em>jointly</em> so their outputs are co-embedded in one space — but mixing two independently trained models produces scores with no interpretation. This is a correctness requirement, not a convention.</div>
+
+<h3>6.3 The ranking is relative, not absolute</h3>
+<p>
+  Cosine turns a learned representation into a <em>relative</em> relevance signal. It reliably says
+  that document \(A\) is more aligned with the query than document \(B\). It does not, without
+  calibration, say that \(A\) is <em>relevant</em> — the same score may indicate a good match in one
+  model's space and a mediocre one in another's (§5.4). Threshold-based filtering therefore requires
+  per-model calibration against labelled data; top-\(k\) ranking does not.
+</p>
+
+</div></section>
+
+<!-- ─── 7. SCALE ─── -->
+<section id="s7"><div class="section-head"><h2>7. Why Cosine Is Attractive at Scale</h2><p>Cosine defines the similarity relationship. Approximate nearest-neighbour structures make searching it practical. The emphasis here is on the former.</p></div>
+<div class="content">
+
+<h3>7.1 The identity that cheapens everything</h3>
+<p>
+  Section 4.4 established \(\hat a\cdot\hat b=\cos\theta\). Normalize once at indexing time and every
+  subsequent comparison is a bare inner product: \(d\) multiplications and \(d-1\) additions, no
+  square roots, no division. This is the single most consequential practical fact about cosine
+  similarity — it is a dot product in disguise, and dot products are what hardware and BLAS libraries
+  are built to do in bulk.
+</p>
+<p>Exhaustive scoring of \(N\) documents of dimension \(d\) costs \(\Theta(Nd)\) arithmetic operations per query — linear in corpus size. At large \(N\) that is the thing to avoid, which is what ANN indexes are for.</p>
+
+<h3>7.2 How vector databases actually expose cosine</h3>
+<div class="callout"><b>Production systems do expose cosine.</b> Cosine is not a metric that production vector stores lack; it is one they reach in one of three equivalent ways:
+<ol style="margin:9px 0 0 18px">
+  <li><b>Expose cosine directly</b> as a selectable metric, computing the normalized form internally. Qdrant, Milvus and pgvector all offer a cosine metric or cosine-distance operator.</li>
+  <li><b>Normalize at ingest and use inner product.</b> This is FAISS's documented approach: it provides no dedicated cosine metric, and the canonical recipe is <code>faiss.normalize_L2</code> on both corpus and query vectors followed by an inner-product index such as <code>IndexFlatIP</code>, at which point the returned inner products <em>are</em> cosine similarities.</li>
+  <li><b>Accept L2 on normalized vectors</b>, relying on the monotone equivalence of §4.5 to produce the identical ranking.</li>
+</ol>
+All three compute the same ordering. The engineering question is where normalization happens, not whether cosine is supported.</div>
+
+<h3>7.3 ANN indexing, in the role it belongs in</h3>
+<p>
+  Exhaustive search is exact but linear in \(N\). Approximate nearest-neighbour indexes trade a
+  controllable amount of recall for a large reduction in the number of comparisons. HNSW — a
+  multi-layer proximity graph in which search descends from sparse upper layers to dense lower ones,
+  greedily following whichever neighbour improves the similarity score — is among the most widely
+  deployed. Malkov and Yashunin report search cost scaling logarithmically with corpus size under
+  their experimental conditions.
+</p>
+
+<div class="diagram-wrap">
+<pre class="mermaid">
+flowchart TB
+  EP["Entry point<br/><small>sparse top layer</small>"] --> L2["Upper layers<br/><small>long-range hops, coarse approach</small>"]
+  L2 --> L1["Lower layers<br/><small>short hops, local refinement</small>"]
+  L1 --> CAND["Candidate pool<br/><small>size controlled by ef</small>"]
+  CAND --> OUT["Top-k by cosine"]
+  style EP fill:#e8f1ff,stroke:#3975c6
+  style CAND fill:#fff7e6,stroke:#9a6500
+  style OUT fill:#e8f7f1,stroke:#157a5a,stroke-width:2px
+</pre>
+</div>
+
+<div class="callout"><b>What is deliberately not claimed here.</b> No closed-form expression of the kind \(C\approx 2(\mathit{ef}\times M\times d)\) is offered as HNSW's complexity, and no specific recall percentage is attached to a specific \(\mathit{ef}\) value. Such an expression is at best an illustrative sketch of one implementation's inner loop rather than the algorithm's complexity; and recall at a given \(\mathit{ef}\) depends on the dataset, the construction parameters and the intrinsic dimensionality of the data, so no universal numbers exist. The logarithmic scaling reported by Malkov and Yashunin is an <b>empirical result under stated conditions</b>, not a proven worst-case bound. For this paper's argument only the qualitative point is needed: <b>cosine defines the similarity relationship; the index makes searching that relationship tractable without altering what is being measured.</b></div>
+
+<p>
+  Two parameters express the tradeoff. \(M\) governs graph connectivity at build time; \(\mathit{ef}\)
+  governs how many candidates the search keeps in flight. Raising either increases recall and cost.
+  The right values are found by measuring recall against exhaustive search on representative data —
+  not by quoting defaults.
+</p>
+
+</div></section>
+<!-- ─── 8. LIMITS ─── -->
+<section id="s8"><div class="section-head"><h2>8. Where Single-Vector Cosine Retrieval Has Limits</h2><p>The limits belong to the single-vector representation, not to the cosine function. Naming the right culprit determines the right remedy.</p></div>
+<div class="content">
+
+<h3>8.1 The architectural constraint</h3>
+<p>
+  In the §6.1 design, \(v_j\) is computed before any query exists. This is precisely what makes
+  precomputation and ANN indexing possible — and it imposes a hard constraint:
+</p>
+<div class="callout blue"><b>The independence property.</b> Document and query are encoded separately. The document's representation therefore cannot depend on the query. Whatever the encoder chose to preserve when compressing a passage into \(d\) numbers, it chose <em>without knowing what would be asked</em>. This is a property of the <b>bi-encoder architecture</b>, not of cosine similarity: swapping in any other similarity function over the same two independent vectors changes nothing about it.</div>
+
+<h3>8.2 What follows from it</h3>
+<ul>
+  <li><b>A fixed-capacity bottleneck.</b> A passage containing several distinct claims must be represented by one direction. Aspects of it that no training signal emphasised may not be recoverable, whatever metric is applied afterwards.</li>
+  <li><b>No token-level interaction at scoring time.</b> Fine-grained correspondence between a query phrase and a specific document clause is not available to a single dot product between pooled vectors.</li>
+  <li><b>Query-dependent emphasis is impossible.</b> If relevance hinges on a minor detail of a long passage, the pooled vector may have given that detail little weight.</li>
+</ul>
+
+<h3>8.3 Negation, stated carefully</h3>
+<div class="callout"><b>Why the dilution argument fails.</b> Negation is sometimes said to fail because "not" is merely one token among many in an average, so its contribution is diluted. That reasoning does not hold: in a Transformer encoder, representations are <em>contextual</em>, and a negation token can alter the representation of every token it attends to. "Safe" in <em>"this is not safe"</em> is not the same vector as "safe" in <em>"this is safe"</em> before pooling ever happens.<br/><br/>
+The defensible statement is narrower: whether a particular model's embeddings reliably separate a statement from its negation is an <b>empirical property of that model</b>, determined by whether its training data and objective required the distinction. Contrastive training that never presents negation pairs as hard negatives has no reason to encode the distinction strongly. This is a limitation to be <em>measured</em> on a given model, not deduced from pooling arithmetic.</div>
+
+<h3>8.4 The cross-encoder: dropping the independence property</h3>
+<p>
+  If the constraint is independent encoding, the remedy is joint encoding. A <b>cross-encoder</b> takes
+  the concatenated pair \((Q, D_j)\) as a single input and emits a relevance score directly. Attention
+  spans both texts, so every document token is read in the presence of the query.
+</p>
+
+<div class="diagram-wrap">
+<pre class="mermaid">
+flowchart TB
+  subgraph BI["Bi-encoder — independent encoding"]
+    BQ["Query"] --> BQE["Encoder"] --> BQV["u"]
+    BD["Document"] --> BDE["Encoder<br/><small>offline</small>"] --> BDV["v"]
+    BQV --> BS["cos(u,v)"]
+    BDV --> BS
+  end
+  subgraph CE["Cross-encoder — joint encoding"]
+    CQ["Query + Document<br/><small>concatenated</small>"] --> CM["Transformer<br/><small>attention spans both</small>"] --> CS["Relevance score"]
+  end
+  BS --> N1["Precomputable · ANN-indexable · O(d) per comparison"]
+  CS --> N2["Not precomputable · one forward pass per pair"]
+  style BS fill:#e8f1ff,stroke:#3975c6
+  style CS fill:#f4eefc,stroke:#7b52b9
+  style N1 fill:#e8f7f1,stroke:#157a5a
+  style N2 fill:#fff0f0,stroke:#a93636
+</pre>
+</div>
+
+<table>
+<tr><th></th><th>Bi-encoder</th><th>Cross-encoder</th></tr>
+<tr><td><b>Encoding</b></td><td>Query and document separately</td><td>Jointly, as one input</td></tr>
+<tr><td><b>Document vectors</b></td><td>Precomputed once, stored</td><td>Not applicable — no reusable representation</td></tr>
+<tr><td><b>Query-time work</b></td><td>One encode + ANN search over \(N\)</td><td>One model forward pass <em>per candidate pair</em></td></tr>
+<tr><td><b>Interaction</b></td><td>Single dot product between pooled vectors</td><td>Full attention across both texts</td></tr>
+<tr><td><b>Indexable</b></td><td>Yes</td><td>No</td></tr>
+<tr><td><b>Scales to large corpora</b></td><td>Yes</td><td>No — cost grows with pairs scored</td></tr>
+</table>
+
+<p>
+  The cost asymmetry is severe and is the reason the architectures coexist. Reimers and Gurevych
+  (2019), introducing Sentence-BERT, report that finding the most similar pair among 10,000 sentences
+  with BERT used as a cross-encoder takes roughly <b>65 hours</b> on their hardware, because all
+  \(\binom{10000}{2}\approx 5\times10^{7}\) pairs must be scored individually. The same task with
+  SBERT embeddings takes about <b>5 seconds</b> to encode, after which cosine comparison is
+  near-instantaneous. That contrast is the entire economic case for embedding-based retrieval.
+</p>
+
+<div class="callout"><b>What is not claimed.</b> Cross-encoders are <em>not</em> universally superior, and no fixed percentage improvement is quoted here. Published results generally show joint encoding ranking better than independent encoding on the same candidates for many retrieval tasks, but the margin is task-, model- and data-dependent. Whether it is worth the cost is an empirical question answered per application.</div>
+
+<h3>8.5 Reranking as an extension, not a replacement</h3>
+<p>
+  Combining the two is straightforward and follows directly from their cost structures. Stage one uses
+  cosine over an ANN index to reduce \(N\) documents to \(k\) candidates at a cost that does not grow
+  with \(k\). Stage two applies the cross-encoder to those \(k\) pairs at a cost linear in \(k\) and
+  independent of \(N\).
+</p>
+
+<div class="diagram-wrap">
+<pre class="mermaid">
+flowchart LR
+  N["Corpus — N documents"] --> S1["Stage 1 · cosine + ANN<br/><small>cheap, recall-oriented</small>"]
+  S1 --> C["k candidates<br/><small>k ≪ N</small>"]
+  C --> S2["Stage 2 · cross-encoder<br/><small>expensive, precision-oriented</small>"]
+  S2 --> F["Reordered top results"]
+  style S1 fill:#e8f1ff,stroke:#3975c6
+  style S2 fill:#f4eefc,stroke:#7b52b9
+  style F fill:#e8f7f1,stroke:#157a5a,stroke-width:2px
+</pre>
+</div>
+
+<div class="callout green"><b>The relationship, stated precisely.</b> Reranking <b>extends</b> embedding retrieval; it does not replace the semantic-vector paradigm. The reranker never sees the corpus — it only ever sees candidates that cosine retrieval already surfaced. Its ceiling is therefore set by stage-one recall: a document cosine never retrieved cannot be rescued by any reranker. Far from superseding cosine retrieval, the second stage <em>depends</em> on it.</div>
+
+<div class="callout"><b>Reranking is not required.</b> Two-stage retrieval is not a requirement, and no equation of the form "end-to-end quality \(= R_k \times P\)" holds as a general law. First-stage vector retrieval provides scalable candidate generation and is sufficient on its own for many applications. Reranking should be added when measured gains in ranking quality — or in a downstream task — justify its additional compute and latency. Any such product form presumes a single relevant document and independence between the stages' error events; it is not a general identity and is not used here.</div>
+
+<h3>8.6 Late interaction: the middle of the spectrum</h3>
+<p>
+  The two architectures are endpoints of a spectrum, and it is worth seeing the middle. <b>Late
+  interaction</b> approaches such as ColBERT store a vector <em>per token</em> rather than one per
+  document, then compute similarity by matching query tokens against document tokens at query time.
+  This recovers some token-level interaction while keeping document encoding query-independent and
+  therefore precomputable. The cost is storage and a more complex retrieval procedure.
+</p>
+<div class="callout blue"><b>Why it belongs here in one paragraph.</b> It locates the design space precisely: <b>one vector per document</b> (maximum precomputation, minimum interaction) → <b>many vectors per document</b> (partial interaction, still precomputable) → <b>joint encoding</b> (maximum interaction, no precomputation). All three still compute inner products between learned representations. Even at the interactive end, the underlying paradigm is unchanged — which is the point.</div>
+
+<h3>8.7 Downstream: retrieval-augmented generation</h3>
+<p>
+  One application deserves a short mention because it is where retrieval quality becomes visible.
+  In RAG, semantic retrieval selects the context supplied to a generative model. The retrieval stage
+  determines <em>what the generator is given</em>; context that was never retrieved cannot inform the
+  output. Weak retrieval therefore constrains achievable generation quality.
+</p>
+<div class="callout"><b>Stated without overreach.</b> It does not follow that a generator deterministically produces a wrong answer from imperfect context — models may abstain, hedge, rely on parametric knowledge, or succeed from partial evidence. The defensible claim is directional: retrieval quality bounds the evidence available downstream. Quantifying the effect requires end-to-end evaluation of the specific system.</div>
+
+</div></section>
+
+<!-- ─── 9. BEYOND COSINE ─── -->
+<section id="s9"><div class="section-head"><h2>9. Beyond Cosine: Alternatives and Their Conditions</h2><p>Cosine is not mathematically mandatory. Its prevalence has specific, nameable causes.</p></div>
+<div class="content">
+
+<h3>9.1 The alternatives</h3>
+<table>
+<tr><th>Function</th><th>Definition</th><th>Sensitive to magnitude?</th><th>When appropriate</th></tr>
+<tr><td><b>Cosine similarity</b></td><td>\(\dfrac{a\cdot b}{\lVert a\rVert\lVert b\rVert}\)</td><td>No</td><td>Magnitude should not influence similarity; model trained with cosine objective</td></tr>
+<tr><td><b>Inner product</b></td><td>\(a\cdot b\)</td><td>Yes</td><td>Magnitude is meaningful — e.g. encodes confidence, popularity or a learned prior the model was trained to express</td></tr>
+<tr><td><b>Euclidean distance</b></td><td>\(\lVert a-b\rVert\)</td><td>Yes</td><td>Absolute position in the space matters; equivalent to cosine ranking <em>if</em> normalized (§4.5)</td></tr>
+<tr><td><b>Angular distance</b></td><td>\(\theta/\pi\)</td><td>No</td><td>Same ordering as cosine, but satisfies the triangle inequality (§4.6)</td></tr>
+<tr><td><b>Learned / task-specific</b></td><td>e.g. a cross-encoder's scoring head</td><td>n/a</td><td>Richer interaction is needed and cost permits (§8.4)</td></tr>
+</table>
+
+<h3>9.2 Why cosine is nonetheless so common</h3>
+<p>Not because it is superior in general, but because several desirable properties coincide in it:</p>
+<div class="decision-grid">
+  <div class="decision"><b>Scale invariance</b><p>Text length and magnitude artefacts do not dominate similarity (§4.1).</p></div>
+  <div class="decision"><b>Bounded range</b><p>\([-1,1]\) for every pair, making scores comparable without rescaling (§4.2).</p></div>
+  <div class="decision"><b>Geometric clarity</b><p>Means one definite thing — angular alignment — with an unambiguous reading at \(+1\), \(0\), \(-1\).</p></div>
+  <div class="decision"><b>Computational match</b><p>Reduces to a plain inner product on normalized vectors, which hardware does exceptionally well (§7.1).</p></div>
+</div>
+<p style="margin-top:14px">
+  And decisively: it is the function most embedding models for retrieval are <em>trained</em> with
+  (§5.2). Using at inference the similarity the objective optimised is not a stylistic preference but
+  a correctness consideration — §5.3 shows what can go wrong otherwise. <b>Where magnitude carries
+  genuine learned information, the unnormalized inner product may be the better choice, and
+  normalizing would discard signal.</b>
+</p>
+
+</div></section>
+<!-- ─── 10. CONCLUSION ─── -->
+<section id="s10"><div class="section-head"><h2>10. Conclusion</h2><p>The hierarchy the argument has established.</p></div>
+<div class="content">
+
+<p>
+  Cosine similarity occupies a precise position in semantic search, and most confusion about it comes
+  from assigning it a different one. It is not a semantic operator. It is not an approximation to
+  understanding. It is a bounded, scale-invariant measurement of angular alignment, derived in §4 from
+  the law of cosines and carrying no knowledge of language whatsoever.
+</p>
+<p>
+  What makes it indispensable is what sits beneath it. An embedding model, trained under an objective
+  that rewards similarity structure, produces a space in which semantic relationships have become
+  geometric ones. In that space — and only in that space — measuring an angle recovers something about
+  meaning. The metric contributes rigour and cheapness; the model contributes the semantics.
+</p>
+
+<div class="callout green" style="font-size:15.5px">
+  <b>The hierarchy, in order:</b>
+  <ol style="margin:10px 0 0 18px;line-height:1.85">
+    <li>The <b>embedding model</b> creates the semantic geometry.</li>
+    <li><b>Cosine similarity</b> measures directional alignment within that geometry.</li>
+    <li>The <b>similarity score</b> enables semantic ranking.</li>
+    <li><b>Vector indexes</b> make that ranking scalable.</li>
+    <li><b>Reranking</b> adds richer interaction when a single-vector representation is insufficient.</li>
+  </ol>
+</div>
+
+<p style="margin-top:16px">
+  Each layer depends on the one above and cannot substitute for it. A better metric cannot repair a
+  poorly trained space. A larger index cannot create relevance that the representation failed to
+  encode. A reranker cannot retrieve what the first stage never surfaced. And cosine similarity — the
+  single division that this entire architecture rests on — works not because it is clever, but because
+  a model was trained to make it informative.
+</p>
+
+<div class="callout blue"><b>The distinction worth carrying away.</b> Cosine similarity does not understand semantics; it is a mathematical operation. The embedding model creates a representation space in which semantic relationships can be encoded. Cosine then measures directional alignment within that learned space. Keeping these three statements separate resolves most of the apparent paradoxes in the subject — including why cosine is simultaneously so effective in practice and provably arbitrary in the wrong setting (§5.3).</div>
+
+</div></section>
+
+<!-- ─── APPENDIX A ─── -->
+<section id="appendix-a"><div class="section-head"><h2>Appendix A · Question Index</h2><p>Each question the paper sets out to answer, and where it is answered.</p></div>
+<div class="content">
+<table>
+<tr><th>#</th><th>Question</th><th>Answered in</th></tr>
+<tr><td>1</td><td>What is an embedding?</td><td>§2.1, §2.5</td></tr>
+<tr><td>2</td><td>How does text become a vector representation?</td><td>§2.2–§2.4</td></tr>
+<tr><td>3</td><td>What does a vector geometrically represent?</td><td>§3.1–§3.2</td></tr>
+<tr><td>4</td><td>What exactly does cosine similarity measure?</td><td>§4.1–§4.3</td></tr>
+<tr><td>5</td><td>Why is the angle / direction between vectors useful?</td><td>§3.4, §4.1, §4.4</td></tr>
+<tr><td>6</td><td>Why can directional alignment correspond to semantic similarity?</td><td>§5.1–§5.2</td></tr>
+<tr><td>7</td><td>What role does the training objective play in making cosine meaningful?</td><td>§5.2–§5.3</td></tr>
+<tr><td>8</td><td>Why is cosine often preferred over the raw dot product?</td><td>§4.1, §9.1–§9.2</td></tr>
+<tr><td>9</td><td>How does cosine become a ranking mechanism?</td><td>§6.1–§6.3</td></tr>
+<tr><td>10</td><td>Why does this scale to millions of documents?</td><td>§7.1–§7.3</td></tr>
+<tr><td>11</td><td>Where does single-vector cosine retrieval work well?</td><td>§6.2, §8.4 (cost argument)</td></tr>
+<tr><td>12</td><td>What are its limitations?</td><td>§8.1–§8.3</td></tr>
+<tr><td>13</td><td>Why do bi-encoders and cross-encoders both exist?</td><td>§8.4</td></tr>
+<tr><td>14</td><td>Why is reranking an extension rather than a replacement?</td><td>§8.5–§8.6</td></tr>
+</table>
+</div></section>
+
+</main>
+<footer>
+  Author: Yogesh Shinde, AI Architect &middot; <a href="index.html">Back to cipheryogi portfolio</a>
+</footer>
+
+<script>
+(function(){
+  var S=document.getElementById('cosViz'); if(!S) return;
+  var CX=220, CY=220, U=40;               // origin and pixels-per-unit
+  var V={ax:4,ay:1,bx:-1,by:3};
+  var E=function(id){return document.getElementById(id);};
+  var sx=function(x){return CX+x*U;}, sy=function(y){return CY-y*U;};
+  var f2=function(n){return (n<0?'':'')+n.toFixed(2);};
+
+  // static grid and axis ticks
+  (function(){
+    var g='',t='';
+    for(var i=-5;i<=5;i++){
+      g+='<line x1="'+sx(i)+'" y1="20" x2="'+sx(i)+'" y2="420" stroke="#eef3f9" stroke-width="1"/>';
+      g+='<line x1="20" y1="'+sy(i)+'" x2="420" y2="'+sy(i)+'" stroke="#eef3f9" stroke-width="1"/>';
+      if(i!==0){
+        t+='<text x="'+(sx(i)-3)+'" y="'+(CY+14)+'" font-size="9" fill="#8294ab">'+i+'</text>';
+        t+='<text x="'+(CX+5)+'" y="'+(sy(i)+3)+'" font-size="9" fill="#8294ab">'+i+'</text>';
+      }
+    }
+    E('grid').innerHTML=g; E('ticks').innerHTML=t;
+  })();
+
+  function render(){
+    var ax=V.ax, ay=V.ay, bx=V.bx, by=V.by;
+    var dot=ax*bx+ay*by, na=Math.hypot(ax,ay), nb=Math.hypot(bx,by);
+    var cos=(na&&nb)?dot/(na*nb):0;
+    cos=Math.max(-1,Math.min(1,cos));
+    var th=Math.acos(cos)*180/Math.PI;
+
+    // clamp only the DRAWING, never the mathematics
+    var LIM=4.7;
+    function clamp(x,y){
+      var m=Math.max(Math.abs(x),Math.abs(y));
+      if(m<=LIM||m===0) return [x,y,false];
+      return [x*LIM/m, y*LIM/m, true];
+    }
+    var ca=clamp(ax,ay), cb=clamp(bx,by);
+    E('vecA').setAttribute('x1',CX); E('vecA').setAttribute('y1',CY);
+    E('vecA').setAttribute('x2',sx(ca[0])); E('vecA').setAttribute('y2',sy(ca[1]));
+    E('vecB').setAttribute('x1',CX); E('vecB').setAttribute('y1',CY);
+    E('vecB').setAttribute('x2',sx(cb[0])); E('vecB').setAttribute('y2',sy(cb[1]));
+    E('handleA').setAttribute('cx',sx(ca[0])); E('handleA').setAttribute('cy',sy(ca[1]));
+    E('handleB').setAttribute('cx',sx(cb[0])); E('handleB').setAttribute('cy',sy(cb[1]));
+    E('handleA').setAttribute('opacity',ca[2]?0.45:1);
+    E('handleB').setAttribute('opacity',cb[2]?0.45:1);
+    E('labelA').setAttribute('x',sx(ca[0])+14); E('labelA').setAttribute('y',sy(ca[1])-9);
+    E('labelB').setAttribute('x',sx(cb[0])+14); E('labelB').setAttribute('y',sy(cb[1])-9);
+    E('labelA').textContent = ca[2] ? 'a \u2192 off-grid' : 'a';
+    E('labelB').textContent = cb[2] ? 'b \u2192 off-grid' : 'b';
+
+    // projection of a onto b
+    if(nb>0){
+      var k=dot/(nb*nb), cp=clamp(bx*k,by*k);
+      E('projLine').setAttribute('x1',CX); E('projLine').setAttribute('y1',CY);
+      E('projLine').setAttribute('x2',sx(cp[0])); E('projLine').setAttribute('y2',sy(cp[1]));
+      E('projDrop').setAttribute('x1',sx(ca[0])); E('projDrop').setAttribute('y1',sy(ca[1]));
+      E('projDrop').setAttribute('x2',sx(cp[0])); E('projDrop').setAttribute('y2',sy(cp[1]));
+    }
+
+    // angle wedge
+    if(na>0&&nb>0){
+      var r=46, a1=Math.atan2(ay,ax), a2=Math.atan2(by,bx);
+      var d=a2-a1; while(d>Math.PI)d-=2*Math.PI; while(d<-Math.PI)d+=2*Math.PI;
+      var x1=CX+r*Math.cos(a1), y1=CY-r*Math.sin(a1);
+      var x2=CX+r*Math.cos(a1+d), y2=CY-r*Math.sin(a1+d);
+      E('angleArc').setAttribute('d','M '+CX+' '+CY+' L '+x1+' '+y1+' A '+r+' '+r+' 0 0 '+(d>0?0:1)+' '+x2+' '+y2+' Z');
+      var am=a1+d/2;
+      E('angleLabel').setAttribute('x',CX+(r+16)*Math.cos(am)-10);
+      E('angleLabel').setAttribute('y',CY-(r+16)*Math.sin(am)+4);
+      E('angleLabel').textContent=th.toFixed(1)+'\u00B0';
+    }
+
+    E('rA').textContent='('+f2(ax)+', '+f2(ay)+')';
+    E('rB').textContent='('+f2(bx)+', '+f2(by)+')';
+    E('rDotCalc').textContent=f2(ax)+'('+f2(bx)+') + '+f2(ay)+'('+f2(by)+') = '+f2(dot);
+    E('rDot').textContent=f2(dot);
+    E('rNA').textContent=na.toFixed(2); E('rNB').textContent=nb.toFixed(2);
+    E('rCosCalc').textContent=f2(dot)+' / ('+na.toFixed(2)+' \u00D7 '+nb.toFixed(2)+')';
+    E('rCos').textContent=cos.toFixed(3);
+    E('rTheta').textContent=th.toFixed(1)+'\u00B0';
+
+    var vl=E('rVerdict');
+    if(th<1){ vl.textContent='Parallel \u2014 cos = +1, maximum similarity'; vl.style.color='#157a5a'; }
+    else if(th>179){ vl.textContent='Antiparallel \u2014 cos = \u22121, maximum dissimilarity'; vl.style.color='#a93636'; }
+    else if(Math.abs(th-90)<1){ vl.textContent='Orthogonal \u2014 cos = 0, unrelated'; vl.style.color='#9a6500'; }
+    else if(th<90){ vl.textContent='Acute \u2014 positive dot product, similar direction'; vl.style.color='#157a5a'; }
+    else { vl.textContent='Obtuse \u2014 negative dot product, opposing direction'; vl.style.color='#a93636'; }
+
+    if(na>0&&nb>0){
+      E('rUA').textContent='('+f2(ax/na)+', '+f2(ay/na)+')';
+      E('rUB').textContent='('+f2(bx/nb)+', '+f2(by/nb)+')';
+      E('rUDot').textContent=cos.toFixed(3);
+    }
+  }
+
+  var drag=null;
+  function pt(ev){
+    var r=S.getBoundingClientRect(), vb=S.viewBox.baseVal;
+    var t=(ev.touches&&ev.touches[0])||ev;
+    return { x:((t.clientX-r.left)/r.width)*vb.width, y:((t.clientY-r.top)/r.height)*vb.height };
+  }
+  function move(ev){
+    if(!drag) return;
+    ev.preventDefault();
+    var p=pt(ev), x=(p.x-CX)/U, y=(CY-p.y)/U;
+    if(ev.shiftKey){ x=Math.round(x); y=Math.round(y); }
+    x=Math.max(-5.2,Math.min(5.2,x)); y=Math.max(-5.2,Math.min(5.2,y));
+    if(drag==='a'){ V.ax=x; V.ay=y; } else { V.bx=x; V.by=y; }
+    render();
+  }
+  function start(which){ return function(ev){ ev.preventDefault(); drag=which; }; }
+  E('handleA').addEventListener('mousedown',start('a'));
+  E('handleB').addEventListener('mousedown',start('b'));
+  E('handleA').addEventListener('touchstart',start('a'),{passive:false});
+  E('handleB').addEventListener('touchstart',start('b'),{passive:false});
+  window.addEventListener('mousemove',move);
+  window.addEventListener('touchmove',move,{passive:false});
+  window.addEventListener('mouseup',function(){drag=null;});
+  window.addEventListener('touchend',function(){drag=null;});
+
+  var btns=document.querySelectorAll('.wbtn');
+  for(var i=0;i<btns.length;i++){
+    btns[i].addEventListener('click',function(){
+      var v=this.getAttribute('data-preset').split(',').map(Number);
+      V.ax=v[0]; V.ay=v[1]; V.bx=v[2]; V.by=v[3];
+      // keep off-grid presets visible by clamping only the drawing, not the math
+      render();
+    });
+  }
+
+  render();
+})();
+</script>
+
+</body>
+</html>
+
