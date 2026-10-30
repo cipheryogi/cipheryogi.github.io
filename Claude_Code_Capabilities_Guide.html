@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Claude Code Capabilities | cipheryogi</title>
+  <meta name="description" content="Guide by Yogesh Shinde: what Claude Code can do and how to steer it, covering built-in tools, subagents, agent teams, workflows, skills, plugins, hooks, permission modes, models, and headless and CI automation." />
+  <meta name="author" content="Yogesh Shinde" />
+  <link rel="canonical" href="https://cipheryogi.github.io/Claude_Code_Capabilities_Guide.html" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://cipheryogi.github.io/Claude_Code_Capabilities_Guide.html" />
+  <meta property="og:title" content="Claude Code Capabilities" />
+  <meta property="og:description" content="Built-in tools, subagents, agent teams, workflows, skills, plugins, hooks, permission modes, models, and headless and CI automation." />
+  <meta property="og:image" content="https://cipheryogi.github.io/og-image.jpg" />
+  <meta name="twitter:card" content="summary" />
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      securityLevel: 'loose',
+      theme: 'base',
+      flowchart: { htmlLabels: true, curve: 'basis', nodeSpacing: 30, rankSpacing: 44 },
+      themeVariables: {
+        primaryColor: '#e8f1ff', primaryTextColor: '#132238', primaryBorderColor: '#3975c6',
+        lineColor: '#5b708f', secondaryColor: '#f5f8fc', tertiaryColor: '#fff7e6',
+        fontFamily: 'Segoe UI, Arial, sans-serif'
+      }
+    });
+  </script>
+  <style>
+    :root{--navy:#132238;--blue:#1769aa;--blues:#e8f1ff;--green:#157a5a;--greens:#e8f7f1;--amber:#9a6500;--ambers:#fff5dd;--red:#a93636;--reds:#fff0f0;--purple:#7b52b9;--ink:#26384f;--muted:#5f7084;--line:#d8e1ec;--surface:#fff;--bg:#f3f6fa}
+    *{box-sizing:border-box} body{margin:0;font-family:"Segoe UI",Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55}
+    header{color:#fff;background:linear-gradient(120deg,#0e2949,#1769aa 68%,#14806b);padding:42px clamp(22px,5vw,72px) 36px}
+    header h1{margin:0 0 8px;font-size:clamp(30px,4.2vw,50px);letter-spacing:-.8px} header p{margin:0;max-width:980px;font-size:18px;opacity:.93}
+    .badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.badge{padding:7px 11px;border-radius:999px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.24);font-size:13px;font-weight:650}
+    main{width:min(1320px,95vw);margin:28px auto 56px} section{background:var(--surface);border:1px solid var(--line);border-radius:16px;margin:20px 0;box-shadow:0 8px 26px rgba(19,34,56,.055)}
+    .section-head{padding:24px 28px 4px}.section-head h2{margin:0 0 7px;color:var(--navy);font-size:25px}.section-head p{margin:0;color:var(--muted)}.content{padding:20px 28px 28px}
+    .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.summary{border:1px solid var(--line);border-top:5px solid var(--blue);border-radius:12px;padding:16px;background:#fbfdff}.summary:nth-child(2){border-top-color:var(--green)}.summary:nth-child(3){border-top-color:var(--amber)}.summary:nth-child(4){border-top-color:var(--purple)}.summary b{display:block;color:var(--navy);margin-bottom:6px}.summary span{color:var(--muted);font-size:14px}
+    .diagram-wrap{overflow-x:auto;padding:6px;border:1px solid var(--line);border-radius:12px;background:#fff}.mermaid{min-width:900px}.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px;font-size:13px;color:var(--muted)}.dot{width:11px;height:11px;border-radius:50%;display:inline-block;margin-right:5px}
+    .steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.step{border:1px solid var(--line);border-radius:13px;padding:18px;background:#fff}.step .num{float:left;width:34px;height:34px;margin:1px 12px 8px 0;display:grid;place-items:center;border-radius:10px;color:#fff;background:var(--blue);font-weight:750}.step.a2 .num{background:var(--green)}.step.a3 .num{background:var(--purple)}.step h3{margin:0 0 7px;color:var(--navy);font-size:18px}.step p{margin:7px 0;font-size:14.5px}.step ul,.step ol{margin:8px 0 0 20px;padding:0;font-size:14px}
+    code{background:#edf2f7;border-radius:5px;padding:2px 5px;font-size:.92em;color:#28415d}.callout{border-left:5px solid var(--amber);background:var(--ambers);border-radius:10px;padding:16px 18px;margin-top:16px}.callout.red{border-left-color:var(--red);background:var(--reds)}.callout.green{border-left-color:var(--green);background:var(--greens)}.callout.blue{border-left-color:var(--blue);background:var(--blues)}
+    .decision-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.decision{padding:15px;border-radius:11px;border:1px solid var(--line);background:#fbfdff}.decision b{color:var(--navy);display:block;margin-bottom:5px}.decision p{margin:0;font-size:14px}
+    table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;vertical-align:top;padding:11px 12px;border-bottom:1px solid var(--line)}th{color:var(--navy);background:#f2f6fb}tr:last-child td{border-bottom:0}
+    .prop-table td:first-child{font-family:Consolas,monospace;font-size:13px;white-space:nowrap}
+    .qa{border:1px solid var(--line);border-radius:12px;padding:18px;margin-top:14px;background:#fbfdff}.qa h3{margin:0 0 8px;color:var(--navy);font-size:18px}.qa p{margin:6px 0;font-size:14.5px}.qa .ans{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12.5px;font-weight:700;margin-bottom:6px}.ans.no{background:var(--reds);color:var(--red)}.ans.mix{background:var(--blues);color:var(--blue)}
+    .sub{margin:26px 0 10px;color:var(--navy);font-size:19px}pre.code{background:#0f1f33;color:#e6eef8;border-radius:10px;padding:14px 16px;overflow-x:auto;font-family:Consolas,monospace;font-size:13px;line-height:1.5;margin:8px 0 4px}pre.code .c{color:#8fa6c2}.code-label{font-size:13px;color:var(--muted);margin-top:14px}
+    .group td{background:#f7f9fc;color:var(--navy);font-weight:700;font-size:13px;letter-spacing:.3px;text-transform:uppercase}
+    footer{width:min(1320px,95vw);margin:0 auto 34px;color:var(--muted);font-size:12.5px}
+    @media(max-width:900px){.summary-grid,.decision-grid,.steps{grid-template-columns:1fr}.section-head,.content{padding-left:18px;padding-right:18px}}
+    @media print{body{background:#fff}section{box-shadow:none;break-inside:avoid}.diagram-wrap{overflow:visible}.mermaid{min-width:0}}
+  </style>
+</head>
+<body>
+<header>
+  <p style="margin:0 0 16px"><a href="index.html" style="color:#fff;opacity:.9">&#8592; Back to cipheryogi portfolio</a></p>
+  <h1>Claude Code Capabilities</h1>
+  <p>What Claude Code can do and how to steer it: built-in tools, subagents, agent teams, dynamic workflows, skills, plugins, hooks, permission modes, models, and headless and CI automation.</p>
+  <div class="badges">
+    <span class="badge">Built-in tools</span>
+    <span class="badge">Subagents · teams · workflows</span>
+    <span class="badge">Skills · plugins · hooks</span>
+    <span class="badge">Permission modes</span>
+    <span class="badge">Headless + CI</span>
+  </div>
+  <p style="margin-top:16px;font-size:14.5px">Companion guide: <a href="claude_code_file_structure_guide.html" style="color:#fff">Claude Code File Structure &amp; Configuration</a> (where <code style="background:rgba(255,255,255,.18);color:#fff">CLAUDE.md</code>, settings, memory, MCP configuration and credentials live).</p>
+</header>
+<main>
+
+<section>
+  <div class="section-head"><h2>1. The Mental Model</h2><p>Four layers: what Claude can do, who does the work, how you extend it, and what keeps it safe.</p></div>
+  <div class="content summary-grid">
+    <div class="summary"><b>Tools</b><span>Built-in actions such as reading and editing files, running shell commands, fetching web pages and asking you questions. MCP servers add more.</span></div>
+    <div class="summary"><b>Agents</b><span>The main session can delegate to subagents, coordinate an agent team, or run a dynamic workflow that orchestrates many agents.</span></div>
+    <div class="summary"><b>Extensions</b><span>Skills add reusable instructions, hooks add deterministic automation, and plugins package skills, agents, hooks and MCP servers together.</span></div>
+    <div class="summary"><b>Controls</b><span>Permission modes and rules decide what runs without asking. The sandbox adds OS-level isolation, and checkpoints let you rewind edits.</span></div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>2. Capability Map</h2><p>How the pieces relate inside one Claude Code session.</p></div>
+  <div class="content">
+    <div class="diagram-wrap"><pre class="mermaid">
+flowchart LR
+  YOU["YOU<br/>prompt · /commands"] --> MAIN["MAIN SESSION<br/>model + context window"]
+  MAIN --> TOOLS["Built-in tools<br/>Read · Edit · Bash · WebFetch · ..."]
+  MAIN --> MCP["MCP servers<br/>external tools and data"]
+  MAIN --> SK["Skills<br/>loaded when relevant or via /name"]
+  MAIN --> SUB["Subagents<br/>own context · background by default"]
+  MAIN --> TEAM["Agent team (experimental)<br/>teammates + shared task list"]
+  MAIN --> WF["Dynamic workflow<br/>script orchestrates many agents"]
+  PLUG["Plugins<br/>packaged extensions"] -.-> SK
+  PLUG -.-> MCP
+  PLUG -.-> SUB
+  PLUG -.-> HOOK
+  HOOK["Hooks<br/>scripts on lifecycle events"] -.-> MAIN
+  CTRL["Permission modes · rules · sandbox"] -.-> TOOLS
+  CTRL -.-> MCP
+  classDef core fill:#e8f1ff,stroke:#3975c6,color:#132238;
+  classDef agents fill:#e8f7f1,stroke:#157a5a,color:#103e31;
+  classDef ext fill:#fff5dd,stroke:#9a6500,color:#5a3d00;
+  classDef ctrl fill:#fff0f0,stroke:#a93636,color:#5a1d1d;
+  class YOU,MAIN,TOOLS,MCP core;
+  class SUB,TEAM,WF agents;
+  class SK,PLUG,HOOK ext;
+  class CTRL ctrl;
+    </pre></div>
+    <div class="legend">
+      <span><i class="dot" style="background:#3975c6"></i>Session and tools</span>
+      <span><i class="dot" style="background:#157a5a"></i>Delegation</span>
+      <span><i class="dot" style="background:#9a6500"></i>Extensions</span>
+      <span><i class="dot" style="background:#a93636"></i>Controls</span>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>3. Built-in Tools</h2><p>Tool names below are the exact strings used in permission rules, subagent tool lists and hook matchers.</p></div>
+  <div class="content"><table>
+    <thead><tr><th>Tool</th><th>What it does</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr class="group"><td colspan="3">Files</td></tr>
+      <tr><td><code>Read</code></td><td>Reads files, images, PDFs and notebooks</td><td>No permission needed</td></tr>
+      <tr><td><code>Edit</code></td><td>Exact string replacement in a file</td><td>Permission. <code>old_string</code> must match exactly and be unique, or use <code>replace_all</code>.</td></tr>
+      <tr><td><code>Write</code></td><td>Creates or overwrites a file</td><td>Permission. New files need no read. Overwriting follows the same read rule as <code>Edit</code>, and notebooks and partially read files always need the read.</td></tr>
+      <tr><td><code>NotebookEdit</code></td><td>Replaces, inserts or deletes Jupyter cells</td><td>Permission</td></tr>
+      <tr class="group"><td colspan="3">Search</td></tr>
+      <tr><td><code>Glob</code> · <code>Grep</code></td><td>File-pattern matching and ripgrep content search</td><td><b>Off by default on macOS, Linux and WSL.</b> There Claude uses <code>find</code> and <code>grep</code> through Bash. On by default on Windows. Name them in <code>--tools</code> or <code>--allowedTools</code> to bring them back.</td></tr>
+      <tr class="group"><td colspan="3">Shell</td></tr>
+      <tr><td><code>Bash</code></td><td>Runs shell commands, including in the background</td><td>Permission, except a built-in read-only set. Default timeout 2 minutes, max 10. Environment variables don't persist between commands.</td></tr>
+      <tr><td><code>PowerShell</code></td><td>Native PowerShell</td><td>Automatic on Windows without Git Bash. Opt-in on macOS, Linux and WSL (PowerShell 7+).</td></tr>
+      <tr><td><code>Monitor</code></td><td>Runs a command in the background and feeds each output line back to Claude</td><td>Permission (uses Bash rules). Watch deadline 5 minutes by default, 30 maximum.</td></tr>
+      <tr class="group"><td colspan="3">Web</td></tr>
+      <tr><td><code>WebFetch</code></td><td>Fetches a URL, converts it to Markdown and answers a prompt about it</td><td>Lossy by design (a separate model reads the page). Up to 100,000 characters per call, 15-minute cache, refuses <code>localhost</code>.</td></tr>
+      <tr><td><code>WebSearch</code></td><td>Returns titles and URLs</td><td>Doesn't fetch pages. 200 calls per interactive session. Not available on Amazon Bedrock.</td></tr>
+      <tr class="group"><td colspan="3">Planning and interaction</td></tr>
+      <tr><td><code>EnterPlanMode</code> · <code>ExitPlanMode</code></td><td>Switch to plan mode, then present the plan for approval</td><td>Exiting needs your approval</td></tr>
+      <tr><td><code>AskUserQuestion</code></td><td>Multiple-choice clarifying questions</td><td>Waits until answered unless <code>askUserQuestionTimeout</code> is set. Not available to subagents.</td></tr>
+      <tr><td><code>TaskCreate</code> · <code>TaskGet</code> · <code>TaskList</code> · <code>TaskUpdate</code></td><td>Task-tracking checklist (replaced <code>TodoWrite</code>)</td><td>Default only on Opus 4.7, Sonnet 4.6, Haiku 4.5 and earlier models. On newer models, opt in with <code>CLAUDE_CODE_ENABLE_TODO_TOOLS=1</code>. Background and cloud sessions always have them.</td></tr>
+      <tr class="group"><td colspan="3">Delegation</td></tr>
+      <tr><td><code>Agent</code></td><td>Spawns a subagent, or a teammate when agent teams are on</td><td>Renamed from <code>Task</code> in v2.1.63. <code>Task(...)</code> still works as an alias.</td></tr>
+      <tr><td><code>SendMessage</code> · <code>ListAgents</code></td><td>Message a subagent, teammate or another local Claude Code session, and list reachable agents</td><td>Also how a finished subagent is resumed</td></tr>
+      <tr><td><code>TaskStop</code></td><td>Stops a background task, teammate or named agent</td><td><code>TaskOutput</code> was removed in v2.1.277. Output files are read with <code>Read</code>.</td></tr>
+      <tr><td><code>Workflow</code></td><td>Runs a dynamic workflow script</td><td>Permission. See section 6.</td></tr>
+      <tr class="group"><td colspan="3">Scheduling, environment and extensions</td></tr>
+      <tr><td><code>CronCreate</code> · <code>CronList</code> · <code>CronDelete</code></td><td>Session-scoped recurring or one-shot prompts (behind <code>/loop</code>)</td><td><code>RemoteTrigger</code> manages cloud scheduled tasks (behind <code>/schedule</code>)</td></tr>
+      <tr><td><code>EnterWorktree</code> · <code>ExitWorktree</code></td><td>Create or enter an isolated git worktree, then return</td><td>Paths outside <code>.claude/worktrees/</code> prompt for approval</td></tr>
+      <tr><td><code>LSP</code></td><td>Definitions, references, types and diagnostics from a language server</td><td>Inactive until you install a code intelligence plugin and the server binary</td></tr>
+      <tr><td><code>Skill</code> · <code>ToolSearch</code></td><td>Run a skill, and load deferred (MCP) tool definitions on demand</td><td>Skills don't add tool entries. They run through <code>Skill</code>.</td></tr>
+    </tbody>
+  </table>
+  <div class="callout blue"><b>Read before edit is enforced by the tool.</b> <code>Edit</code> requires the file to have been read in the conversation (Opus 4.6, Haiku 4.5 and older models always). Newer models can edit an unread file when reading it wouldn't need a permission prompt. You don't need to police this yourself.</div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>4. Subagents</h2><p>A subagent runs in its own context window and returns only its result, keeping the main conversation lean.</p></div>
+  <div class="content">
+    <table>
+      <thead><tr><th>Built-in type</th><th>Purpose</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>Explore</code></td><td>Fast read-only codebase search</td><td>Write and Edit denied. Thoroughness quick, medium or very thorough. Starts without <code>CLAUDE.md</code> or git status. One-shot (can't be resumed).</td></tr>
+        <tr><td><code>Plan</code></td><td>Read-only research while in plan mode</td><td>Inherits the main model. One-shot.</td></tr>
+        <tr><td><code>general-purpose</code></td><td>Multi-step tasks needing both exploration and action</td><td>Every tool available to subagents</td></tr>
+        <tr><td><code>claude</code></td><td>Catch-all when no specialized agent fits</td><td>No model of its own</td></tr>
+        <tr><td><code>claude-code-guide</code></td><td>Answers questions about Claude Code features</td><td>Runs on Haiku</td></tr>
+        <tr><td><code>statusline-setup</code></td><td>Configures the status line (<code>/statusline</code>)</td><td>Runs on Sonnet</td></tr>
+      </tbody>
+    </table>
+
+    <h3 class="sub">How subagents run</h3>
+    <div class="decision-grid">
+      <div class="decision"><b>Background by default</b><p>Subagents start in the background and their result is delivered when they finish. <code>Ctrl+B</code> backgrounds a running task. <code>/tasks</code> shows status and transcripts.</p></div>
+      <div class="decision"><b>Fork mode</b><p>On by default (v2.1.302). In interactive sessions Claude can't wait on a subagent. Set <code>CLAUDE_CODE_FORK_SUBAGENT=0</code> and restart to let it wait.</p></div>
+      <div class="decision"><b>Resume</b><p>Claude continues an earlier subagent with <code>SendMessage</code>, using its ID or name, and keeps its full history. Explore and Plan can't be resumed.</p></div>
+      <div class="decision"><b>Forks</b><p>A fork inherits the whole conversation and shares its prompt cache, so it is cheaper than a fresh subagent with the same context. Start one with <code>/subtask &lt;task&gt;</code>.</p></div>
+      <div class="decision"><b>Limits</b><p>Nesting up to three layers below the main conversation (<code>CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH</code>). At most 20 running at once (<code>CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS</code>).</p></div>
+      <div class="decision"><b>Never available to subagents</b><p><code>AskUserQuestion</code>, <code>EnterPlanMode</code>, <code>ScheduleWakeup</code>, <code>Workflow</code> and a few others. <code>ExitPlanMode</code> only when <code>permissionMode</code> is <code>plan</code>.</p></div>
+    </div>
+
+    <h3 class="sub">Custom subagents</h3>
+    <p style="font-size:14.5px">A subagent is a Markdown file with YAML frontmatter, and its body is the system prompt. If several definitions share a name, the higher location wins: managed settings, then the <code>--agents</code> CLI flag, then <code>.claude/agents/</code> (project), then <code>~/.claude/agents/</code> (user), then plugins. For subagents, the <b>project copy beats the user copy</b>, which is the opposite of skills.</p>
+    <table class="prop-table">
+      <thead><tr><th>Frontmatter field</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td>name · description</td><td>Required. Claude delegates based on <code>description</code>.</td></tr>
+        <tr><td>tools · disallowedTools</td><td>Allowlist and denylist. If both are set, <code>disallowedTools</code> wins. Omit both to inherit every subagent tool.</td></tr>
+        <tr><td>model</td><td><code>sonnet</code>, <code>opus</code>, <code>haiku</code>, <code>fable</code>, a full model ID, or <code>inherit</code></td></tr>
+        <tr><td>permissionMode</td><td><code>default</code>, <code>acceptEdits</code>, <code>auto</code>, <code>dontAsk</code>, <code>bypassPermissions</code>, <code>plan</code></td></tr>
+        <tr><td>maxTurns · effort</td><td>Cap agentic turns, and set reasoning effort (<code>low</code> to <code>max</code>)</td></tr>
+        <tr><td>skills · mcpServers · hooks</td><td>Preloaded skills, subagent-only MCP servers and hooks scoped to this subagent</td></tr>
+        <tr><td>memory</td><td><code>user</code> (<code>~/.claude/agent-memory/&lt;name&gt;/</code>), <code>project</code> (<code>.claude/agent-memory/&lt;name&gt;/</code>) or <code>local</code> (<code>.claude/agent-memory-local/&lt;name&gt;/</code>), for persistent cross-session memory</td></tr>
+        <tr><td>isolation · background</td><td><code>worktree</code> gives each run a temporary git worktree. <code>background: true</code> keeps it in the background.</td></tr>
+      </tbody>
+    </table>
+<pre class="code">---
+name: code-reviewer
+description: Expert code review specialist. Use immediately after writing or modifying code.
+tools: Read, Grep, Glob, Bash
+model: inherit
+---
+
+You are a senior code reviewer ensuring high standards of code quality and security.</pre>
+    <p class="code-label">Save it as <code>.claude/agents/code-reviewer.md</code>, or pass a JSON definition for one session with <code>claude --agents '{...}'</code>. Keep descriptions short: past 15,000 tokens of combined custom descriptions, Claude Code shows a startup warning.</p>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>5. Agent Teams (Experimental)</h2><p>Several full Claude Code instances that share a task list and message each other directly.</p></div>
+  <div class="content">
+    <div class="callout"><b>Off by default.</b> Enable with <code>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code> in your shell or a settings <code>env</code> block. Teams need an interactive session: <code>claude -p</code> and Agent SDK runs don't spawn teammates.</div>
+    <div class="steps" style="margin-top:16px">
+      <article class="step"><span class="num">1</span><h3>How a team forms</h3>
+        <ul><li>Ask in plain language, for example "spawn three teammates to review this PR from security, performance and test angles"</li><li>Claude launches a teammate when it calls <code>Agent</code> with a <code>name</code></li><li>There is one team per session, named <code>session-</code> plus 8 characters of the session ID</li><li>A teammate can be spawned from a custom subagent definition</li></ul>
+      </article>
+      <article class="step a2"><span class="num">2</span><h3>How it coordinates</h3>
+        <ul><li>A shared task list (pending, in progress, completed) with dependencies. Teammates claim unblocked tasks.</li><li>Direct messages by name. <b>No broadcast</b>: one message per recipient.</li><li>Teammates load <code>CLAUDE.md</code>, MCP and skills, but not the lead's conversation</li><li>Teammate permission prompts appear in the lead session</li></ul>
+      </article>
+      <article class="step a3"><span class="num">3</span><h3>Limits and cost</h3>
+        <ul><li><code>/resume</code> and <code>/rewind</code> don't restore in-process teammates. No nested teams.</li><li>Shut a teammate down by asking the lead. The team config directory is removed when the session ends. The task list stays until the <code>cleanupPeriodDays</code> sweep.</li><li>Roughly 7x the tokens of a standard session when teammates plan. The docs suggest 3 to 5 teammates.</li><li>Display: in-process (default) or split panes with tmux or iTerm2 (<code>teammateMode</code>)</li></ul>
+      </article>
+    </div>
+    <p style="font-size:14.5px;margin-top:14px">Quality-gate hooks: <code>TeammateIdle</code>, <code>TaskCreated</code> and <code>TaskCompleted</code>. Exit code 2 keeps a teammate working, or blocks creating or completing the task.</p>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>6. Dynamic Workflows</h2><p>A JavaScript script that Claude writes and a runtime executes in the background, orchestrating dozens to hundreds of agents.</p></div>
+  <div class="content">
+    <div class="decision-grid">
+      <div class="decision"><b>Subagents</b><p>A few focused tasks whose results come back to the main conversation.</p></div>
+      <div class="decision"><b>Agent teams</b><p>A handful of long-running peers that need to talk to each other.</p></div>
+      <div class="decision"><b>Dynamic workflows</b><p>More agents than one conversation can coordinate, or orchestration you want codified and rerunnable: codebase-wide audits, large migrations, cross-checked research, fix-until-green loops.</p></div>
+    </div>
+    <ul style="margin:14px 0 0 20px;padding:0;font-size:14.5px">
+      <li><b>Start one</b> by typing <code>ultracode</code> in a prompt or asking Claude to "use a workflow". <code>/effort ultracode</code> lets Claude plan workflows for every substantive task. <code>/workflows</code> shows runs, and <code>s</code> saves a run's script.</li>
+      <li><b>Saved workflows</b> live in <code>.claude/workflows/</code> or <code>~/.claude/workflows/</code> and run as <code>/&lt;name&gt;</code>. <code>/deep-research</code> is bundled.</li>
+      <li><b>Script API:</b> <code>agent()</code>, <code>pipeline()</code>, <code>parallel()</code>, <code>phase()</code>, <code>log()</code> and <code>args</code>. Intermediate results stay in script variables, so Claude's context holds only the final answer.</li>
+      <li><b>Limits:</b> 16 concurrent agents by default, 1,000 agents per run, no user input mid-run, no direct filesystem access from the script. Disable with <code>"disableWorkflows": true</code>.</li>
+    </ul>
+<pre class="code">export const meta = { name: 'audit-routes', description: 'Audit every route handler for missing auth checks' }
+
+const found = await agent('List every .ts file under src/routes/.', {
+  schema: { type: 'object', required: ['files'], properties: { files: { type: 'array', items: { type: 'string' } } } },
+})
+const audits = await pipeline(found.files, file =>
+  agent(`Audit ${file} for missing authentication checks.`, { label: file }))
+return audits.filter(Boolean)</pre>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>7. Skills and Slash Commands</h2><p>A skill is a <code>SKILL.md</code> file of instructions. Only its description sits in context until it is used.</p></div>
+  <div class="content">
+    <div class="decision-grid">
+      <div class="decision"><b>Invocation</b><p>You run it with <code>/skill-name</code>, and Claude also loads it automatically when the description matches the task. <code>disable-model-invocation: true</code> makes it manual-only. <code>user-invocable: false</code> hides it from the <code>/</code> menu.</p></div>
+      <div class="decision"><b>Locations</b><p>Personal <code>~/.claude/skills/&lt;name&gt;/SKILL.md</code>, project <code>.claude/skills/&lt;name&gt;/SKILL.md</code>, managed directory, and plugins (<code>/plugin:skill</code>). On a name clash: enterprise, then personal, then project.</p></div>
+      <div class="decision"><b>Commands merged into skills</b><p><code>.claude/commands/deploy.md</code> and <code>.claude/skills/deploy/SKILL.md</code> both create <code>/deploy</code>. A skill beats a command file with the same name.</p></div>
+    </div>
+    <table class="prop-table" style="margin-top:16px">
+      <thead><tr><th>Useful frontmatter</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td>description · when_to_use</td><td>How Claude decides to apply it. The listing truncates at 1,536 characters, so put the key use case first.</td></tr>
+        <tr><td>allowed-tools · disallowed-tools</td><td>Tools usable without prompts during the invoking turn, and tools removed while the skill is active</td></tr>
+        <tr><td>context: fork · agent</td><td>Run the skill in a forked subagent (default <code>general-purpose</code>)</td></tr>
+        <tr><td>model · effort · paths · hooks</td><td>Per-turn model and effort, file globs that limit auto-activation, and hooks registered on invoke</td></tr>
+      </tbody>
+    </table>
+    <p class="code-label">Inside the body: <code>$ARGUMENTS</code>, <code>$0</code>, <code>$1</code> and so on for arguments, and <code>!`command`</code> to inject shell output. Keep <code>SKILL.md</code> under 500 lines and move detail into supporting files.</p>
+<pre class="code">---
+description: Summarizes uncommitted changes and flags anything risky. Use when the user asks what changed or wants a commit message.
+---
+
+## Current changes
+!`git diff HEAD`
+
+## Instructions
+Summarize the changes above in two or three bullet points, then list any risks.</pre>
+    <h3 class="sub">Bundled skills and key built-in commands</h3>
+    <table>
+      <thead><tr><th>Area</th><th>Commands</th></tr></thead>
+      <tbody>
+        <tr><td>Bundled skills</td><td><code>/batch</code>, <code>/code-review</code> (alias <code>/review</code>), <code>/debug</code>, <code>/doctor</code>, <code>/loop</code>, <code>/run</code>, <code>/simplify</code>, <code>/verify</code>, <code>/claude-api</code>. Turn them off with <code>disableBundledSkills</code>.</td></tr>
+        <tr><td>Review</td><td><code>/code-review [level] [--fix] [--comment]</code> for correctness bugs, <code>/security-review</code> for the branch diff, <code>/ultrareview</code> for a deep multi-agent cloud review, <code>/simplify</code> for cleanup (not bugs)</td></tr>
+        <tr><td>Project setup</td><td><code>/init</code> generates a <code>CLAUDE.md</code>. <code>/memory</code> edits memory files and toggles auto memory.</td></tr>
+        <tr><td>Context and cost</td><td><code>/context</code>, <code>/compact [focus]</code>, <code>/clear</code>, <code>/usage</code> (aliases <code>/cost</code>, <code>/stats</code>), <code>/rewind</code></td></tr>
+        <tr><td>Configuration</td><td><code>/config</code>, <code>/status</code>, <code>/permissions</code>, <code>/mcp</code>, <code>/hooks</code>, <code>/skills</code>, <code>/plugin</code>, <code>/keybindings</code>, <code>/output-style</code></td></tr>
+        <tr><td>Scheduling</td><td><code>/loop [interval] [prompt]</code> and <code>/schedule [description]</code> (see section 13)</td></tr>
+      </tbody>
+    </table>
+    <div class="callout blue"><b>No built-in <code>/commit</code>.</b> Commit helpers come from plugins, for example <code>commit-commands@claude-plugins-official</code>, or from a skill you write. Claude can also simply run <code>git</code> through Bash when you ask it to commit.</div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>8. Plugins and MCP Servers</h2><p>Plugins package extensions for one-command install. MCP servers connect Claude to external tools and data.</p></div>
+  <div class="content">
+    <div class="steps">
+      <article class="step"><span class="num">1</span><h3>Plugins</h3>
+        <ul><li>A directory of skills, agents, hooks, MCP and LSP servers, output styles, workflows or monitors. The <code>.claude-plugin/plugin.json</code> manifest is optional.</li><li>Installed from a marketplace. Anthropic's <code>claude-plugins-official</code> is added on first interactive start.</li><li>An enabled plugin is part of every session and runs with your privileges</li></ul>
+      </article>
+      <article class="step a2"><span class="num">2</span><h3>Install scopes</h3>
+        <ul><li>User (<code>~/.claude/settings.json</code>, the CLI default), project (<code>.claude/settings.json</code>, committed) or local (<code>.claude/settings.local.json</code>)</li><li>Local beats project, and project beats user</li><li><code>/reload-plugins</code> applies changes to a running session</li></ul>
+      </article>
+      <article class="step a3"><span class="num">3</span><h3>MCP servers</h3>
+        <ul><li>Add with <code>claude mcp add</code> and manage connections and OAuth in <code>/mcp</code></li><li>Tool definitions are deferred by default and loaded on demand through <code>ToolSearch</code></li><li>Verify you trust each server: servers that fetch external content can expose you to prompt injection</li></ul>
+      </article>
+    </div>
+<pre class="code"><span class="c"># In a session</span>
+/plugin marketplace add your-org/plugins#v1.2.0
+/plugin install commit-commands@claude-plugins-official
+
+<span class="c"># From your shell</span>
+claude plugin install formatter@your-org --scope project
+claude --plugin-dir ./my-plugin      <span class="c"># load a local plugin for one session</span>
+
+<span class="c"># Remote MCP server (GitHub's hosted server, authenticated with a personal access token)</span>
+claude mcp add --transport http github https://api.githubcopilot.com/mcp/ \
+  --header "Authorization: Bearer ${GITHUB_PAT}"</pre>
+    <p class="code-label">MCP scopes, <code>.mcp.json</code> and how to pass server credentials safely are covered in the <a href="claude_code_file_structure_guide.html">File Structure &amp; Configuration</a> guide.</p>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>9. Hooks</h2><p>Deterministic automation: Claude Code runs the hook itself, so it happens every time whatever the model decides.</p></div>
+  <div class="content">
+    <table>
+      <thead><tr><th>Event group</th><th>Events</th></tr></thead>
+      <tbody>
+        <tr><td>Session</td><td><code>SessionStart</code>, <code>Setup</code>, <code>SessionEnd</code></td></tr>
+        <tr><td>Per turn</td><td><code>UserPromptSubmit</code>, <code>UserPromptExpansion</code>, <code>Stop</code>, <code>StopFailure</code></td></tr>
+        <tr><td>Tool loop</td><td><code>PreToolUse</code>, <code>PermissionRequest</code>, <code>PermissionDenied</code>, <code>PostToolUse</code>, <code>PostToolUseFailure</code>, <code>PostToolBatch</code></td></tr>
+        <tr><td>Subagents and tasks</td><td><code>SubagentStart</code>, <code>SubagentStop</code>, <code>TaskCreated</code>, <code>TaskCompleted</code>, <code>TeammateIdle</code></td></tr>
+        <tr><td>Context and config</td><td><code>InstructionsLoaded</code>, <code>ConfigChange</code>, <code>CwdChanged</code>, <code>DirectoryAdded</code>, <code>FileChanged</code></td></tr>
+        <tr><td>Worktrees, compaction, models</td><td><code>WorktreeCreate</code>, <code>WorktreeRemove</code>, <code>PreCompact</code>, <code>PostCompact</code>, <code>PreModelSwitch</code>, <code>PostModelSwitch</code></td></tr>
+        <tr><td>Other</td><td><code>Notification</code>, <code>MessageDisplay</code>, <code>Elicitation</code>, <code>ElicitationResult</code></td></tr>
+      </tbody>
+    </table>
+    <div class="decision-grid" style="margin-top:16px">
+      <div class="decision"><b>Five handler types</b><p><code>command</code> (shell, JSON on stdin), <code>http</code> (POST to a URL), <code>mcp_tool</code>, <code>prompt</code> (single-turn model check) and <code>agent</code> (experimental subagent).</p></div>
+      <div class="decision"><b>Exit codes</b><p><code>0</code> means success. <code>2</code> blocks the action on events that can block, and stderr is fed back. Any other code is a non-blocking error, so <b>exit 1 does not block</b>.</p></div>
+      <div class="decision"><b>Matchers</b><p><code>Edit|Write</code> is an exact list. Other characters make it a regex, so <code>Edit.*</code> also matches <code>NotebookEdit</code>. The <code>if</code> field takes a rule such as <code>Bash(git commit *)</code>.</p></div>
+    </div>
+    <p class="code-label"><b>Block edits to protected files</b> (PreToolUse with exit 2). <code>.claude/hooks/protect-files.sh</code>:</p>
+<pre class="code">#!/bin/bash
+FILE_PATH=$(jq -r '.tool_input.file_path // empty')
+for pattern in ".env" "package-lock.json" ".git/"; do
+  if [[ "$FILE_PATH" == *"$pattern"* ]]; then
+    echo "Blocked: $FILE_PATH matches protected pattern '$pattern'" >&2
+    exit 2
+  fi
+done
+exit 0</pre>
+<pre class="code">{
+  "hooks": {
+    "PreToolUse": [
+      { "matcher": "Edit|Write",
+        "hooks": [ { "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/protect-files.sh" } ] }
+    ]
+  }
+}</pre>
+    <div class="callout green"><b>No "pre-commit" hook event exists.</b> To format files Claude edits, use <code>PostToolUse</code> with an <code>Edit|Write</code> matcher. To gate commits Claude makes, use <code>PreToolUse</code> on <code>Bash</code> with <code>"if": "Bash(git commit *)"</code>. Where hooks are stored is covered in the File Structure guide.</div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>10. Permission Modes and Rules</h2><p>The mode sets the default behaviour. Rules carve out exceptions, and deny always wins.</p></div>
+  <div class="content">
+    <table>
+      <thead><tr><th>Mode</th><th>Behaviour</th><th>Use it for</th></tr></thead>
+      <tbody>
+        <tr><td><code>auto</code></td><td>Everything runs, with a separate classifier model reviewing actions. Read-only actions and in-directory edits skip the classifier. Broad allow rules such as <code>Bash(*)</code> are dropped while it is on.</td><td><b>Built-in starting mode</b> for interactive terminal and VS Code sessions since v2.1.283</td></tr>
+        <tr><td><code>default</code> (Manual)</td><td>Only reads run without asking. Alias <code>manual</code>.</td><td>Careful, supervised work. Also the start mode for <code>claude -p</code> (v2.1.302+).</td></tr>
+        <tr><td><code>acceptEdits</code></td><td>File edits plus <code>mkdir</code>, <code>touch</code>, <code>rm</code>, <code>rmdir</code>, <code>mv</code>, <code>cp</code> and <code>sed</code> inside the working directories</td><td>Fast iteration you review afterwards</td></tr>
+        <tr><td><code>plan</code></td><td>Read-only exploration. Edits stay blocked until you approve the plan.</td><td>Aligning on an approach first</td></tr>
+        <tr><td><code>dontAsk</code></td><td><b>Denies</b> everything that would prompt. Actions needing no approval (reads, the read-only command set) and allow-rule matches still run. <code>AskUserQuestion</code> is denied even if allowed. Never in the Shift+Tab cycle.</td><td>Locked-down CI</td></tr>
+        <tr><td><code>bypassPermissions</code></td><td>Skips prompts, but deny rules, explicit ask rules and critical-path <code>rm</code> checks still apply. Refused as root outside a recognized sandbox.</td><td>Isolated containers and VMs only</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:14.5px;margin-top:12px"><b>Switching:</b> Shift+Tab cycles modes in the CLI. Use <code>--permission-mode &lt;mode&gt;</code> at launch or <code>permissions.defaultMode</code> in settings. <code>auto</code> and <code>bypassPermissions</code> don't take effect from project or local settings, so set them in <code>~/.claude/settings.json</code>. Admins can turn modes off with <code>permissions.disableAutoMode</code> and <code>permissions.disableBypassPermissionsMode</code>.</p>
+
+    <h3 class="sub">Permission rules</h3>
+    <table>
+      <thead><tr><th>Rule</th><th>Matches</th></tr></thead>
+      <tbody>
+        <tr><td><code>Bash(git log *)</code> vs <code>Bash(git *)</code></td><td>Only <code>git log</code> versus all git. The space matters: <code>Bash(ls *)</code> doesn't match <code>lsof</code>, but <code>Bash(ls*)</code> does.</td></tr>
+        <tr><td><code>Read(./.env)</code> · <code>Edit(src/**)</code></td><td>Gitignore-style paths. <code>//path</code> is absolute, <code>~/path</code> is home, <code>/path</code> anchors at the settings source (the project's working directory for project settings, <code>~/.claude/</code> for user settings). A Read deny also blocks Edit and Write.</td></tr>
+        <tr><td><code>WebFetch(domain:example.com)</code></td><td>That host only. <code>domain:*.example.com</code> covers subdomains but not the apex.</td></tr>
+        <tr><td><code>mcp__github</code> · <code>mcp__github__create_issue</code></td><td>All of a server's tools, or one tool</td></tr>
+        <tr><td><code>Agent(Explore)</code></td><td>A subagent type</td></tr>
+      </tbody>
+    </table>
+    <ul style="margin:14px 0 0 20px;padding:0;font-size:14.5px">
+      <li><b>Order:</b> deny, then ask, then allow. The first match decides, and specificity doesn't change the order. A bare tool name in deny removes the tool from Claude's context.</li>
+      <li><b>Compound commands</b> are split on <code>&amp;&amp;</code>, <code>||</code>, <code>;</code>, <code>|</code> and newlines, and every part must be allowed.</li>
+      <li><b>Bash rules are not a security boundary:</b> <code>Bash(rm *)</code> doesn't stop <code>/bin/rm</code> or <code>bash -c</code>. Use the sandbox or a PreToolUse hook for real enforcement.</li>
+      <li><b>Writes to protected paths</b> such as <code>.git</code>, <code>.claude</code>, <code>.vscode</code>, <code>.mcp.json</code> and shell rc files are never auto-approved outside <code>bypassPermissions</code>. Manual and acceptEdits prompt, auto sends them to the classifier, and dontAsk denies them.</li>
+    </ul>
+<pre class="code">{
+  "permissions": {
+    "allow": ["Bash(npm run *)", "Bash(git commit *)"],
+    "deny":  ["Bash(git push *)", "Read(./.env)", "Read(./secrets/**)"]
+  }
+}</pre>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>11. Sandboxing and Checkpoints</h2><p>An OS-level boundary for shell commands, and an undo history for Claude's file edits.</p></div>
+  <div class="content">
+    <div class="steps">
+      <article class="step"><span class="num">1</span><h3>Sandbox</h3>
+        <ul><li>Wraps <code>Bash</code>, <code>PowerShell</code> and <code>Monitor</code> commands and their child processes. Off by default. Enable with <code>/sandbox</code> or <code>"sandbox": {"enabled": true}</code>.</li><li>macOS uses Seatbelt. Linux and WSL2 need bubblewrap and socat. Native Windows is unsandboxed.</li><li>Writes are limited to the working directory and temp. Network goes through a proxy whose allowlist starts empty.</li></ul>
+      </article>
+      <article class="step a2"><span class="num">2</span><h3>Sandbox caveats</h3>
+        <ul><li>Reads cover most of the machine, including <code>~/.ssh</code> and <code>~/.aws/credentials</code>, so protect those explicitly</li><li><code>Read</code>, <code>Edit</code>, web tools, MCP servers and hooks run outside the sandbox and are governed by permission rules</li><li><code>allowUnsandboxedCommands: false</code> removes the escape hatch</li></ul>
+      </article>
+      <article class="step a3"><span class="num">3</span><h3>Checkpoints</h3>
+        <ul><li>Every prompt creates a checkpoint of Claude's file-tool edits. <code>/rewind</code> or Esc twice restores code, conversation or both.</li><li>Files changed only by Bash aren't tracked, and subagent edits usually aren't restored</li><li>Kept about 30 days. <b>Not a replacement for Git.</b></li></ul>
+      </article>
+    </div>
+<pre class="code">{
+  "sandbox": {
+    "enabled": true,
+    "filesystem": { "allowWrite": ["~/.kube", "/tmp/build"] },
+    "network": { "allowedDomains": ["github.com", "*.npmjs.org"] }
+  }
+}</pre>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>12. Models, Effort and Context</h2><p>Pick the model by task difficulty, tune effort, and manage the context window deliberately.</p></div>
+  <div class="content">
+    <table>
+      <thead><tr><th>Alias</th><th>Resolves to (Anthropic API)</th><th>Use for</th></tr></thead>
+      <tbody>
+        <tr><td><code>fable</code> · <code>best</code></td><td>Fable 5.1 (<code>claude-fable-5-1</code>). <code>best</code> means Fable where available, otherwise Opus.</td><td>The hardest and longest-running tasks</td></tr>
+        <tr><td><code>opus</code></td><td>Opus 5.5 (<code>claude-opus-5-5</code>). <b>Default model</b> for Pro, Max, Team, Enterprise and the API.</td><td>Complex reasoning, architecture, multi-file refactors</td></tr>
+        <tr><td><code>sonnet</code></td><td>Sonnet 5.5 (<code>claude-sonnet-5-5</code>)</td><td>Daily coding</td></tr>
+        <tr><td><code>haiku</code></td><td>Haiku 5.5 (<code>claude-haiku-5-5</code>)</td><td>Simple, fast tasks and cheap subagents</td></tr>
+        <tr><td><code>opusplan</code></td><td>Opus in plan mode, then Sonnet for execution</td><td>Planning quality at execution cost</td></tr>
+      </tbody>
+    </table>
+    <ul style="margin:14px 0 0 20px;padding:0;font-size:14.5px">
+      <li><b>Switch</b> with <code>/model</code>, <code>--model</code> or the <code>model</code> setting. Admins restrict choices with <code>availableModels</code>. Current models run a 1M-token window natively, so the <code>[1m]</code> suffix matters only for Opus 4.6 and Sonnet 4.6.</li>
+      <li><b>Effort</b> is <code>low</code>, <code>medium</code>, <code>high</code>, <code>xhigh</code> or <code>max</code>, set with <code>/effort</code>. The 5.5 models default to <code>medium</code>.</li>
+      <li><b>Subagent cost:</b> set <code>model: haiku</code> in a simple subagent's frontmatter, or <code>CLAUDE_CODE_SUBAGENT_MODEL</code> as the default for subagents that don't set their own (add <code>CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1</code> to force it on all).</li>
+      <li><b>Context:</b> auto-compaction runs near the window limit. Use <code>/context</code> to see what fills it, <code>/compact Focus on ...</code> to summarize with intent, and <code>/clear</code> between unrelated tasks, which costs nothing.</li>
+      <li><b>Cost reference:</b> the docs report an enterprise average of about $13 per developer per active day ($150 to $250 per month). <code>/usage</code> shows session cost.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>13. Headless, CI/CD and Automation</h2><p>Run Claude Code without a person at the keyboard: scripts, pipelines, GitHub, schedules and parallel worktrees.</p></div>
+  <div class="content">
+    <table>
+      <thead><tr><th>Flag</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>claude -p "..."</code></td><td>Non-interactive run. Reads stdin and exits non-zero on failure. Starts in Manual mode, so calls that need approval are denied unless something approves them.</td></tr>
+        <tr><td><code>--bare</code></td><td>Recommended for scripts. Skips auto-discovery of hooks, skills, plugins, MCP, memory and <code>CLAUDE.md</code>. Never reads OAuth or the Keychain, so set <code>ANTHROPIC_API_KEY</code> or pass <code>apiKeyHelper</code> in <code>--settings</code>.</td></tr>
+        <tr><td><code>--allowedTools</code> · <code>--tools</code> · <code>--permission-mode dontAsk</code></td><td>Exactly what the run may do</td></tr>
+        <tr><td><code>--output-format json | stream-json</code> · <code>--json-schema</code></td><td>Machine-readable output. With a schema, the result is in <code>structured_output</code>, so check that it exists before use.</td></tr>
+        <tr><td><code>--max-turns</code> · <code>--max-budget-usd</code></td><td>Hard stops for turns and spend</td></tr>
+      </tbody>
+    </table>
+<pre class="code">claude --bare -p "Extract the main function names from auth.py" \
+  --allowedTools "Read" --max-turns 3 \
+  --output-format json \
+  --json-schema '{"type":"object","properties":{"functions":{"type":"array","items":{"type":"string"}}},"required":["functions"]}' \
+  | jq '.structured_output'</pre>
+    <div class="callout red"><b>Untrusted repos in <code>-p</code> mode:</b> without <code>--bare</code>, a <code>-p</code> run executes the project's settings hooks and connects its <code>.mcp.json</code> servers with no trust dialog or approval prompt.</div>
+
+    <h3 class="sub">GitHub Actions and GitLab</h3>
+    <ul style="margin:0 0 0 20px;padding:0;font-size:14.5px">
+      <li><code>/install-github-app</code> installs the Claude GitHub App, stores <code>ANTHROPIC_API_KEY</code> or <code>CLAUDE_CODE_OAUTH_TOKEN</code> as a repo secret, pushes a branch with the workflow file, and opens a ready-to-create pull request in your browser. It works only with github.com repositories and needs admin access.</li>
+      <li><code>anthropics/claude-code-action@v1</code> answers <code>@claude</code> mentions when there is no <code>prompt</code> input, and runs in automation mode on any event (including <code>schedule</code>) when <code>prompt</code> is set. Pass CLI flags through <code>claude_args</code>.</li>
+      <li>GitLab CI/CD support is in beta and maintained by GitLab. A job runs <code>claude -p</code> with <code>ANTHROPIC_API_KEY</code> as a masked variable.</li>
+    </ul>
+<pre class="code">name: Claude Code
+on:
+  issue_comment: { types: [created] }
+  pull_request_review_comment: { types: [created] }
+jobs:
+  claude:
+    if: contains(github.event.comment.body, '@claude')
+    runs-on: ubuntu-latest
+    permissions: { contents: write, pull-requests: write, issues: write, id-token: write, actions: read }
+    steps:
+      - uses: actions/checkout@v6
+        with: { fetch-depth: 1 }
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: "--max-turns 5"</pre>
+
+    <h3 class="sub">Scheduling and parallel work</h3>
+    <table>
+      <thead><tr><th>Option</th><th>Runs where</th><th>Key facts</th></tr></thead>
+      <tbody>
+        <tr><td><code>/loop 5m &lt;prompt&gt;</code></td><td>Your open session</td><td>1-minute minimum. Fires only while the session is open and idle. Recurring tasks expire after 7 days. Without an interval, Claude picks its own pace.</td></tr>
+        <tr><td><code>/schedule daily PR review at 9am</code></td><td>Anthropic cloud</td><td>Research preview. No machine needed, fresh clone per run, 1-hour minimum, triggers by schedule, API or GitHub events.</td></tr>
+        <tr><td><code>claude --worktree &lt;name&gt;</code></td><td>Your machine</td><td>Creates <code>.claude/worktrees/&lt;name&gt;/</code> on a new branch, for parallel sessions. <code>.worktreeinclude</code> copies gitignored files such as <code>.env</code>. Subagents use <code>isolation: worktree</code>.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>14. Security and Monitoring</h2><p>Safeguards built into Claude Code, plus the practices that close the remaining gaps.</p></div>
+  <div class="content">
+    <table>
+      <thead><tr><th>Practice</th><th>How</th></tr></thead>
+      <tbody>
+        <tr><td>Never commit secrets</td><td>Reference variables instead of literals, and deny reads of secret files with <code>Read(./.env)</code> rules. The File Structure guide shows the full pattern.</td></tr>
+        <tr><td>Choose the permission mode deliberately</td><td>Interactive sessions start in <code>auto</code>. For Manual, set <code>permissions.defaultMode: "default"</code>. Reserve <code>bypassPermissions</code> for isolated containers.</td></tr>
+        <tr><td>Use real boundaries for real risk</td><td>Enable the sandbox and use PreToolUse hooks. Bash permission rules and <code>CLAUDE.md</code> text are not security controls.</td></tr>
+        <tr><td>Trust MCP servers explicitly</td><td>Approve <code>.mcp.json</code> servers deliberately. For production data, use least-privilege, read-only credentials (a recommended practice, not a platform rule).</td></tr>
+        <tr><td>Review before you push</td><td>Ask Claude to show the diff before any push, and keep <code>git push</code> behind an ask or deny rule if you want a hard stop.</td></tr>
+        <tr><td>Audit beyond Git</td><td>Git doesn't capture what Bash changed outside the repo. Use OpenTelemetry and <code>ConfigChange</code> hooks for audit trails.</td></tr>
+      </tbody>
+    </table>
+    <div class="decision-grid" style="margin-top:16px">
+      <div class="decision"><b>Built-in safeguards</b><p>Workspace trust dialog, separate <code>.mcp.json</code> approval, <code>curl</code> and <code>wget</code> not auto-approved, command-injection detection, fail-closed matching, and credentials in the Keychain or a <code>0600</code> file.</p></div>
+      <div class="decision"><b>OpenTelemetry</b><p>Enable with <code>CLAUDE_CODE_ENABLE_TELEMETRY=1</code> plus <code>OTEL_METRICS_EXPORTER</code> and <code>OTEL_LOGS_EXPORTER</code>. Metrics include session count, cost, tokens and lines of code.</p></div>
+      <div class="decision"><b>Privacy defaults</b><p>Prompts, responses and tool details are not logged unless enabled. OTel variables in a repo's settings are ignored, so admins deploy telemetry through managed settings.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>15. Working Practices</h2><p>Prompt patterns and session habits that keep results accurate on large codebases.</p></div>
+  <div class="content">
+    <table>
+      <thead><tr><th>Prompt pattern</th><th>Example</th><th>Why it works</th></tr></thead>
+      <tbody>
+        <tr><td>Constraint-first</td><td>"Using our AuthMiddleware and the repository pattern, add a DELETE endpoint for users."</td><td>Stops Claude inventing its own patterns</td></tr>
+        <tr><td>Reference-driven</td><td>"Follow the pattern in src/routes/orders.ts to create a route for invoices."</td><td>Claude reads the reference and mirrors its style</td></tr>
+        <tr><td>Plan-then-execute</td><td>Start in plan mode, or prefix the prompt with <code>/plan</code></td><td>Alignment before any code is written</td></tr>
+        <tr><td>Scope-bounded</td><td>"Only modify files in src/auth/."</td><td>Prevents side effects. Back it with Edit allow and deny rules if it must hold.</td></tr>
+        <tr><td>Test-anchored</td><td>"Write the tests first, then implement until they pass."</td><td>Gives Claude a verifiable target</td></tr>
+      </tbody>
+    </table>
+    <table style="margin-top:16px">
+      <thead><tr><th>Situation</th><th>What to do</th></tr></thead>
+      <tbody>
+        <tr><td>New task in a different area</td><td><code>/clear</code> for a clean context. Use <code>/rename</code> first if you'll want to come back with <code>/resume</code>.</td></tr>
+        <tr><td>Continue yesterday's work</td><td><code>claude --continue</code>, <code>claude --resume</code>, or <code>/resume</code> inside a session. To branch instead, use <code>claude --continue --fork-session</code> or <code>/branch</code>.</td></tr>
+        <tr><td>Very large file</td><td>Ask Claude to read it in slices. The <code>Read</code> tool takes an offset and a line limit.</td></tr>
+        <tr><td>Open a pull request</td><td>Ask Claude to create it. It runs <code>gh pr create</code> through Bash and drafts the title, description and test plan.</td></tr>
+        <tr><td>Review a pull request</td><td><code>/code-review &lt;pr#&gt;</code>, add <code>--comment</code> to post inline comments, or give Claude the PR URL to fetch and analyze</td></tr>
+        <tr><td>CI is failing</td><td>Point Claude at the failure log and let it fix and re-run iteratively, or ask for a <code>/loop</code> that watches CI and addresses failures</td></tr>
+        <tr><td>Went down the wrong path</td><td><code>/rewind</code> to restore code, conversation or both</td></tr>
+        <tr><td>Context filling up</td><td><code>/context</code>, then <code>/compact Focus on ...</code>. Delegate verbose work, such as log reading or broad search, to subagents.</td></tr>
+        <tr><td>Monorepo</td><td>Nested <code>CLAUDE.md</code> files load on demand. Use path-scoped rules and <code>claudeMdExcludes</code> to skip other teams' files.</td></tr>
+        <tr><td>Slow builds or tests</td><td>Run them in the background (<code>run_in_background</code>) or watch them with <code>Monitor</code> while work continues</td></tr>
+        <tr><td>Parallel features</td><td><code>claude --worktree</code> per feature, or subagents with <code>isolation: worktree</code></td></tr>
+        <tr><td>Standards across many repos</td><td>A managed <code>CLAUDE.md</code>, rules shared through symlinks, or a plugin from an internal marketplace. <code>CLAUDE.md</code> files concatenate, they don't override.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>16. Anti-Patterns to Avoid</h2><p>Common mistakes and what to do instead.</p></div>
+  <div class="content"><table>
+    <thead><tr><th>Anti-pattern</th><th>Why it hurts</th><th>Do this instead</th></tr></thead>
+    <tbody>
+      <tr><td>Vague prompts ("fix the bug")</td><td>Claude spends context exploring blindly</td><td>"The login API returns 401 with a valid token. Check src/auth/verify.ts."</td></tr>
+      <tr><td>Relying on <code>CLAUDE.md</code> for must-hold rules</td><td>It is guidance, not enforcement</td><td>Permission deny rules or a PreToolUse hook</td></tr>
+      <tr><td>A bloated <code>CLAUDE.md</code></td><td>It loads in full every session</td><td>Keep it under 200 lines. Move workflow-specific content into skills.</td></tr>
+      <tr><td>Using <code>bypassPermissions</code> on your laptop</td><td>No prompts, no classifier</td><td><code>auto</code> or Manual. Bypass only in isolated containers.</td></tr>
+      <tr><td>Assuming <code>dontAsk</code> means "approve everything"</td><td>It denies anything not pre-approved</td><td>Use it only for CI, with explicit <code>--allowedTools</code></td></tr>
+      <tr><td>Treating Bash deny rules as a security boundary</td><td><code>/bin/rm</code> or <code>bash -c</code> bypasses them</td><td>Enable the sandbox and add hooks</td></tr>
+      <tr><td>Treating checkpoints as version control</td><td>Bash changes aren't tracked, and snapshots expire</td><td>Commit to Git</td></tr>
+      <tr><td>One giant session for everything</td><td>Stale context costs tokens on every message</td><td><code>/clear</code> between unrelated tasks</td></tr>
+      <tr><td>Skipping plan mode on big changes</td><td>Misaligned implementation means wasted effort</td><td>Plan first, implement after approval</td></tr>
+      <tr><td>Doing broad research in the main thread</td><td>The main context fills with file dumps</td><td>Parallel Explore subagents, or a workflow for very large sweeps</td></tr>
+      <tr><td>Hard-coding tokens in a shared <code>.mcp.json</code></td><td>Secrets end up in Git</td><td><code>${VAR}</code> expansion, OAuth or <code>headersHelper</code></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <div class="section-head"><h2>17. Quick Decision Guide</h2><p>When you want something done, start here.</p></div>
+  <div class="content">
+    <div class="qa"><span class="ans mix">Understand code</span><h3>"How does the auth flow work?"</h3><p>Just ask. Claude reads and searches directly. For a broad sweep, ask it to use Explore subagents in parallel.</p></div>
+    <div class="qa"><span class="ans mix">Delegate</span><h3>"Refactor all API routes to the new middleware."</h3><p>A <code>general-purpose</code> or custom subagent through the <code>Agent</code> tool. For hundreds of files, a dynamic workflow.</p></div>
+    <div class="qa"><span class="ans mix">Collaborate</span><h3>"I want several agents to debate competing hypotheses."</h3><p>An agent team. Enable <code>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code>, then ask Claude to spawn teammates.</p></div>
+    <div class="qa"><span class="ans mix">Repeat a procedure</span><h3>"We run the same release checklist every week."</h3><p>Write a skill in <code>.claude/skills/release/SKILL.md</code> and run it with <code>/release</code>.</p></div>
+    <div class="qa"><span class="ans mix">Always happen</span><h3>"Every edited file must be formatted."</h3><p>A <code>PostToolUse</code> hook on <code>Edit|Write</code>.</p></div>
+    <div class="qa"><span class="ans mix">Never happen</span><h3>"Claude must never push or read .env."</h3><p>Deny rules: <code>Bash(git push *)</code> and <code>Read(./.env)</code>. Add the sandbox for OS-level protection.</p></div>
+    <div class="qa"><span class="ans mix">Track progress</span><h3>"Show me a checklist as you work."</h3><p>The Task tools (<code>TaskCreate</code> and the rest). On newer models, enable them with <code>CLAUDE_CODE_ENABLE_TODO_TOOLS=1</code>.</p></div>
+    <div class="qa"><span class="ans mix">Automate</span><h3>"Review every PR automatically."</h3><p><code>anthropics/claude-code-action@v1</code> via <code>/install-github-app</code>, or a <code>/schedule</code> cloud task.</p></div>
+    <div class="qa"><span class="ans mix">Script it</span><h3>"Call Claude from a pipeline and parse the result."</h3><p><code>claude --bare -p</code> with <code>--output-format json</code> and <code>--json-schema</code>.</p></div>
+  </div>
+</section>
+
+</main>
+<footer>
+  <b>Author:</b> Yogesh Shinde, AI Architect &middot; <a href="index.html">Back to cipheryogi portfolio</a>
+</footer>
+</body>
+</html>

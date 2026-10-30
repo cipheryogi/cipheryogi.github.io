@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Claude Code File Structure and Configuration | cipheryogi</title>
+  <meta name="description" content="Guide by Yogesh Shinde: where Claude Code keeps instructions, settings, MCP server configuration, skills, project state and credentials, and how personal and team-level files differ." />
+  <meta name="author" content="Yogesh Shinde" />
+  <link rel="canonical" href="https://cipheryogi.github.io/Claude_Code_File_Structure_Guide.html" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://cipheryogi.github.io/Claude_Code_File_Structure_Guide.html" />
+  <meta property="og:title" content="Claude Code File Structure and Configuration" />
+  <meta property="og:description" content="Where Claude Code keeps instructions, settings, MCP configuration, skills, project state and credentials, and how personal and team scopes differ." />
+  <meta property="og:image" content="https://cipheryogi.github.io/og-image.jpg" />
+  <meta name="twitter:card" content="summary" />
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      securityLevel: 'loose',
+      theme: 'base',
+      flowchart: { htmlLabels: true, curve: 'basis', nodeSpacing: 30, rankSpacing: 44 },
+      themeVariables: {
+        primaryColor: '#e8f1ff', primaryTextColor: '#132238', primaryBorderColor: '#3975c6',
+        lineColor: '#5b708f', secondaryColor: '#f5f8fc', tertiaryColor: '#fff7e6',
+        fontFamily: 'Segoe UI, Arial, sans-serif'
+      }
+    });
+  </script>
+  <style>
+    :root{--navy:#132238;--blue:#1769aa;--blues:#e8f1ff;--green:#157a5a;--greens:#e8f7f1;--amber:#9a6500;--ambers:#fff5dd;--red:#a93636;--reds:#fff0f0;--purple:#7b52b9;--ink:#26384f;--muted:#5f7084;--line:#d8e1ec;--surface:#fff;--bg:#f3f6fa}
+    *{box-sizing:border-box} body{margin:0;font-family:"Segoe UI",Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55}
+    header{color:#fff;background:linear-gradient(120deg,#0e2949,#1769aa 68%,#14806b);padding:42px clamp(22px,5vw,72px) 36px}
+    header h1{margin:0 0 8px;font-size:clamp(30px,4.2vw,50px);letter-spacing:-.8px} header p{margin:0;max-width:980px;font-size:18px;opacity:.93}
+    .badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.badge{padding:7px 11px;border-radius:999px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.24);font-size:13px;font-weight:650}
+    main{width:min(1320px,95vw);margin:28px auto 56px} section{background:var(--surface);border:1px solid var(--line);border-radius:16px;margin:20px 0;box-shadow:0 8px 26px rgba(19,34,56,.055)}
+    .section-head{padding:24px 28px 4px}.section-head h2{margin:0 0 7px;color:var(--navy);font-size:25px}.section-head p{margin:0;color:var(--muted)}.content{padding:20px 28px 28px}
+    .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.summary{border:1px solid var(--line);border-top:5px solid var(--blue);border-radius:12px;padding:16px;background:#fbfdff}.summary:nth-child(2){border-top-color:var(--green)}.summary:nth-child(3){border-top-color:var(--amber)}.summary:nth-child(4){border-top-color:var(--purple)}.summary b{display:block;color:var(--navy);margin-bottom:6px}.summary span{color:var(--muted);font-size:14px}
+    .diagram-wrap{overflow-x:auto;padding:6px;border:1px solid var(--line);border-radius:12px;background:#fff}.mermaid{min-width:900px}.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px;font-size:13px;color:var(--muted)}.dot{width:11px;height:11px;border-radius:50%;display:inline-block;margin-right:5px}
+    .steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.step{border:1px solid var(--line);border-radius:13px;padding:18px;background:#fff}.step .num{float:left;width:34px;height:34px;margin:1px 12px 8px 0;display:grid;place-items:center;border-radius:10px;color:#fff;background:var(--blue);font-weight:750}.step.a2 .num{background:var(--green)}.step.a3 .num{background:var(--purple)}.step h3{margin:0 0 7px;color:var(--navy);font-size:18px}.step p{margin:7px 0;font-size:14.5px}.step ul,.step ol{margin:8px 0 0 20px;padding:0;font-size:14px}
+    code{background:#edf2f7;border-radius:5px;padding:2px 5px;font-size:.92em;color:#28415d}.callout{border-left:5px solid var(--amber);background:var(--ambers);border-radius:10px;padding:16px 18px;margin-top:16px}.callout.red{border-left-color:var(--red);background:var(--reds)}.callout.green{border-left-color:var(--green);background:var(--greens)}.callout.blue{border-left-color:var(--blue);background:var(--blues)}
+    .decision-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.decision{padding:15px;border-radius:11px;border:1px solid var(--line);background:#fbfdff}.decision b{color:var(--navy);display:block;margin-bottom:5px}.decision p{margin:0;font-size:14px}
+    table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;vertical-align:top;padding:11px 12px;border-bottom:1px solid var(--line)}th{color:var(--navy);background:#f2f6fb}tr:last-child td{border-bottom:0}
+    .prop-table td:first-child{font-family:Consolas,monospace;font-size:13px;white-space:nowrap}
+    .qa{border:1px solid var(--line);border-radius:12px;padding:18px;margin-top:14px;background:#fbfdff}.qa h3{margin:0 0 8px;color:var(--navy);font-size:18px}.qa p{margin:6px 0;font-size:14.5px}.qa .ans{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12.5px;font-weight:700;margin-bottom:6px}.ans.no{background:var(--reds);color:var(--red)}.ans.mix{background:var(--blues);color:var(--blue)}
+    .sub{margin:26px 0 10px;color:var(--navy);font-size:19px}pre.code{background:#0f1f33;color:#e6eef8;border-radius:10px;padding:14px 16px;overflow-x:auto;font-family:Consolas,monospace;font-size:13px;line-height:1.5;margin:8px 0 4px}pre.code .c{color:#8fa6c2}.code-label{font-size:13px;color:var(--muted);margin-top:14px}
+    footer{width:min(1320px,95vw);margin:0 auto 34px;color:var(--muted);font-size:12.5px}
+    @media(max-width:900px){.summary-grid,.decision-grid,.steps{grid-template-columns:1fr}.section-head,.content{padding-left:18px;padding-right:18px}}
+    @media print{body{background:#fff}section{box-shadow:none;break-inside:avoid}.diagram-wrap{overflow:visible}.mermaid{min-width:0}}
+  </style>
+</head>
+<body>
+<header>
+  <p style="margin:0 0 16px"><a href="index.html" style="color:#fff;opacity:.9">&#8592; Back to cipheryogi portfolio</a></p>
+  <h1>Claude Code File Structure &amp; Configuration</h1>
+  <p>A practical map of where Claude Code keeps instructions, settings, MCP server configuration, reusable capabilities, project state and credentials — and how personal and team-level files differ.</p>
+  <div class="badges">
+    <span class="badge">Personal + project scopes</span>
+    <span class="badge">Instructions ≠ settings</span>
+    <span class="badge">MCP configuration</span>
+    <span class="badge">Credentials stored separately</span>
+    <span class="badge">Git-sharing boundaries</span>
+    <span class="badge">Managed policy</span>
+  </div>
+  <p style="margin-top:16px;font-size:14.5px">Companion guide: <a href="claude_code_capabilities_guide.html" style="color:#fff">Claude Code Capabilities</a> (tools, agents, skills, hooks, permission modes, models and automation).</p>
+</header>
+<main>
+
+<section>
+  <div class="section-head"><h2>1. The Mental Model</h2><p>Claude Code uses different files for what it should know, how it should behave, and which external tools it can access.</p></div>
+  <div class="content summary-grid">
+    <div class="summary"><b>Instructions</b><span><code>CLAUDE.md</code> files provide persistent context: project architecture, coding standards, conventions and working preferences.</span></div>
+    <div class="summary"><b>Settings</b><span><code>settings.json</code> controls behaviour: permissions, hooks, model defaults, environment and other configuration.</span></div>
+    <div class="summary"><b>MCP configuration</b><span><code>.mcp.json</code> defines project-shared MCP servers. Local-scope servers (the default, this project only) and user-scope servers (all your projects) are stored in <code>~/.claude.json</code>.</span></div>
+    <div class="summary"><b>Application state</b><span><code>~/.claude.json</code> also holds Claude Code state such as project trust and other local state. It is not simply a preferences file.</span></div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>2. End-to-End File Structure</h2><p>Personal configuration lives under your home directory. Team-shared configuration lives in the project repository and can be committed to Git.</p></div>
+  <div class="content">
+    <div class="diagram-wrap"><pre class="mermaid">
+flowchart TD
+  U["YOUR MACHINE"] --> HOME["Home directory · ~/.claude/"]
+  U --> STATE["~/.claude.json"]
+  U --> PROJ["PROJECT REPOSITORY"]
+  U --> MANAGED["MANAGED POLICY · OS system directory"]
+  MANAGED --> M1["CLAUDE.md · managed-settings.json<br/>managed-mcp.json · deployed by IT"]
+  HOME --> H1["CLAUDE.md<br/>Personal instructions"]
+  HOME --> H2["settings.json<br/>Personal settings"]
+  HOME --> H3["skills/ · agents/ · rules/ · output-styles/<br/>Personal reusable assets"]
+  HOME --> H4["projects/<br/>Session transcripts and auto memory"]
+  HOME --> H5["plugins/ · keybindings.json<br/>Installed plugins, shortcuts"]
+  STATE --> S1["Local- and user-scope MCP servers"]
+  STATE --> S2["Project trust and local application state"]
+  PROJ --> P1["CLAUDE.md or .claude/CLAUDE.md<br/>Project / team instructions"]
+  PROJ --> P7["CLAUDE.local.md<br/>Personal project instructions"]
+  PROJ --> P2[".mcp.json<br/>Team-shared MCP servers"]
+  PROJ --> P3[".claude/"]
+  P3 --> P4["settings.json<br/>Shared project settings"]
+  P3 --> P5["settings.local.json<br/>Personal project overrides"]
+  P3 --> P6["skills/ · agents/ · rules/ · workflows/<br/>Project capabilities and guidance"]
+  P1 --> GIT["Can be committed and shared"]
+  P2 --> GIT
+  P4 --> GIT
+  P6 --> GIT
+  P5 --> LOCAL["Normally kept local / excluded from Git"]
+  P7 --> LOCAL
+  classDef user fill:#e8f1ff,stroke:#3975c6,color:#132238;
+  classDef team fill:#e8f7f1,stroke:#157a5a,color:#103e31;
+  classDef state fill:#fff5dd,stroke:#9a6500,color:#5a3d00;
+  classDef private fill:#f1eaff,stroke:#7b52b9,color:#2f1f4b;
+  classDef managed fill:#fff0f0,stroke:#a93636,color:#5a1d1d;
+  class HOME,H1,H2,H3,H4,H5 user;
+  class P1,P2,P3,P4,P6,GIT team;
+  class STATE,S1,S2 state;
+  class P5,P7,LOCAL private;
+  class MANAGED,M1 managed;
+    </pre></div>
+    <div class="legend">
+      <span><i class="dot" style="background:#a93636"></i>Managed policy (organization)</span>
+      <span><i class="dot" style="background:#3975c6"></i>Personal environment</span>
+      <span><i class="dot" style="background:#157a5a"></i>Project / team assets</span>
+      <span><i class="dot" style="background:#9a6500"></i>Application state</span>
+      <span><i class="dot" style="background:#7b52b9"></i>Local-only override</span>
+    </div>
+    <div class="callout blue"><b>Important:</b> Personal versus team scope is determined by file location and sharing/commit practices — not by the filename alone. A <code>CLAUDE.md</code> can be personal or team-level.</div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>3. The Important Files and Directories</h2><p>What each item is for, where it lives, and whether it is normally shared.</p></div>
+  <div class="content"><table>
+    <thead><tr><th>File / directory</th><th>Purpose</th><th>Typical scope</th></tr></thead>
+    <tbody>
+      <tr><td><code>~/.claude.json</code></td><td>Written by Claude Code itself: account details, local-scope MCP servers (the default for <code>claude mcp add</code>, stored under each project's path), user-scope MCP servers, per-project trust decisions and the global config keys that <code>/config</code> writes. Not the main file for general preferences, and not meant for hand editing.</td><td>Personal</td></tr>
+      <tr><td><code>~/.claude/settings.json</code></td><td>User-wide settings such as permissions, hooks, model defaults and environment configuration.</td><td>Personal</td></tr>
+      <tr><td><code>~/.claude/CLAUDE.md</code></td><td>Instructions that should apply across your projects, such as your preferred explanation style or general coding practices.</td><td>Personal</td></tr>
+      <tr><td><code>CLAUDE.md</code> or <code>.claude/CLAUDE.md</code></td><td>Project context, architecture, build/test commands, coding conventions and team instructions. Usually placed at the repository root. See section 5 for how multiple files combine.</td><td>Team when committed</td></tr>
+      <tr><td><code>.claude/settings.json</code></td><td>Shared project settings, including project permissions and hooks.</td><td>Team when committed</td></tr>
+      <tr><td><code>.claude/settings.local.json</code></td><td>Personal project-specific settings and overrides; normally excluded from version control.</td><td>Personal</td></tr>
+      <tr><td><code>.mcp.json</code></td><td>Project-scoped MCP server definitions that can be shared with the team. Secrets should be supplied securely, not committed as literals.</td><td>Team when committed</td></tr>
+      <tr><td><code>CLAUDE.local.md</code></td><td>Personal project instructions, loaded alongside <code>CLAUDE.md</code> and appended after it. Claude Code does not git-ignore it for you, so add it to <code>.gitignore</code>.</td><td>Personal</td></tr>
+      <tr><td><code>~/.claude/skills/</code> and <code>.claude/skills/</code></td><td>Reusable skills and workflows. User-level skills are personal; project-level skills can be shared.</td><td>Personal / team</td></tr>
+      <tr><td><code>~/.claude/agents/</code> and <code>.claude/agents/</code></td><td>Custom subagent definitions for specialist tasks. Scope follows the directory in which they are stored.</td><td>Personal / team</td></tr>
+      <tr><td><code>.claude/rules/</code> and <code>~/.claude/rules/</code></td><td>Modular instructions, optionally scoped to file paths with <code>paths</code> frontmatter. User rules apply to every project and load before project rules.</td><td>Team / personal</td></tr>
+      <tr><td><code>~/.claude/projects/</code></td><td>Per-project session transcripts (plaintext, deleted after <code>cleanupPeriodDays</code>, default 30 days) and auto memory (kept, not swept).</td><td>Personal</td></tr>
+      <tr><td><code>.claude/commands/</code> and <code>~/.claude/commands/</code></td><td>Legacy custom commands. Still work, but commands have been merged into skills, and a skill with the same name wins.</td><td>Personal / team</td></tr>
+      <tr><td><code>.claude/workflows/</code> and <code>~/.claude/workflows/</code></td><td>Saved dynamic workflow scripts, run as <code>/&lt;name&gt;</code>. The project copy wins on a name clash.</td><td>Personal / team</td></tr>
+      <tr><td><code>output-styles/</code> (under <code>~/.claude/</code> or <code>.claude/</code>)</td><td>Custom output styles as Markdown files.</td><td>Personal / team</td></tr>
+      <tr><td><code>.claude/agent-memory/</code> · <code>.claude/agent-memory-local/</code> · <code>~/.claude/agent-memory/</code></td><td>Persistent memory for custom subagents that set the <code>memory</code> field (project, local and user scope).</td><td>Team / personal</td></tr>
+      <tr><td><code>~/.claude/plugins/</code></td><td>Installed plugins, cloned marketplaces and plugin data. Which plugins are on is recorded in <code>enabledPlugins</code> in a settings file.</td><td>Personal</td></tr>
+      <tr><td><code>~/.claude/keybindings.json</code></td><td>Custom keyboard shortcuts. Global only. Open it with <code>/keybindings</code>.</td><td>Personal</td></tr>
+      <tr><td>Managed policy directory</td><td><code>managed-settings.json</code>, <code>managed-settings.d/</code>, <code>managed-mcp.json</code> and a managed <code>CLAUDE.md</code>, deployed by your organization. See section 10.</td><td>Organization</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <div class="section-head"><h2>4. The Three Concepts to Keep Separate</h2><p>This is the distinction that prevents most confusion when configuring Claude Code.</p></div>
+  <div class="content">
+    <div class="steps">
+      <article class="step"><span class="num">1</span><h3><code>CLAUDE.md</code> — What Claude should know</h3>
+        <p>Persistent instructions and context supplied to Claude during work.</p>
+        <ul><li>Architecture and design constraints</li><li>Coding standards and conventions</li><li>Build, test and deployment commands</li><li>Project-specific terminology and guidance</li></ul>
+        <p><b>Think:</b> the project's working handbook.</p>
+      </article>
+      <article class="step a2"><span class="num">2</span><h3><code>settings.json</code> — How Claude should operate</h3>
+        <p>Configuration that governs Claude Code's behaviour and available capabilities.</p>
+        <ul><li>Tool permissions: allow / ask / deny</li><li>Hooks and environment variables</li><li>Model and other runtime defaults</li><li>Other supported Claude Code settings</li></ul>
+        <p><b>Think:</b> the operating policy and configuration.</p>
+      </article>
+      <article class="step a3"><span class="num">3</span><h3><code>.mcp.json</code> / <code>~/.claude.json</code> — Which MCP servers are configured</h3>
+        <p>MCP server definitions connect Claude Code to external tools and data sources.</p>
+        <ul><li><code>.mcp.json</code>: project-scoped, shareable server definitions</li><li><code>~/.claude.json</code>: local-scope (default, this project only) and user-scope (all projects) MCP servers, plus local state</li><li>Credentials should be handled securely</li></ul>
+        <p><b>Think:</b> the connection directory for external capabilities.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>5. How Instructions Load</h2><p><code>CLAUDE.md</code> files are layered by scope and concatenated, never overridden. Knowing the order explains most "why did Claude do that" moments.</p></div>
+  <div class="content">
+    <table>
+      <thead><tr><th>Scope</th><th>Location</th><th>Who it applies to</th></tr></thead>
+      <tbody>
+        <tr><td>Managed policy</td><td>macOS <code>/Library/Application Support/ClaudeCode/CLAUDE.md</code><br/>Linux / WSL <code>/etc/claude-code/CLAUDE.md</code><br/>Windows <code>C:\Program Files\ClaudeCode\CLAUDE.md</code></td><td>Everyone the organization deploys it to. It can't be excluded with <code>claudeMdExcludes</code>.</td></tr>
+        <tr><td>User</td><td><code>~/.claude/CLAUDE.md</code></td><td>You, in every project</td></tr>
+        <tr><td>Project</td><td><code>./CLAUDE.md</code> or <code>./.claude/CLAUDE.md</code></td><td>The team, through source control</td></tr>
+        <tr><td>Local</td><td><code>./CLAUDE.local.md</code></td><td>You, in this project. Add it to <code>.gitignore</code> yourself.</td></tr>
+        <tr><td>Rules</td><td><code>.claude/rules/**/*.md</code> and <code>~/.claude/rules/**/*.md</code></td><td>Team or you. Rules without <code>paths</code> load like <code>.claude/CLAUDE.md</code>.</td></tr>
+      </tbody>
+    </table>
+    <div class="steps" style="margin-top:16px">
+      <article class="step"><span class="num">1</span><h3>At launch</h3>
+        <p><code>CLAUDE.md</code> and <code>CLAUDE.local.md</code> load from the working directory <b>and every directory above it</b>.</p>
+        <ul><li>Concatenated from the filesystem root down to the working directory, so the closest file is read last</li><li>Within a directory, <code>CLAUDE.local.md</code> is appended after <code>CLAUDE.md</code></li><li>User rules load before project rules. Neither overrides the other.</li></ul>
+      </article>
+      <article class="step a2"><span class="num">2</span><h3>On demand</h3>
+        <p>Files <b>below</b> the working directory don't load at launch.</p>
+        <ul><li>A subdirectory's <code>CLAUDE.md</code> loads once Claude reads, writes or edits a file in that subdirectory</li><li>A path-scoped rule loads when Claude touches a file matching its <code>paths</code> globs</li></ul>
+      </article>
+      <article class="step a3"><span class="num">3</span><h3>Imports</h3>
+        <p><code>@path/to/file</code> pulls another file into a <code>CLAUDE.md</code>.</p>
+        <ul><li>Relative paths resolve from the importing file, and imports can nest up to four hops deep</li><li>A project import that resolves outside the working directory needs a one-time approval</li><li>Imports organize content but don't reduce context cost</li></ul>
+      </article>
+    </div>
+    <table style="margin-top:16px">
+      <thead><tr><th>Behaviour</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr><td>Size</td><td>Aim for under 200 lines per file. A launch-time file over 4 MiB is skipped entirely. Block-level HTML comments (<code>&lt;!-- --&gt;</code>) are stripped before loading, so they cost no tokens.</td></tr>
+        <tr><td><code>AGENTS.md</code></td><td>Read only when no <code>CLAUDE.md</code>, <code>.claude/CLAUDE.md</code> or <code>CLAUDE.local.md</code> exists in the working directory or above (v2.1.277+). To use both, put <code>@AGENTS.md</code> inside a <code>CLAUDE.md</code>, or set <b>Project instructions</b> in <code>/config</code> to <code>claude-md-and-agents-md</code>.</td></tr>
+        <tr><td>Monorepos</td><td><code>claudeMdExcludes</code> skips specific <code>CLAUDE.md</code> or rules files by glob against absolute paths. The docs suggest putting it in <code>.claude/settings.local.json</code>.</td></tr>
+        <tr><td>Mid-session edits</td><td><code>CLAUDE.md</code> is read at session start. After <code>/compact</code>, the project-root <code>CLAUDE.md</code> and unscoped rules are re-read from disk, so an edit takes effect after <code>/compact</code> or in a new session.</td></tr>
+        <tr><td>Extra directories</td><td>Directories added with <code>--add-dir</code> don't contribute their <code>CLAUDE.md</code> unless <code>CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1</code> is set.</td></tr>
+      </tbody>
+    </table>
+    <p class="code-label"><b>Example project <code>CLAUDE.md</code></b> (keep it short and specific):</p>
+<pre class="code"># Architecture
+- All API routes use the middleware chain: auth → validate → handler
+- Database access only through the repository pattern
+
+# Commands
+- Build: npm run build · Test: npm test · Lint: npm run lint
+
+# Conventions
+- Never use the `any` type in TypeScript
+- Every new feature includes unit and integration tests</pre>
+    <p class="code-label"><b>Path-scoped rule</b> (<code>.claude/rules/api.md</code>, loads only when Claude works on matching files):</p>
+<pre class="code">---
+paths:
+  - "src/api/**/*.ts"
+---
+
+# API Development Rules
+- All API endpoints must include input validation
+- Use the standard error response format</pre>
+    <div class="callout"><b><code>CLAUDE.md</code> is context, not enforcement.</b> Claude reads it as guidance. Permission rules are enforced by Claude Code itself, so a <code>CLAUDE.md</code> line can't grant or remove access. For something that must happen every time, use a <code>permissions.deny</code> rule or a hook (section 9).</div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>6. Auto Memory</h2><p>Notes Claude writes for itself so later sessions in the same project don't start from zero.</p></div>
+  <div class="content">
+    <table>
+      <thead><tr><th>Aspect</th><th><code>CLAUDE.md</code></th><th>Auto memory</th></tr></thead>
+      <tbody>
+        <tr><td>Who writes it</td><td>You (or <code>/init</code>)</td><td>Claude, as it works. You can also ask it to remember something.</td></tr>
+        <tr><td>Location</td><td>Repository or <code>~/.claude/</code></td><td><code>~/.claude/projects/&lt;project&gt;/memory/</code>, with a <code>MEMORY.md</code> index plus topic files</td></tr>
+        <tr><td>Shared?</td><td>Can be committed</td><td>Machine-local only</td></tr>
+        <tr><td>Loading</td><td>Whole file at launch</td><td>First 200 lines <b>or</b> first 25KB of <code>MEMORY.md</code>, whichever comes first. Topic files are read on demand.</td></tr>
+      </tbody>
+    </table>
+    <ul style="margin:14px 0 0 20px;padding:0;font-size:14.5px">
+      <li><code>&lt;project&gt;</code> is derived from the git repository, not a hash, so all worktrees and subdirectories of one repo share one memory directory.</li>
+      <li>Turn it off with the <code>/memory</code> toggle, <code>"autoMemoryEnabled": false</code> in a project's settings, or <code>CLAUDE_CODE_DISABLE_AUTO_MEMORY=1</code>. Move it with <code>autoMemoryDirectory</code> (an absolute or <code>~/</code> path).</li>
+      <li>Subagents don't see the main conversation's auto memory (forks are the exception). A custom subagent with a <code>memory</code> field gets its own <code>agent-memory/&lt;name&gt;/</code> directory.</li>
+      <li>Auto memory files are not deleted by the <code>cleanupPeriodDays</code> sweep that removes old transcripts.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>7. Settings Precedence and Workspace Trust</h2><p>When the same key is set in several files, the highest level wins. Committed project settings also wait for each teammate to trust the folder.</p></div>
+  <div class="content">
+    <div class="decision-grid">
+      <div class="decision"><b>1. Managed settings</b><p>Deployed by the organization. Nothing below can override a managed key.</p></div>
+      <div class="decision"><b>2. Command line</b><p><code>--settings &lt;file-or-json&gt;</code> for one session only.</p></div>
+      <div class="decision"><b>3. Project local</b><p><code>.claude/settings.local.json</code></p></div>
+      <div class="decision"><b>4. Shared project</b><p><code>.claude/settings.json</code></p></div>
+      <div class="decision"><b>5. User</b><p><code>~/.claude/settings.json</code></p></div>
+      <div class="decision"><b>Lists merge</b><p>Arrays such as <code>permissions.allow</code> combine across files instead of replacing each other. For permissions, a deny at any level beats an allow at another.</p></div>
+    </div>
+    <table style="margin-top:16px">
+      <thead><tr><th>Rule</th><th>What it means in practice</th></tr></thead>
+      <tbody>
+        <tr><td>Environment variables aren't a level</td><td>Each variable and settings key pair has its own rule. <code>ANTHROPIC_MODEL</code> in your shell beats the <code>model</code> key in any file.</td></tr>
+        <tr><td>Some keys are ignored in a repo file</td><td><code>permissions.defaultMode</code> set to <code>auto</code> or <code>bypassPermissions</code> has no effect from project or local settings. Keys whose scope is User or Managed never apply from a committed file. Global config keys apply only from <code>~/.claude.json</code>.</td></tr>
+        <tr><td>Workspace trust gates the committed file</td><td><code>permissions.allow</code>, <code>additionalDirectories</code>, <code>extraKnownMarketplaces</code> and most <code>env</code> values in <code>.claude/settings.json</code> apply only after the trust dialog is accepted. <code>deny</code> and <code>ask</code> rules apply immediately.</td></tr>
+        <tr><td><code>claude -p</code> skips the trust dialog</td><td>Project allow rules aren't used, but settings-file hooks, the <code>env</code> block, <code>apiKeyHelper</code> and <code>.mcp.json</code> servers do run. For untrusted repos use <code>--bare</code>, <code>--setting-sources user</code> or <code>--settings '{"disableAllHooks": true}'</code>.</td></tr>
+        <tr><td>Verify what loaded</td><td><code>/status</code> shows the <b>Setting sources</b> line. <code>claude doctor</code> lists rejected entries. Settings files are strict JSON, so add <code>"$schema": "https://json.schemastore.org/claude-code-settings.json"</code> for editor validation.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>8. MCP Server Scopes</h2><p>Three scopes decide where an MCP server definition is stored and who gets it.</p></div>
+  <div class="content">
+    <table>
+      <thead><tr><th>Scope</th><th>Stored in</th><th>Available in</th><th>Add with</th></tr></thead>
+      <tbody>
+        <tr><td><b>Local</b> (default)</td><td><code>~/.claude.json</code>, under the project's path</td><td>This project, only for you</td><td><code>claude mcp add &lt;name&gt; ...</code></td></tr>
+        <tr><td><b>Project</b></td><td><code>.mcp.json</code> at the project root</td><td>Everyone who clones the repo</td><td><code>claude mcp add --scope project ...</code></td></tr>
+        <tr><td><b>User</b></td><td><code>~/.claude.json</code></td><td>All your projects</td><td><code>claude mcp add --scope user ...</code></td></tr>
+      </tbody>
+    </table>
+    <ul style="margin:14px 0 0 20px;padding:0;font-size:14.5px">
+      <li><b>Precedence:</b> if one server name is defined in several places, Claude Code connects once, using the whole entry from the highest source: Local, then Project, then User, then plugin servers, then claude.ai connectors. Fields are not merged.</li>
+      <li><b>MCP "local" scope is not <code>settings.local.json</code>.</b> They are unrelated files.</li>
+      <li><b>Approval:</b> interactive sessions ask before using servers from a project's <code>.mcp.json</code>. Reset your choices with <code>claude mcp reset-project-choices</code>. <code>claude -p</code> and Agent SDK runs load them without asking.</li>
+      <li><b>Secrets:</b> <code>.mcp.json</code> supports <code>${VAR}</code> and <code>${VAR:-default}</code> expansion. See section 11.</li>
+      <li><b>Organization control:</b> <code>managed-mcp.json</code> takes exclusive control of which servers exist. <code>allowedMcpServers</code> and <code>deniedMcpServers</code> can be set in any settings scope and merge across scopes. A denylist match always blocks a server. Only <code>allowManagedMcpServersOnly: true</code> in managed settings limits the allowlist to managed sources.</li>
+    </ul>
+<pre class="code">claude mcp add --transport http shared-server --scope project https://example.com/mcp
+claude mcp list                    <span class="c"># shows servers and warns about unset ${VAR}s</span>
+claude mcp reset-project-choices   <span class="c"># re-prompt for .mcp.json approvals</span></pre>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>9. Where Hooks Are Configured</h2><p>Hooks are scripts Claude Code runs itself at lifecycle events, so they don't depend on the model choosing to follow an instruction.</p></div>
+  <div class="content">
+    <table>
+      <thead><tr><th>Location</th><th>Active when</th></tr></thead>
+      <tbody>
+        <tr><td><code>~/.claude/settings.json</code></td><td>All your projects</td></tr>
+        <tr><td><code>.claude/settings.json</code></td><td>Everyone in the project (commit it)</td></tr>
+        <tr><td><code>.claude/settings.local.json</code></td><td>You, in this project</td></tr>
+        <tr><td>Managed policy settings</td><td>Organization-wide. Only a managed <code>disableAllHooks</code> can turn these off.</td></tr>
+        <tr><td>Plugin <code>hooks/hooks.json</code></td><td>While the plugin is enabled</td></tr>
+        <tr><td>Skill frontmatter</td><td>The rest of the session, once the skill is invoked</td></tr>
+        <tr><td>Subagent frontmatter</td><td>Only while that subagent runs</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:14.5px;margin-top:12px">Hook entries <b>merge</b> across levels. <code>/hooks</code> opens a read-only browser showing each hook's source. <code>"disableAllHooks": true</code> turns them off. Events, handler types and exit codes are covered in the companion <a href="claude_code_capabilities_guide.html">Claude Code Capabilities</a> guide.</p>
+    <p class="code-label"><b>Format every file Claude edits</b> (<code>.claude/settings.json</code>):</p>
+<pre class="code">{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          { "type": "command", "command": "jq -r '.tool_input.file_path' | xargs npx prettier --write" }
+        ]
+      }
+    ]
+  }
+}</pre>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>10. Enterprise Managed Configuration</h2><p>Organizations deploy policy that sits above every personal and project file.</p></div>
+  <div class="content">
+    <table>
+      <thead><tr><th>OS</th><th>Managed directory</th></tr></thead>
+      <tbody>
+        <tr><td>macOS</td><td><code>/Library/Application Support/ClaudeCode/</code></td></tr>
+        <tr><td>Linux and WSL</td><td><code>/etc/claude-code/</code></td></tr>
+        <tr><td>Windows</td><td><code>C:\Program Files\ClaudeCode\</code> (the legacy <code>C:\ProgramData\ClaudeCode\</code> path is not read)</td></tr>
+      </tbody>
+    </table>
+    <div class="decision-grid" style="margin-top:16px">
+      <div class="decision"><b><code>managed-settings.json</code></b><p>Policy settings such as permission rules, allowed models, sandbox and telemetry. Drop-in fragments go in <code>managed-settings.d/*.json</code>, merged in alphabetical order after the main file.</p></div>
+      <div class="decision"><b><code>managed-mcp.json</code></b><p>Same format as <code>.mcp.json</code>. Takes exclusive control: users can't add other servers. An empty <code>mcpServers</code> disables MCP.</p></div>
+      <div class="decision"><b>Managed <code>CLAUDE.md</code></b><p>Organization-wide guidance, or the <code>claudeMd</code> key inside managed settings. Use it for behaviour and managed <code>permissions.deny</code> for enforcement.</p></div>
+    </div>
+    <ul style="margin:14px 0 0 20px;padding:0;font-size:14.5px">
+      <li><b>Delivery sources, highest first:</b> server-managed settings (claude.ai admin console or a Claude apps gateway), MDM / OS policy (macOS <code>com.anthropic.claudecode</code> plist, Windows <code>HKLM\SOFTWARE\Policies\ClaudeCode</code>), the <code>managed-settings.json</code> file, then the user-writable <code>HKCU</code> registry fallback. By default only the highest source that has a policy is used.</li>
+      <li>Managed skills and output styles live in <code>.claude/skills/</code> and <code>.claude/output-styles/</code> inside the managed directory.</li>
+      <li>Developers run <code>/status</code> to see which managed source applies to them.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>11. Where Credentials Fit</h2><p>Do not treat <code>~/.claude.json</code> as a credentials vault.</p></div>
+  <div class="content">
+    <div class="decision-grid">
+      <div class="decision"><b>Authentication credentials</b><p>Claude Code authentication is handled through the platform's secure credential storage. On macOS, this generally means Keychain.</p></div>
+      <div class="decision"><b>MCP secrets</b><p>Use supported environment-variable or secret-injection mechanisms. Avoid hard-coding API keys or tokens in a shared <code>.mcp.json</code>.</p></div>
+      <div class="decision"><b>Configuration files</b><p>Files can contain server commands, arguments, environment-variable references and non-secret settings. A reference to a secret is not the secret itself.</p></div>
+    </div>
+    <div class="callout red"><b>Security rule:</b> Never commit API keys, access tokens, passwords or private certificates to <code>CLAUDE.md</code>, <code>settings.json</code> or <code>.mcp.json</code>.</div>
+
+    <h3 class="sub">How to supply secrets safely, file by file</h3>
+    <p>The principle is the same everywhere: the file holds a <i>reference</i> (a variable name, a helper script path or an OAuth registration), and the secret itself lives in the OS keychain, a secret manager or your shell environment.</p>
+    <table>
+      <thead><tr><th>Where</th><th>Safe pattern</th><th>How</th></tr></thead>
+      <tbody>
+        <tr><td><code>CLAUDE.md</code></td><td>No secrets, ever. Name the variable instead.</td><td>Write “the API token is read from <code>$SN_MCP_TOKEN</code>”. <code>CLAUDE.md</code> is loaded into Claude's context, so anything in it is sent to the model.</td></tr>
+        <tr><td><code>.mcp.json</code> (local servers)</td><td>Environment-variable expansion</td><td>Use <code>${VAR}</code> or <code>${VAR:-default}</code> in a server's <code>command</code>, <code>args</code>, <code>env</code>, <code>url</code> or <code>headers</code>. Each teammate sets the variable on their own machine.</td></tr>
+        <tr><td><code>.mcp.json</code> (remote servers with OAuth)</td><td>Built-in OAuth 2.0 flow</td><td>Add the server without a token, then authenticate from <code>/mcp</code> or with <code>claude mcp login &lt;name&gt;</code>. Tokens are stored securely and refreshed automatically. A client secret passed with <code>--client-secret</code> is stored in the macOS Keychain or a credentials file, not in the config.</td></tr>
+        <tr><td><code>.mcp.json</code> (short-lived tokens, SSO, Kerberos)</td><td><code>headersHelper</code></td><td>Point <code>headersHelper</code> at a script that prints a JSON object of headers. It runs on every connection, has a 10-second timeout and is re-run automatically on a 401/403.</td></tr>
+        <tr><td><code>settings.json</code> (Claude API key)</td><td><code>apiKeyHelper</code></td><td>Point <code>apiKeyHelper</code> at a script that returns the key, for example from a vault. Use it for rotating credentials.</td></tr>
+        <tr><td><code>settings.json</code> <code>env</code> block</td><td>Non-secret values only</td><td>The <code>env</code> block is plain JSON. Don't put tokens in a committed <code>.claude/settings.json</code>. <code>.claude/settings.local.json</code> stays out of Git but is still plaintext on disk.</td></tr>
+        <tr><td>Secret files in the repo (<code>.env</code>)</td><td>Deny rules</td><td>Add <code>Read(./.env)</code> and <code>Read(./.env.*)</code> to <code>permissions.deny</code> so Claude can't read them.</td></tr>
+        <tr><td>Claude Code login</td><td>Leave it to Claude Code</td><td>macOS: encrypted Keychain (falls back to <code>~/.claude/.credentials.json</code>, mode 0600, if the Keychain rejects the write). Linux: <code>~/.claude/.credentials.json</code>, mode 0600. Windows: <code>%USERPROFILE%\.claude\.credentials.json</code>.</td></tr>
+        <tr><td>CI pipelines</td><td>CI secret store and an environment variable</td><td>Run <code>claude setup-token</code> once to generate a one-year OAuth token, store it as a CI secret and expose it as <code>CLAUDE_CODE_OAUTH_TOKEN</code>. For API billing, use <code>ANTHROPIC_API_KEY</code> the same way.</td></tr>
+      </tbody>
+    </table>
+
+    <p class="code-label"><b>Step 1.</b> Store the secret in the macOS Keychain (the trailing <code>-w</code> prompts for the value so it never appears in shell history).</p>
+<pre class="code">security add-generic-password -a "$USER" -s sn-mcp-token -w</pre>
+    <p class="code-label"><b>Step 2.</b> Export it from the Keychain in <code>~/.zshrc</code>, so only the variable name is ever written to any file.</p>
+<pre class="code">export SN_MCP_TOKEN="$(security find-generic-password -s sn-mcp-token -w)"</pre>
+    <p class="code-label"><b>Step 3.</b> Reference the variable in the committed <code>.mcp.json</code>.</p>
+<pre class="code">{
+  "mcpServers": {
+    "internal-api": {
+      "type": "http",
+      "url": "${INTERNAL_API_URL:-https://api.example.com}/mcp",
+      "headers": { "Authorization": "Bearer ${SN_MCP_TOKEN}" }
+    }
+  }
+}</pre>
+    <p class="code-label"><b>Step 4.</b> Check it: <code>claude mcp list</code> warns about any variable that isn't set. Open a new terminal first, so <code>~/.zshrc</code> is reloaded.</p>
+
+    <p class="code-label"><b>Dynamic headers</b> for tokens that expire (the script must print JSON such as <code>{"Authorization": "Bearer …"}</code>):</p>
+<pre class="code">"internal-api": {
+  "type": "http",
+  "url": "https://mcp.internal.example.com",
+  "headersHelper": "/opt/bin/get-mcp-auth-headers.sh"
+}</pre>
+    <p class="code-label"><b>Claude API key from a vault</b>, plus deny rules for local secret files (<code>~/.claude/settings.json</code>):</p>
+<pre class="code">{
+  "apiKeyHelper": "/Users/you/bin/get-anthropic-key.sh",
+  "permissions": {
+    "deny": ["Read(./.env)", "Read(./.env.*)"]
+  }
+}</pre>
+
+    <div class="callout"><b>Pitfalls to know:</b>
+      <ul style="margin:8px 0 0 20px;padding:0">
+        <li>If a referenced variable isn't set and has no default, the config still loads but the literal <code>${VAR}</code> text is sent. <code>claude mcp list</code> reports a warning for that server.</li>
+        <li>A variable set to an empty string counts as set, so <code>${VAR:-default}</code> expands to empty, not to the default.</li>
+        <li>In a remote server's <code>url</code> and <code>headers</code>, known credential variables always read as empty, even when set, and a <code>:-default</code> on them is ignored. This covers Claude Code's own credentials (<code>ANTHROPIC_API_KEY</code>, <code>ANTHROPIC_AUTH_TOKEN</code>), cloud provider credentials (<code>AWS_BEARER_TOKEN_BEDROCK</code>) and others such as <code>HTTPS_PROXY</code> and <code>NPM_TOKEN</code>. It stops a repository or plugin from sending them to a server it names. A name outside this set, such as <code>API_KEY</code>, expands normally, so copy a covered value into a variable with your own name.</li>
+        <li>If a static <code>Authorization</code> header is rejected, Claude Code reports the connection as failed and doesn't fall back to OAuth. Remove the header to use OAuth.</li>
+        <li><code>claude mcp add --env KEY=value</code> sets environment variables for the server. As a precaution, don't pass a literal secret this way for a project-scoped server that will be committed. Use a <code>${VAR}</code> reference in <code>.mcp.json</code> instead.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>12. What Should Be Shared with the Team?</h2><p>A practical Git-sharing model for a consistent team environment.</p></div>
+  <div class="content"><table>
+    <thead><tr><th>Artifact</th><th>Commit to Git?</th><th>Reason</th></tr></thead>
+    <tbody>
+      <tr><td><code>CLAUDE.md</code></td><td><b>Usually yes</b></td><td>Ensures the team uses consistent project context and engineering conventions.</td></tr>
+      <tr><td><code>.claude/settings.json</code></td><td><b>Usually yes</b></td><td>Shares agreed project-level permissions and hooks. Review changes before adoption.</td></tr>
+      <tr><td><code>.mcp.json</code></td><td><b>Usually yes, without secrets</b></td><td>Gives teammates a consistent MCP server configuration.</td></tr>
+      <tr><td><code>.claude/skills/</code>, <code>.claude/agents/</code>, <code>.claude/rules/</code>, <code>.claude/workflows/</code></td><td><b>When project-specific</b></td><td>Shares reusable workflows, specialist agents and project rules.</td></tr>
+      <tr><td><code>.claude/settings.local.json</code></td><td><b>No</b></td><td>Contains individual developer preferences or local overrides. Claude Code adds it to your global git excludes the first time it writes it. If you created it by hand, add it to <code>.gitignore</code> yourself.</td></tr>
+      <tr><td><code>CLAUDE.local.md</code></td><td><b>No</b></td><td>Personal project instructions. Not ignored automatically, so add it to <code>.gitignore</code>.</td></tr>
+      <tr><td><code>.claude/agent-memory/</code></td><td><b>Optional</b></td><td>Project-scope subagent memory, shareable through version control. Keep <code>.claude/agent-memory-local/</code> out of Git.</td></tr>
+      <tr><td><code>.claude/worktrees/</code></td><td><b>No</b></td><td>Worktrees created by <code>claude --worktree</code>. Add the folder to <code>.gitignore</code>.</td></tr>
+      <tr><td><code>~/.claude/</code> and <code>~/.claude.json</code></td><td><b>No</b></td><td>Personal environment, history, local state and user-specific configuration.</td></tr>
+    </tbody>
+  </table>
+  <div class="callout green"><b>Recommended baseline:</b> maintain a concise root <code>CLAUDE.md</code>, keep shared project settings deliberate, and put reusable team workflows in project-level skills or agents. Keep personal preferences and local state outside the repository.</div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>13. Quick Decision Guide</h2><p>When you want to change something, use this guide to find the right place.</p></div>
+  <div class="content">
+    <div class="qa"><span class="ans mix">Instructions</span><h3>“Claude should always follow our ServiceNow development standards.”</h3><p>Put the standards in the project <code>CLAUDE.md</code> if they apply to the team, or in <code>~/.claude/CLAUDE.md</code> if they are your personal preferences.</p></div>
+    <div class="qa"><span class="ans mix">Settings</span><h3>“Claude must ask before running a potentially destructive command.”</h3><p>Configure the relevant tool permissions in the appropriate <code>settings.json</code> scope.</p></div>
+    <div class="qa"><span class="ans mix">MCP</span><h3>“Everyone on the project should have the same MCP server definitions.”</h3><p>Use project-level <code>.mcp.json</code>, and ensure secrets are injected securely rather than committed.</p></div>
+    <div class="qa"><span class="ans mix">Personal configuration</span><h3>“I want my own MCP server or personal working preferences.”</h3><p>Put personal preferences in <code>~/.claude/CLAUDE.md</code> and <code>~/.claude/settings.json</code>. For a personal MCP server, run <code>claude mcp add --scope user</code> (all projects) or <code>claude mcp add</code> with the default local scope (this project only). Both are stored in <code>~/.claude.json</code> in your home directory, not inside the <code>~/.claude/</code> folder.</p></div>
+    <div class="qa"><span class="ans mix">Credentials</span><h3>“Where should my Claude login token or API key go?”</h3><p>Use Claude Code's secure authentication flow or an appropriate secret manager/environment-variable mechanism — not a shared instruction or settings file.</p></div>
+  </div>
+</section>
+
+</main>
+<footer>
+  <b>Author:</b> Yogesh Shinde, AI Architect &middot; <a href="index.html">Back to cipheryogi portfolio</a>
+</footer>
+</body>
+</html>

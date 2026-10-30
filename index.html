@@ -641,7 +641,7 @@
             <div class="card">
                 <span class="category cat-agent">AI Agent</span>
                 <h3>Universal Request Automation — Real-Time Triage &amp; Resolution Intelligence</h3>
-                <p>Two deliberately decoupled AI agents automating the IT service request queue for a telecom operator's Employee Center. A Real-Time Processing Agent structures free-text inquiries, validates the requester's category selection against evidence, routes to the correct team, and attempts a knowledge-grounded answer behind a confidence gate. A scheduled Resolution Intelligence Agent clusters resolved requests by topic, scores resolution quality against a rubric, and promotes deduplicated knowledge drafts — turning one-off resolutions into reusable knowledge. Either agent can go live independently; no runtime coupling between them. Since initial rollout, the knowledge-retrieval pipeline behind the confidence gate was hardened for a retrieval-accuracy gap and canary-verified end to end in production.</p>
+                <p>Two deliberately decoupled AI agents automating the IT service request queue for a telecom operator's Employee Center. A Real-Time Processing Agent structures free-text inquiries, validates the requester's category selection against evidence, routes to the correct team, and attempts a knowledge-grounded answer behind a confidence gate. A scheduled Resolution Intelligence Agent clusters resolved requests by topic, scores resolution quality against a rubric, and promotes deduplicated knowledge drafts — turning one-off resolutions into reusable knowledge. Either agent can go live independently; no runtime coupling between them. Since initial rollout, the knowledge-retrieval pipeline behind the confidence gate was hardened for a retrieval-accuracy gap and canary-verified end to end in production. A follow-on design change consolidates fixed logic into fewer tools so every real-time run stays within four tool calls, halving the per-run assist cost.</p>
                 <div class="tags">
                     <span class="tag">AI Agent Studio</span>
                     <span class="tag">Universal Request</span>
@@ -662,6 +662,19 @@
                     <span class="tag">Sentiment Analysis</span>
                     <span class="tag">Assessment Framework</span>
                     <span class="tag">Platform Analytics</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="category cat-agent">AI Agent</span>
+                <h3>Rapid Agentic Deployment — ITSM Incident Triage &amp; Change Risk Assessment</h3>
+                <p>Rapid deployment of two ITSM agentic workflows for an enterprise customer. Incident triage runs three specialist agents under one planner: it sets category and subcategory, classifies the service, service offering and CI, and links a matching major incident or problem, or proposes a new major incident when it detects a surge. Each value is set only when the incident text supports it. Change risk assessment fills a gap the out-of-box risk features leave open: it rates each implementation, test and backout plan for a named role, timing, success criteria and a rollback trigger, escalates risk when similar past changes failed, compares the AI rating with the human one, and writes a single CAB-ready assessment with approval guidance. Delivered with a readiness assessment, semantic index enablement, gap-closing update sets and a signed-off test plan.</p>
+                <div class="tags">
+                    <span class="tag">AI Agent Studio</span>
+                    <span class="tag">ITSM</span>
+                    <span class="tag">Change Management</span>
+                    <span class="tag">AI Search / RAG</span>
+                    <span class="tag">Agentic Workflows</span>
                 </div>
             </div>
 
@@ -838,6 +851,58 @@
             </div>
 
             <div class="card">
+                <span class="category cat-guide">Guide</span>
+                <h3><a href="Claude_Code_Capabilities_Guide.html" style="color:inherit;text-decoration:none;">Claude Code Capabilities</a></h3>
+                <p>Field guide to what Claude Code can do and how to steer it: built-in tools, subagents, agent teams and dynamic workflows, skills, plugins and hooks, permission modes, model choice, and headless runs in GitHub Actions and GitLab CI. Closes with a quick decision guide for common asks.</p>
+                <div class="tags">
+                    <span class="tag">Claude Code</span>
+                    <span class="tag">Subagents</span>
+                    <span class="tag">Skills &amp; Plugins</span>
+                    <span class="tag">Hooks</span>
+                    <span class="tag">CI Automation</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="category cat-guide">Guide</span>
+                <h3><a href="Claude_Code_File_Structure_Guide.html" style="color:inherit;text-decoration:none;">Claude Code File Structure and Configuration</a></h3>
+                <p>Practical map of where Claude Code keeps instructions, settings, MCP server configuration, skills, project state and credentials, and how personal and project scopes differ. Covers secret handling and the pitfalls of environment-variable expansion in MCP config, and ends with a decision guide for where each change belongs.</p>
+                <div class="tags">
+                    <span class="tag">Claude Code</span>
+                    <span class="tag">CLAUDE.md</span>
+                    <span class="tag">settings.json</span>
+                    <span class="tag">MCP Configuration</span>
+                    <span class="tag">Secrets Handling</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="category cat-guide">Guide</span>
+                <h3>FastMCP Server for ServiceNow Instances</h3>
+                <p>Runbook for a single Python FastMCP server that wraps the ServiceNow Table API as 60 MCP tools over stdio. The same script is registered once per instance and only its environment variables differ, so adding an instance needs no code change. Covers architecture, file inventory, step-by-step setup for two MCP clients, Basic Auth and optional OAuth, verification, troubleshooting, and a comparison with the native MCP Server Console.</p>
+                <div class="tags">
+                    <span class="tag">FastMCP</span>
+                    <span class="tag">MCP</span>
+                    <span class="tag">Python</span>
+                    <span class="tag">Table API</span>
+                    <span class="tag">Claude Code</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="category cat-tooling">Tooling</span>
+                <h3>CTA Mock Exam Generator</h3>
+                <p>Prompt-driven generator and Node.js toolchain that builds blueprint-aligned mock exams for the ServiceNow Certified Technical Architect certification. A 60-slot plan enforces coverage of every objective and module, question type and answer-key position; a duplicate set blocks question angles already used in earlier mocks; and a 13-step validator checks each built exam before blind reviewer packets score it. Used to build a series of full-length mock exams.</p>
+                <div class="tags">
+                    <span class="tag">Prompt Engineering</span>
+                    <span class="tag">Node.js</span>
+                    <span class="tag">Exam Blueprint</span>
+                    <span class="tag">Validation</span>
+                    <span class="tag">Certification Prep</span>
+                </div>
+            </div>
+
+            <div class="card">
                 <span class="category cat-whitepaper">Whitepaper</span>
                 <h3>ServiceNow AI Agent Context Token Management</h3>
                 <p>Deep dive on 128K context token window, ReAct orchestration loop, token accumulation across iterations, STM/long-term memory architecture, and best practices for cost/stability control.</p>
@@ -899,7 +964,7 @@
             <div class="card">
                 <span class="category cat-tooling">Claude Skills</span>
                 <h3>Claude Code Custom Skills</h3>
-                <p>A growing suite of custom AI skills for ServiceNow delivery and productivity: AI Solution Design Generator (interactive runbook creation with a maker-checker quality pass), Markdown-to-DOCX Converter (branded Word documents with mermaid/Graphviz diagrams), Community Articles Creator (portal-formatted articles), branded PowerPoint generation, AI Agent instruction authoring and review, accomplishment-deck automation, a Chunkwise Markdown Editor (applies many discrete revisions to large design docs and runbooks in small chunks, verifying each by diff and grep so no restated fact drifts out of sync), and a git commit-and-push helper. Each skill is self-contained with its own README and bundled scripts/templates.</p>
+                <p>A growing suite of custom AI skills for ServiceNow delivery and productivity: AI Solution Design Generator (interactive runbook creation with a maker-checker quality pass, now also packaged as a standalone, installable Design and Runbook Generator with a 92-check quality gate), Markdown-to-DOCX Converter (branded Word documents with mermaid/Graphviz diagrams), Community Articles Creator (portal-formatted articles), branded PowerPoint generation, AI Agent instruction authoring and review, accomplishment-deck automation, an evidence-backed Now Assist entitlement and consumption report with a cited source on every figure, a Chunkwise Markdown Editor (applies many discrete revisions to large design docs and runbooks in small chunks, verifying each by diff and grep so no restated fact drifts out of sync), and a git commit-and-push helper. Each skill is self-contained with its own README and bundled scripts/templates.</p>
                 <div class="tags">
                     <span class="tag">Claude Code</span>
                     <span class="tag">Skill Authoring</span>

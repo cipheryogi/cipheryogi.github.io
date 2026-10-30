@@ -4,9 +4,25 @@
   <!-- Homepage -->
   <url>
     <loc>https://cipheryogi.github.io/</loc>
-    <lastmod>2026-06-23</lastmod>
+    <lastmod>2026-10-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
+  </url>
+
+  <!-- Guide: Claude Code capabilities -->
+  <url>
+    <loc>https://cipheryogi.github.io/Claude_Code_Capabilities_Guide.html</loc>
+    <lastmod>2026-10-30</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Guide: Claude Code file structure -->
+  <url>
+    <loc>https://cipheryogi.github.io/Claude_Code_File_Structure_Guide.html</loc>
+    <lastmod>2026-10-30</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.8</priority>
   </url>
 
   <!-- Whitepaper: Cosine Similarity deep dive -->
