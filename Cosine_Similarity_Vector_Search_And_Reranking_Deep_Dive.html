@@ -3,17 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Why Cosine Similarity Powers Semantic Search — Vector Search and Reranking Deep Dive | cipheryogi</title>
-<meta name="description" content="Deep dive by Yogesh Shinde: what cosine similarity measures, why direction beats length, the training objective that makes angle meaningful, normalization to inner product for ANN/HNSW scale, and bi-encoder retrieval with cross-encoder reranking." />
-<meta name="author" content="Yogesh Shinde" />
-<link rel="canonical" href="https://cipheryogi.github.io/Cosine_Similarity_Vector_Search_And_Reranking_Deep_Dive.html" />
-<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://cipheryogi.github.io/Cosine_Similarity_Vector_Search_And_Reranking_Deep_Dive.html" />
-<meta property="og:title" content="Why Cosine Similarity Powers Semantic Search — Vector Search and Reranking Deep Dive" />
-<meta property="og:description" content="Cosine as directional alignment, the training objective that makes it meaningful, ANN/HNSW scale, and bi-encoder retrieval with cross-encoder reranking. Interactive figures included." />
-<meta property="og:image" content="https://cipheryogi.github.io/og-image.jpg" />
-<meta name="twitter:card" content="summary" />
+<title>Why Cosine Similarity Powers Semantic Search</title>
 <script type="module">
   import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
   mermaid.initialize({
@@ -79,7 +69,6 @@
 </head>
 <body>
 <header>
-  <p style="margin:0 0 16px"><a href="index.html" style="color:#fff;opacity:.9">&#8592; Back to cipheryogi portfolio</a></p>
   <h1>Why Cosine Similarity Powers Semantic Search</h1>
   <p>
     Semantic search rests on one arithmetic act: divide a dot product by two lengths, then read the
@@ -383,7 +372,7 @@ $$\lVert a\rVert^{2}-2t(a\cdot b)+t^{2}\lVert b\rVert^{2}\;\ge\;0 .$$
       <div class="kv"><span>â</span><b id="rUA">(0.97, 0.24)</b></div>
       <div class="kv"><span>b̂</span><b id="rUB">(-0.32, 0.95)</b></div>
       <div class="kv"><span>â · b̂</span><b id="rUDot">-0.077</b></div>
-      <p class="micro">On unit vectors the inner product <em>is</em> the cosine — no division remains. Press <b>Scaled ×10</b>: both lengths change by a factor of ten and <code>cos θ</code> does not move at all. That invariance is the property §5 depends on.</p>
+      <p class="micro">On unit vectors the inner product <em>is</em> the cosine — no division remains. Press <b>Scale both ×10</b>: both vectors are multiplied by ten, both lengths grow tenfold, and <code>cos θ</code> does not move at all. That invariance is the property §5 depends on.</p>
     </div>
 
     <div class="btnrow">
@@ -391,7 +380,7 @@ $$\lVert a\rVert^{2}-2t(a\cdot b)+t^{2}\lVert b\rVert^{2}\;\ge\;0 .$$
       <button class="wbtn" data-preset="3,2,6,4">Parallel</button>
       <button class="wbtn" data-preset="3,2,-3,-2">Antiparallel</button>
       <button class="wbtn" data-preset="4,0,0,4">Orthogonal</button>
-      <button class="wbtn" data-preset="3,2,30,20">Scaled ×10</button>
+      <button class="wbtn" data-scale="10">Scale both ×10</button>
     </div>
   </div>
 </div>
@@ -444,7 +433,7 @@ $$\lVert \hat a-\hat b\rVert^{2}=\lVert \hat a\rVert^{2}-2(\hat a\cdot\hat b)+\l
 <h3>4.6 Cosine distance is not a metric</h3>
 <p>
   It is tempting to treat \(1-\cos\theta\) as a distance. It is non-negative and zero exactly when
-  vectors are parallel, but it <b>violates the triangle inequality.</b> Take
+  the vectors point in the same direction (antiparallel vectors give \(2\)), but it <b>violates the triangle inequality.</b> Take
   \(x=(1,0)\), \(y=(\tfrac{1}{\sqrt2},\tfrac{1}{\sqrt2})\), \(z=(0,1)\):
 </p>
 $$1-\cos(x,z)=1,\qquad \big(1-\cos(x,y)\big)+\big(1-\cos(y,z)\big)=2\left(1-\tfrac{1}{\sqrt2}\right)\approx 0.586 .$$
@@ -494,7 +483,7 @@ $$\mathcal{L} = -\log\frac{\exp\!\big(s(q,p)/\tau\big)}{\exp\!\big(s(q,p)/\tau\b
   is therefore directly rewarded for arranging directions so that cosine reads high on related pairs
   and low on unrelated ones. The geometry is not a byproduct of training — it is the thing trained.
 </p>
-<div class="callout green"><b>This is the answer to §5.1.</b> Angle tracks meaning because the objective that produced the vectors was written in terms of angle. Train with cosine in the loss and you get a space where cosine is informative; train with an unnormalized inner product and the magnitudes carry information that cosine will discard. <b>Use at inference the similarity function the model was optimised for.</b> Steck et al. (2024) make the same recommendation from the opposite direction: when a model is <em>not</em> trained for cosine, cosine on its embeddings can be arbitrary (§5.3).</div>
+<div class="callout green"><b>This is the answer to §5.1.</b> Angle tracks meaning because the objective that produced the vectors was written in terms of angle. Train with cosine in the loss and you get a space where cosine is informative; train with an unnormalized inner product and the magnitudes carry information that cosine will discard. <b>Use at inference the similarity function the model was optimised for.</b> Steck et al. (2024) show the failure side of the same point: when a model is <em>not</em> trained with cosine in mind, cosine on its embeddings can be arbitrary (§5.3).</div>
 <div class="callout"><b>Not the only route.</b> Contrastive learning is widely used but is not the only way to shape a usable embedding space. Related objectives — multiple-negatives ranking, distillation from a stronger model, masked-language pretraining followed by supervised similarity fine-tuning, and others — also produce spaces in which angular comparison is informative. The accurate claim is that <em>some</em> objective must make similarity structure part of what is optimised; it is not that one particular loss is mandatory.</div>
 
 <h3>5.3 When cosine is <em>not</em> meaningful: the scaling degrees of freedom</h3>
@@ -513,7 +502,7 @@ $$(AD)(BD^{-1})^{\top} = A D D^{-1} B^{\top} = AB^{\top}.$$
   unidentified, and cosine similarity computed on the resulting embeddings is <em>arbitrary</em> — a
   function of an optimisation accident rather than of the data.
 </p>
-<div class="callout red"><b>What this does and does not establish.</b> It does <b>not</b> show cosine similarity is inherently flawed. It shows cosine is only meaningful when <em>something</em> pins down the scaling freedom — which is exactly what training with cosine in the loss, or normalizing during training, accomplishes. The result is derived for linear/MF models; the authors note that deep models trained with different regularization carry analogous, if less analytically tractable, freedoms. Read correctly, this is the sharpest available statement of §5.2: <em>cosine is meaningful when the model was built for it.</em></div>
+<div class="callout red"><b>What this does and does not establish.</b> It does <b>not</b> show cosine similarity is inherently flawed. It shows cosine is only meaningful when <em>something</em> pins down the scaling freedom — which is exactly what training with cosine in the loss, or normalizing during training, accomplishes. The result is derived for linear/MF models. Whether deep models carry analogous freedoms is not established by this derivation. Read correctly, this is the sharpest available statement of §5.2: <em>cosine is meaningful when the model was built for it.</em></div>
 
 <h3>5.4 Anisotropy: the space is not uniformly occupied</h3>
 <p>
@@ -549,7 +538,7 @@ What the random-vector result legitimately provides is <b>geometric intuition</b
 <p>Converting two cosine scores to angles is straightforward. For \(0.92\) and \(0.88\):</p>
 $$\arccos(0.92)\approx 23.07^\circ,\qquad \arccos(0.88)\approx 28.36^\circ,$$
 <p>a gap of roughly \(5.3^\circ\).</p>
-<div class="callout"><b>What the arithmetic does not license.</b> The computation above is exact. The inference sometimes drawn from it — that a small angular gap means the semantic distinction is weak or unreliable — does not follow. Cosine is a <em>nonlinear</em> function of angle: near \(\theta=0\) its derivative \(-\sin\theta\) is small, so large score differences correspond to small angular ones, and the mapping from either quantity to semantic importance is set by the model's training, not by geometry. A \(5^\circ\) separation may be a decisive, well-calibrated distinction in a space trained to make exactly that distinction. <b>Geometry alone establishes no semantic significance in either direction.</b></div>
+<div class="callout"><b>What the arithmetic does not license.</b> The computation above is exact. The inference sometimes drawn from it — that a small angular gap means the semantic distinction is weak or unreliable — does not follow. Cosine is a <em>nonlinear</em> function of angle: near \(\theta=0\) its derivative \(-\sin\theta\) is small, so small score differences correspond to comparatively large angular ones (a score gap of \(0.01\) between \(1.00\) and \(0.99\) is already about \(8.1^\circ\)), and the mapping from either quantity to semantic importance is set by the model's training, not by geometry. A \(5^\circ\) separation may be a decisive, well-calibrated distinction in a space trained to make exactly that distinction. <b>Geometry alone establishes no semantic significance in either direction.</b></div>
 
 </div></section>
 <!-- ─── 6. WHY COSINE IS USEFUL FOR SEARCH ─── -->
@@ -585,7 +574,7 @@ flowchart LR
 <h3>6.2 Which properties of cosine the ranking actually relies on</h3>
 <table>
 <tr><th>Property</th><th>Why ranking needs it</th></tr>
-<tr><td><b>Bounded</b> in \([-1,1]\) (§4.2)</td><td>Scores are comparable across queries and documents; thresholds are expressible without per-query rescaling.</td></tr>
+<tr><td><b>Bounded</b> in \([-1,1]\) (§4.2)</td><td>Every score lies on one fixed, known scale, so no per-query rescaling is needed to read it. Bounded is not calibrated: what a given value means still depends on the model (§5.4, §6.3).</td></tr>
 <tr><td><b>Scale-invariant</b> (§4.1)</td><td>A long document and a short one are not advantaged or penalised by vector magnitude alone — only by direction.</td></tr>
 <tr><td><b>Total order</b> on reals</td><td>Any set of scores sorts unambiguously, so "top \(k\)" is always well-defined.</td></tr>
 <tr><td><b>Monotone in \(\theta\)</b></td><td>Higher score always means smaller angle; the ordering has an unambiguous geometric reading (§4.5).</td></tr>
@@ -735,8 +724,8 @@ flowchart TB
 <h3>8.5 Reranking as an extension, not a replacement</h3>
 <p>
   Combining the two is straightforward and follows directly from their cost structures. Stage one uses
-  cosine over an ANN index to reduce \(N\) documents to \(k\) candidates at a cost that does not grow
-  with \(k\). Stage two applies the cross-encoder to those \(k\) pairs at a cost linear in \(k\) and
+  cosine over an ANN index to reduce \(N\) documents to \(k\) candidates at a cost that is sublinear in \(N\)
+  and grows only modestly with \(k\). Stage two applies the cross-encoder to those \(k\) pairs at a cost linear in \(k\) and
   independent of \(N\).
 </p>
 
@@ -753,7 +742,7 @@ flowchart LR
 </pre>
 </div>
 
-<div class="callout green"><b>The relationship, stated precisely.</b> Reranking <b>extends</b> embedding retrieval; it does not replace the semantic-vector paradigm. The reranker never sees the corpus — it only ever sees candidates that cosine retrieval already surfaced. Its ceiling is therefore set by stage-one recall: a document cosine never retrieved cannot be rescued by any reranker. Far from superseding cosine retrieval, the second stage <em>depends</em> on it.</div>
+<div class="callout green"><b>The relationship, stated precisely.</b> Reranking <b>extends</b> embedding retrieval; it does not replace the semantic-vector paradigm. The reranker never sees the corpus — it only ever sees the candidates the first stage surfaced (here, by cosine retrieval, though production systems often use a hybrid first stage such as BM25 plus vectors). Its ceiling is therefore set by stage-one recall: a document the first stage never retrieved cannot be rescued by any reranker. Far from superseding cosine retrieval, the second stage <em>depends</em> on it.</div>
 
 <div class="callout"><b>Reranking is not required.</b> Two-stage retrieval is not a requirement, and no equation of the form "end-to-end quality \(= R_k \times P\)" holds as a general law. First-stage vector retrieval provides scalable candidate generation and is sufficient on its own for many applications. Reranking should be added when measured gains in ranking quality — or in a downstream task — justify its additional compute and latency. Any such product form presumes a single relevant document and independence between the stages' error events; it is not a general identity and is not used here.</div>
 
@@ -765,7 +754,7 @@ flowchart LR
   This recovers some token-level interaction while keeping document encoding query-independent and
   therefore precomputable. The cost is storage and a more complex retrieval procedure.
 </p>
-<div class="callout blue"><b>Why it belongs here in one paragraph.</b> It locates the design space precisely: <b>one vector per document</b> (maximum precomputation, minimum interaction) → <b>many vectors per document</b> (partial interaction, still precomputable) → <b>joint encoding</b> (maximum interaction, no precomputation). All three still compute inner products between learned representations. Even at the interactive end, the underlying paradigm is unchanged — which is the point.</div>
+<div class="callout blue"><b>Why it belongs here in one paragraph.</b> It locates the design space precisely: <b>one vector per document</b> (maximum precomputation, minimum interaction) → <b>many vectors per document</b> (partial interaction, still precomputable) → <b>joint encoding</b> (maximum interaction, no precomputation). The first two score by inner products between learned representations. The cross-encoder does not: it emits a score from a scoring head over one joint encoding, with no separate query and document vectors to compare. What stays constant across all three is the role of a trained model in deciding what counts as similar.</div>
 
 <h3>8.7 Downstream: retrieval-augmented generation</h3>
 <p>
@@ -796,7 +785,7 @@ flowchart LR
 <p>Not because it is superior in general, but because several desirable properties coincide in it:</p>
 <div class="decision-grid">
   <div class="decision"><b>Scale invariance</b><p>Text length and magnitude artefacts do not dominate similarity (§4.1).</p></div>
-  <div class="decision"><b>Bounded range</b><p>\([-1,1]\) for every pair, making scores comparable without rescaling (§4.2).</p></div>
+  <div class="decision"><b>Bounded range</b><p>\([-1,1]\) for every pair, a fixed scale that needs no rescaling (§4.2). Interpreting a value still requires calibration (§6.3).</p></div>
   <div class="decision"><b>Geometric clarity</b><p>Means one definite thing — angular alignment — with an unambiguous reading at \(+1\), \(0\), \(-1\).</p></div>
   <div class="decision"><b>Computational match</b><p>Reduces to a plain inner product on normalized vectors, which hardware does exceptionally well (§7.1).</p></div>
 </div>
@@ -858,7 +847,7 @@ flowchart LR
 <tr><td>2</td><td>How does text become a vector representation?</td><td>§2.2–§2.4</td></tr>
 <tr><td>3</td><td>What does a vector geometrically represent?</td><td>§3.1–§3.2</td></tr>
 <tr><td>4</td><td>What exactly does cosine similarity measure?</td><td>§4.1–§4.3</td></tr>
-<tr><td>5</td><td>Why is the angle / direction between vectors useful?</td><td>§3.4, §4.1, §4.4</td></tr>
+<tr><td>5</td><td>Why is the angle / direction between vectors useful?</td><td>§3.1, §4.1, §4.4</td></tr>
 <tr><td>6</td><td>Why can directional alignment correspond to semantic similarity?</td><td>§5.1–§5.2</td></tr>
 <tr><td>7</td><td>What role does the training objective play in making cosine meaningful?</td><td>§5.2–§5.3</td></tr>
 <tr><td>8</td><td>Why is cosine often preferred over the raw dot product?</td><td>§4.1, §9.1–§9.2</td></tr>
@@ -873,7 +862,7 @@ flowchart LR
 
 </main>
 <footer>
-  Author: Yogesh Shinde, AI Architect &middot; <a href="index.html">Back to cipheryogi portfolio</a>
+  Author: Yogesh Shinde, AI Architect
 </footer>
 
 <script>
@@ -960,8 +949,8 @@ flowchart LR
 
     var vl=E('rVerdict');
     if(th<1){ vl.textContent='Parallel \u2014 cos = +1, maximum similarity'; vl.style.color='#157a5a'; }
-    else if(th>179){ vl.textContent='Antiparallel \u2014 cos = \u22121, maximum dissimilarity'; vl.style.color='#a93636'; }
-    else if(Math.abs(th-90)<1){ vl.textContent='Orthogonal \u2014 cos = 0, unrelated'; vl.style.color='#9a6500'; }
+    else if(th>179){ vl.textContent='Antiparallel \u2014 cos = \u22121, maximum anti-alignment'; vl.style.color='#a93636'; }
+    else if(Math.abs(th-90)<1){ vl.textContent='Orthogonal \u2014 cos = 0, no directional alignment'; vl.style.color='#9a6500'; }
     else if(th<90){ vl.textContent='Acute \u2014 positive dot product, similar direction'; vl.style.color='#157a5a'; }
     else { vl.textContent='Obtuse \u2014 negative dot product, opposing direction'; vl.style.color='#a93636'; }
 
@@ -1000,6 +989,8 @@ flowchart LR
   var btns=document.querySelectorAll('.wbtn');
   for(var i=0;i<btns.length;i++){
     btns[i].addEventListener('click',function(){
+      var sc=this.getAttribute('data-scale');
+      if(sc){ var k=Number(sc); V.ax*=k; V.ay*=k; V.bx*=k; V.by*=k; render(); return; }
       var v=this.getAttribute('data-preset').split(',').map(Number);
       V.ax=v[0]; V.ay=v[1]; V.bx=v[2]; V.by=v[3];
       // keep off-grid presets visible by clamping only the drawing, not the math
