@@ -3,7 +3,17 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Why Cosine Similarity Powers Semantic Search</title>
+<title>Why Cosine Similarity Powers Semantic Search — Vector Search and Reranking Deep Dive | cipheryogi</title>
+<meta name="description" content="Deep dive by Yogesh Shinde: what cosine similarity measures, why direction beats length, the training objective that makes angle meaningful, normalization to inner product for ANN/HNSW scale, and bi-encoder retrieval with cross-encoder reranking." />
+<meta name="author" content="Yogesh Shinde" />
+<link rel="canonical" href="https://cipheryogi.github.io/Cosine_Similarity_Vector_Search_And_Reranking_Deep_Dive.html" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://cipheryogi.github.io/Cosine_Similarity_Vector_Search_And_Reranking_Deep_Dive.html" />
+<meta property="og:title" content="Why Cosine Similarity Powers Semantic Search — Vector Search and Reranking Deep Dive" />
+<meta property="og:description" content="Cosine as directional alignment, the training objective that makes it meaningful, ANN/HNSW scale, and bi-encoder retrieval with cross-encoder reranking. Interactive figures included." />
+<meta property="og:image" content="https://cipheryogi.github.io/og-image.jpg" />
+<meta name="twitter:card" content="summary" />
 <script type="module">
   import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
   mermaid.initialize({
@@ -69,6 +79,7 @@
 </head>
 <body>
 <header>
+  <p style="margin:0 0 16px"><a href="index.html" style="color:#fff;opacity:.9">&#8592; Back to cipheryogi portfolio</a></p>
   <h1>Why Cosine Similarity Powers Semantic Search</h1>
   <p>
     Semantic search rests on one arithmetic act: divide a dot product by two lengths, then read the
