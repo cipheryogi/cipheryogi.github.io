@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FastMCP Server for ServiceNow Instances | cipheryogi</title>
+  <meta name="description" content="Guide by Yogesh Shinde: how one FastMCP script, launched once per instance over stdio, exposes 60 ServiceNow tools to an MCP client, with setup steps for two clients, the full tool catalogue, verification, hardening and a comparison with the native MCP Server Console." />
+  <meta name="author" content="Yogesh Shinde" />
+  <link rel="canonical" href="https://cipheryogi.github.io/FastMCP_Server_ServiceNow_Guide.html" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://cipheryogi.github.io/FastMCP_Server_ServiceNow_Guide.html" />
+  <meta property="og:title" content="FastMCP Server for ServiceNow Instances" />
+  <meta property="og:description" content="One Python script, one process per instance, 60 ServiceNow tools over stdio, and how the setup compares with ServiceNow's native MCP Server Console." />
+  <meta property="og:image" content="https://cipheryogi.github.io/og-image.jpg" />
+  <meta name="twitter:card" content="summary" />
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      securityLevel: 'loose',
+      theme: 'base',
+      flowchart: { htmlLabels: true, curve: 'basis', nodeSpacing: 30, rankSpacing: 44 },
+      themeVariables: {
+        primaryColor: '#e8f1ff', primaryTextColor: '#132238', primaryBorderColor: '#3975c6',
+        lineColor: '#5b708f', secondaryColor: '#f5f8fc', tertiaryColor: '#fff7e6',
+        fontFamily: 'Segoe UI, Arial, sans-serif'
+      }
+    });
+  </script>
+  <style>
+    :root{--navy:#132238;--blue:#1769aa;--blues:#e8f1ff;--green:#157a5a;--greens:#e8f7f1;--amber:#9a6500;--ambers:#fff5dd;--red:#a93636;--reds:#fff0f0;--purple:#7b52b9;--ink:#26384f;--muted:#5f7084;--line:#d8e1ec;--surface:#fff;--bg:#f3f6fa}
+    *{box-sizing:border-box} body{margin:0;font-family:"Segoe UI",Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55}
+    header{color:#fff;background:linear-gradient(120deg,#0e2949,#1769aa 68%,#14806b);padding:42px clamp(22px,5vw,72px) 36px}
+    header h1{margin:0 0 8px;font-size:clamp(30px,4.2vw,50px);letter-spacing:-.8px} header p{margin:0;max-width:980px;font-size:18px;opacity:.93}
+    .badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.badge{padding:7px 11px;border-radius:999px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.24);font-size:13px;font-weight:650}
+    main{width:min(1320px,95vw);margin:28px auto 56px} section{background:var(--surface);border:1px solid var(--line);border-radius:16px;margin:20px 0;box-shadow:0 8px 26px rgba(19,34,56,.055)}
+    .section-head{padding:24px 28px 4px}.section-head h2{margin:0 0 7px;color:var(--navy);font-size:25px}.section-head p{margin:0;color:var(--muted)}.content{padding:20px 28px 28px}
+    .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.summary{border:1px solid var(--line);border-top:5px solid var(--blue);border-radius:12px;padding:16px;background:#fbfdff}.summary:nth-child(2){border-top-color:var(--green)}.summary:nth-child(3){border-top-color:var(--amber)}.summary:nth-child(4){border-top-color:var(--purple)}.summary b{display:block;color:var(--navy);margin-bottom:6px}.summary span{color:var(--muted);font-size:14px}
+    .diagram-wrap{overflow-x:auto;padding:6px;border:1px solid var(--line);border-radius:12px;background:#fff}.mermaid{min-width:900px}.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px;font-size:13px;color:var(--muted)}.dot{width:11px;height:11px;border-radius:50%;display:inline-block;margin-right:5px}
+    .steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.step{border:1px solid var(--line);border-radius:13px;padding:18px;background:#fff}.step .num{float:left;width:34px;height:34px;margin:1px 12px 8px 0;display:grid;place-items:center;border-radius:10px;color:#fff;background:var(--blue);font-weight:750}.step.a2 .num{background:var(--green)}.step.a3 .num{background:var(--purple)}.step h3{margin:0 0 7px;color:var(--navy);font-size:18px}.step p{margin:7px 0;font-size:14.5px}.step ul,.step ol{margin:8px 0 0 20px;padding:0;font-size:14px}
+    code{background:#edf2f7;border-radius:5px;padding:2px 5px;font-size:.92em;color:#28415d}.callout{border-left:5px solid var(--amber);background:var(--ambers);border-radius:10px;padding:16px 18px;margin-top:16px}.callout.red{border-left-color:var(--red);background:var(--reds)}.callout.green{border-left-color:var(--green);background:var(--greens)}.callout.blue{border-left-color:var(--blue);background:var(--blues)}
+    .decision-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.decision{padding:15px;border-radius:11px;border:1px solid var(--line);background:#fbfdff}.decision b{color:var(--navy);display:block;margin-bottom:5px}.decision p{margin:0;font-size:14px}
+    table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;vertical-align:top;padding:11px 12px;border-bottom:1px solid var(--line)}th{color:var(--navy);background:#f2f6fb}tr:last-child td{border-bottom:0}
+    .prop-table td:first-child{font-family:Consolas,monospace;font-size:13px;white-space:nowrap}
+    .qa{border:1px solid var(--line);border-radius:12px;padding:18px;margin-top:14px;background:#fbfdff}.qa h3{margin:0 0 8px;color:var(--navy);font-size:18px}.qa p{margin:6px 0;font-size:14.5px}.qa .ans{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12.5px;font-weight:700;margin-bottom:6px}.ans.no{background:var(--reds);color:var(--red)}.ans.mix{background:var(--blues);color:var(--blue)}
+    .sub{margin:26px 0 10px;color:var(--navy);font-size:19px}pre.code{background:#0f1f33;color:#e6eef8;border-radius:10px;padding:14px 16px;overflow-x:auto;font-family:Consolas,monospace;font-size:13px;line-height:1.5;margin:8px 0 4px}pre.code .c{color:#8fa6c2}.code-label{font-size:13px;color:var(--muted);margin-top:14px}
+    footer{width:min(1320px,95vw);margin:0 auto 34px;color:var(--muted);font-size:12.5px}
+    @media(max-width:900px){.summary-grid,.decision-grid,.steps{grid-template-columns:1fr}.section-head,.content{padding-left:18px;padding-right:18px}}
+    @media print{body{background:#fff}section{box-shadow:none;break-inside:avoid}.diagram-wrap{overflow:visible}.mermaid{min-width:0}}
+  </style>
+</head>
+<body>
+<header>
+  <p style="margin:0 0 16px"><a href="index.html" style="color:#fff;opacity:.9">&#8592; Back to cipheryogi portfolio</a></p>
+  <h1>FastMCP Server for ServiceNow Instances</h1>
+  <p>One Python script wraps the ServiceNow Table API as 60 MCP tools. Register the same command once per instance, change only the environment variables, and an AI client can read and write platform tables, Flow Designer logs, generative AI logs and the whole AI Agent Studio object model across every instance you work on, with nothing hosted and nothing listening on a network port.</p>
+  <div class="badges">
+    <span class="badge">60 tools over stdio</span>
+    <span class="badge">One script, N instances</span>
+    <span class="badge">Python 3.13 · uv · FastMCP</span>
+    <span class="badge">Basic Auth or OAuth</span>
+    <span class="badge">Nothing listens on a port</span>
+    <span class="badge">Native console compared</span>
+  </div>
+  <p style="margin-top:16px;font-size:14.5px">Companion guides: <a href="Claude_Code_File_Structure_Guide.html" style="color:#fff">Claude Code File Structure &amp; Configuration</a> (where instructions, settings, MCP configuration and credentials live) and <a href="Claude_Code_Capabilities_Guide.html" style="color:#fff">Claude Code Capabilities</a> (tools, agents, skills, hooks, permission modes, models and automation).</p>
+</header>
+<main>
+
+<section>
+  <div class="section-head"><h2>1. What This Setup Is</h2><p>One Python script, launched once per ServiceNow instance, exposing 60 tools to an MCP client.</p></div>
+  <div class="content">
+    <p><b>The problem it solves.</b> You want an AI client, Claude Code or any other MCP-capable client, to read and write ServiceNow data across several instances without building a separate integration per instance and without hosting anything. The answer here is deliberately small.</p>
+    <div class="summary-grid">
+      <div class="summary"><b>One script</b><span><code>server_single.py</code> is a FastMCP server that wraps the ServiceNow Table API as 60 tools. You add a tool by editing this one file.</span></div>
+      <div class="summary"><b>One process per instance</b><span>The <i>same</i> command is registered once per instance. Only the environment variables differ, so the script reads which instance to talk to at start-up. There is no per-instance branch in the code.</span></div>
+      <div class="summary"><b>Two launchers</b><span>Client A is Claude Code, running the script from a project folder. Client B is a second desktop MCP client with its own local copy. Both run <code>server_single.py</code> over <b>stdio</b>.</span></div>
+      <div class="summary"><b>Many instances, one pattern</b><span>Each instance gets its own server entry with the same command, all over Basic Auth. Personal dev instances can use an admin account; customer instances should use a dedicated service account. Examples are in section 5.</span></div>
+    </div>
+    <h3 class="sub">Facts at a glance</h3>
+    <table>
+      <thead><tr><th>Item</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Tools exposed</td><td>60</td></tr>
+        <tr><td>Launchers</td><td>2: Claude Code, and a second desktop MCP client</td></tr>
+        <tr><td>Instances</td><td>2 in this example; the pattern scales to any number</td></tr>
+        <tr><td>Transport</td><td>stdio</td></tr>
+        <tr><td>Auth</td><td>Basic Auth, with the OAuth password grant optional</td></tr>
+        <tr><td>Stack</td><td>Python 3.13 · uv · FastMCP</td></tr>
+        <tr><td>Alternative covered</td><td>ServiceNow's native MCP Server Console, in sections 14 and 15</td></tr>
+      </tbody>
+    </table>
+    <h3 class="sub">Placeholders used in this guide</h3>
+    <table class="prop-table">
+      <thead><tr><th>Placeholder</th><th>What to substitute</th></tr></thead>
+      <tbody>
+        <tr><td>&lt;instance-a&gt;, &lt;instance-b&gt;, &lt;customer-a&gt;</td><td>Example ServiceNow instances you are wiring up: two personal dev instances and one customer instance.</td></tr>
+        <tr><td>https://&lt;instance&gt;.service-now.com</td><td>Any instance base URL.</td></tr>
+        <tr><td>&lt;username&gt;, &lt;password&gt;</td><td>The integration account's credentials.</td></tr>
+        <tr><td>&lt;client-id&gt;, &lt;client-secret&gt;</td><td>OAuth Application Registry credentials.</td></tr>
+        <tr><td>&lt;project-root&gt;</td><td>The folder holding the server script.</td></tr>
+        <tr><td>~/</td><td>Your home folder.</td></tr>
+        <tr><td>&lt;client-b-folder&gt;</td><td>The folder holding Client B's copy of the script.</td></tr>
+        <tr><td>SN_</td><td>The environment-variable prefix.</td></tr>
+        <tr><td>sn_</td><td>The tool-name prefix.</td></tr>
+      </tbody>
+    </table>
+    <div class="callout blue"><b>About the prefixes.</b> <code>SN_</code> and <code>sn_</code> are labels you choose when you register the server. The variable names are identical for every instance, and each process reads its own instance URL from <code>SN_INSTANCE</code>, so the prefix carries no meaning beyond readability. Two reading notes: every filesystem path below is shown relative to <code>&lt;project-root&gt;</code> or <code>~/</code>, and inside code blocks placeholders are printed in grey.</div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>2. Architecture</h2><p>Two launchers, two copies of the script, any number of instances, all over stdio and HTTPS.</p></div>
+  <div class="content">
+    <div class="diagram-wrap"><pre class="mermaid">
+flowchart TD
+  subgraph LOCAL["Your machine"]
+    direction TB
+    CC["MCP client A<br/>Claude Code · CLI or editor extension"]
+    CW["MCP client B<br/>second desktop MCP client"]
+    CJ["Client A config<br/>env block per server"]
+    CI["Client B config<br/>env placeholders per server"]
+    UVA["uv run python server_single.py<br/>one process per server"]
+    UVB["uv run server_single.py<br/>one process per server"]
+    SA["Script A<br/>&lt;project-root&gt;/mcp-server/server_single.py"]
+    SB["Script B · local copy<br/>~/&lt;client-b-folder&gt;/server_single.py"]
+    CC --> CJ
+    CJ --> UVA
+    UVA --> SA
+    CW --> CI
+    CI --> UVB
+    UVB --> SB
+  end
+  SA -- "HTTPS REST<br/>/api/now/table/..." --> E1["Client A: one server per instance<br/>e.g. &lt;instance-a&gt;, &lt;instance-b&gt;, &lt;customer-a&gt;"]
+  SB -- "HTTPS REST" --> E2["Client B: one server per instance<br/>same pattern"]
+  classDef client fill:#e8f1ff,stroke:#3975c6,color:#132238;
+  classDef cfg fill:#fff5dd,stroke:#9a6500,color:#5a3d00;
+  classDef code fill:#f1eaff,stroke:#7b52b9,color:#2f1f4b;
+  classDef inst fill:#e8f7f1,stroke:#157a5a,color:#103e31;
+  class CC,CW client;
+  class CJ,CI cfg;
+  class UVA,UVB,SA,SB code;
+  class E1,E2 inst;
+    </pre></div>
+    <div class="legend">
+      <span><i class="dot" style="background:#3975c6"></i>MCP client applications</span>
+      <span><i class="dot" style="background:#9a6500"></i>Client configuration, which holds the credentials</span>
+      <span><i class="dot" style="background:#7b52b9"></i>Processes and script copies</span>
+      <span><i class="dot" style="background:#157a5a"></i>ServiceNow instances</span>
+    </div>
+    <div class="callout blue"><b>Key idea:</b> the AI client never talks to ServiceNow directly. It sends a tool call to the local Python process over stdin and stdout, the process makes the HTTPS call, and the result comes back as text. <b>Nothing listens on a network port on your machine.</b></div>
+    <h3 class="sub">Per-instance registration fan-out</h3>
+    <div class="diagram-wrap"><pre class="mermaid">
+flowchart TD
+  SCRIPT["server_single.py<br/>one file, 60 tool functions"]
+  REG["Registered once per instance<br/>same command, different env vars"]
+  SCRIPT --> REG
+  REG --> P1["Process 1<br/>SN_INSTANCE=https://&lt;instance-a&gt;.service-now.com"]
+  REG --> P2["Process 2<br/>SN_INSTANCE=https://&lt;instance-b&gt;.service-now.com"]
+  REG --> PN["Process N<br/>SN_INSTANCE=https://&lt;instance-n&gt;.service-now.com"]
+  P1 --> T1["Tools exposed as<br/>mcp__servicenow-sn-&lt;instance-a&gt;__sn_*"]
+  P2 --> T2["Tools exposed as<br/>mcp__servicenow-sn-&lt;instance-b&gt;__sn_*"]
+  PN --> TN["Tools exposed as<br/>mcp__servicenow-sn-&lt;instance-n&gt;__sn_*"]
+  classDef code fill:#f1eaff,stroke:#7b52b9,color:#2f1f4b;
+  classDef proc fill:#e8f1ff,stroke:#3975c6,color:#132238;
+  classDef tool fill:#e8f7f1,stroke:#157a5a,color:#103e31;
+  class SCRIPT,REG code;
+  class P1,P2,PN proc;
+  class T1,T2,TN tool;
+    </pre></div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>3. Inventory of Folders and Files</h2><p>Every location that matters, and whether it is shared between servers or local to one client.</p></div>
+  <div class="content">
+    <div class="diagram-wrap"><pre class="mermaid">
+flowchart TD
+  H["~ · home"] --> CJ["Client A config file<br/>live credentials, env block per server"]
+  H --> VE["~/.venvs/mcp-server<br/>shared Python environment"]
+  H --> AM["~/&lt;client-b-folder&gt;<br/>Client B copy: server_single.py, pyproject.toml, uv.lock, .venv"]
+  H --> LIB["~/Library/Application Support/&lt;client-b&gt;<br/>integrations.json"]
+  H --> OD["&lt;project-root&gt;"]
+  OD --> MS["mcp-server<br/>server_single.py, pyproject.toml, uv.lock, .env · unused"]
+  OD --> DS["design, skills"]
+  classDef a fill:#e8f1ff,stroke:#3975c6,color:#132238;
+  classDef g fill:#e8f7f1,stroke:#157a5a,color:#103e31;
+  classDef y fill:#fff5dd,stroke:#9a6500,color:#5a3d00;
+  class H,OD a;
+  class CJ,LIB,MS y;
+  class VE,AM,DS g;
+    </pre></div>
+    <table style="margin-top:16px">
+      <thead><tr><th>File or folder</th><th>Purpose</th><th>Shared or local</th></tr></thead>
+      <tbody>
+        <tr><td>Client A user config, which is <code>~/.claude.json</code> for Claude Code</td><td>One entry per server under <code>mcpServers</code>, including the <code>env</code> block with instance URL, username and password. The live source of credentials for Client A.</td><td>Local to the machine, shared across all servers</td></tr>
+        <tr><td><code>&lt;project-root&gt;/mcp-server/</code></td><td>Project folder for <b>Script A</b>. <code>uv</code> is pointed at this folder with <code>--directory</code>.</td><td>Shared by every Client A server</td></tr>
+        <tr><td><code>&lt;project-root&gt;/mcp-server/server_single.py</code></td><td><b>Script A</b>, the FastMCP server with all 60 tools, about 2,534 lines.</td><td>Shared by every Client A server</td></tr>
+        <tr><td><code>&lt;project-root&gt;/mcp-server/pyproject.toml</code></td><td>Declares Python <code>&gt;=3.13</code> and three dependencies: <code>mcp[cli]&gt;=1.27.0</code>, <code>python-dotenv&gt;=1.2.2</code>, <code>requests&gt;=2.33.1</code>.</td><td>Shared</td></tr>
+        <tr><td><code>&lt;project-root&gt;/mcp-server/uv.lock</code></td><td>Pinned dependency versions.</td><td>Shared</td></tr>
+        <tr><td><code>&lt;project-root&gt;/mcp-server/.python-version</code></td><td>Contains <code>3.13</code>.</td><td>Shared</td></tr>
+        <tr><td><code>&lt;project-root&gt;/mcp-server/.env</code></td><td>Legacy credentials file for one instance only. <b>Not used in practice</b>, as section 7 explains.</td><td>Local, legacy</td></tr>
+        <tr><td><code>&lt;project-root&gt;/mcp-server/server_single.backup_&lt;timestamp&gt;.py</code></td><td>Backup of Script A taken before an edit.</td><td>Local</td></tr>
+        <tr><td><code>swap_instance.sh</code>, <code>add_instance.sh</code>, <code>setup.sh</code> and their <code>.ps1</code> versions</td><td>Legacy scripts from an earlier one-instance-at-a-time approach. They rewrite <code>server_single.py</code> with <code>sed</code>. <b>Not needed</b> for the setup in this guide.</td><td>Local, legacy</td></tr>
+        <tr><td>Reference copies of Script A and Script B</td><td>Snapshot copies of both scripts kept next to this guide's source document. Nothing launches them, so editing them changes nothing.</td><td>Reference only</td></tr>
+        <tr><td><code>~/.venvs/mcp-server</code></td><td>Shared Python virtual environment on Python 3.13.x. Every Client A server points at it with <code>UV_PROJECT_ENVIRONMENT</code>.</td><td><b>Shared by all Client A servers</b></td></tr>
+        <tr><td><code>~/&lt;client-b-folder&gt;/</code></td><td>Project folder for <b>Script B</b>, the Client B copy. Contains <code>server_single.py</code>, <code>pyproject.toml</code>, <code>uv.lock</code>, <code>.python-version</code> and its own <code>.venv</code>.</td><td>Local to Client B</td></tr>
+        <tr><td><code>~/&lt;client-b-folder&gt;/server_single.py</code></td><td><b>Script B</b>, about 2,478 lines. The same 60 tools, different start-up code, as section 13 explains.</td><td>Local to Client B</td></tr>
+        <tr><td><code>~/Library/Application Support/&lt;client-b&gt;/integrations.json</code></td><td>Client B's list of MCP servers. Each stdio server has a <code>command</code> and an <code>env</code> map whose values are placeholders of the form <code>$MCP_ENV_&lt;server-id&gt;_&lt;VARIABLE&gt;</code>.</td><td>Local to Client B</td></tr>
+        <tr><td><code>/opt/homebrew/bin/uv</code></td><td>The <code>uv</code> package manager and runner, installed with Homebrew on Apple silicon.</td><td>Shared</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>4. Prerequisites</h2><p>Install these once per machine, then never think about them again.</p></div>
+  <div class="content"><table>
+    <thead><tr><th>Item</th><th>What it is, and how to check</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Homebrew</td><td>Installs <code>uv</code>. Check with <code>brew --version</code>.</td><td>Install it from <a href="https://brew.sh">brew.sh</a>. On Apple silicon it lives in <code>/opt/homebrew</code>.</td></tr>
+      <tr><td>uv</td><td>Runs the script and creates the virtual environment. Check with <code>/opt/homebrew/bin/uv --version</code>.</td><td><code>brew install uv</code>. Verified against uv 0.11.x.</td></tr>
+      <tr><td>Python 3.13</td><td>Required by <code>pyproject.toml</code> (<code>&gt;=3.13</code>). Check with <code>python3.13 --version</code>.</td><td><code>uv</code> can fetch it for you with <code>uv python install 3.13</code>. The shared environment here uses 3.13.x.</td></tr>
+      <tr><td>An MCP client</td><td>Registers and launches the servers. For Claude Code, check with <code>claude --version</code>.</td><td>Verified against Claude Code 2.1.x.</td></tr>
+      <tr><td>ServiceNow account</td><td>A user that can read, and write if you want the authoring tools, the tables you will touch. This example uses an admin account on the personal dev instances and service accounts on customer instances.</td><td><b>Basic Auth must be allowed for the account.</b> If the account is forced through SSO or MFA, create a local service account instead.</td></tr>
+      <tr><td>Network</td><td>The machine must reach <code>https://&lt;instance&gt;.service-now.com</code>. Check with <code>curl -sI https://&lt;instance&gt;.service-now.com | head -1</code>.</td><td>VPN and proxy rules apply exactly as they do for a browser.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>5. Setup A: Claude Code</h2><p>The primary runtime. Script in the project folder, credentials in the client config.</p></div>
+  <div class="content">
+    <div class="diagram-wrap"><pre class="mermaid">
+flowchart TD
+  S0["0 · Prerequisites<br/>Homebrew, uv, Python 3.13, Claude Code"] --> S1["1 · Create the project folder<br/>pyproject.toml + server_single.py"]
+  S1 --> S2["2 · Create the shared venv<br/>uv sync with UV_PROJECT_ENVIRONMENT"]
+  S2 --> S3["3 · Test the script by hand<br/>with the three env variables"]
+  S3 --> Q{"Prints the OK banner<br/>and stays running?"}
+  Q -- "No" --> T["Go to Troubleshooting"]
+  Q -- "Yes" --> S4["4 · Register one server per instance<br/>claude mcp add --scope user"]
+  S4 --> S5["5 · Restart the client<br/>tools appear as mcp__servicenow-sn-NAME__*"]
+  S5 --> S6["6 · Prove it reaches the instance<br/>query sys_user, limit 1"]
+  S6 --> S7["7 · Optional: allow-list the read tools"]
+  classDef a fill:#e8f1ff,stroke:#3975c6,color:#132238;
+  classDef g fill:#e8f7f1,stroke:#157a5a,color:#103e31;
+  classDef y fill:#fff5dd,stroke:#9a6500,color:#5a3d00;
+  class S0,S1,S2,S3,S4,S5 a;
+  class S6,S7 g;
+  class Q,T y;
+    </pre></div>
+    <h3 class="sub">Step 1 &middot; Create the project folder</h3>
+    <p>Create the folder and put two files in it: <code>server_single.py</code>, whose structure section 8 describes, and <code>pyproject.toml</code>.</p>
+<pre class="code">mkdir -p "<span class="c">&lt;project-root&gt;</span>/mcp-server"
+cd "<span class="c">&lt;project-root&gt;</span>/mcp-server"</pre>
+    <p class="code-label"><b>The whole of</b> <code>pyproject.toml</code>:</p>
+<pre class="code">[project]
+name = "mcp-server"
+version = "0.1.0"
+description = "ServiceNow MCP server"
+readme = "README.md"
+requires-python = "&gt;=3.13"
+dependencies = [
+  "mcp[cli]&gt;=1.27.0",
+  "python-dotenv&gt;=1.2.2",
+  "requests&gt;=2.33.1",
+]</pre>
+    <div class="callout green"><b>Check:</b> <code>ls</code> shows <code>pyproject.toml</code> and <code>server_single.py</code>. Create an empty <code>README.md</code> as well, because <code>pyproject.toml</code> names it.</div>
+    <h3 class="sub">Step 2 &middot; Create the shared virtual environment</h3>
+    <p>Point <code>uv</code> at one environment <i>outside</i> the project folder, then install the dependencies into it. All servers share this environment.</p>
+<pre class="code">export UV_PROJECT_ENVIRONMENT="$HOME/.venvs/mcp-server"
+cd "<span class="c">&lt;project-root&gt;</span>/mcp-server"
+/opt/homebrew/bin/uv sync</pre>
+    <p class="code-label"><b>Check</b> the environment is real and the dependencies import:</p>
+<pre class="code">~/.venvs/mcp-server/bin/python --version                            <span class="c"># prints Python 3.13.x</span>
+~/.venvs/mcp-server/bin/python -c "import mcp, requests, dotenv"     <span class="c"># prints nothing</span></pre>
+    <h3 class="sub">Step 3 &middot; Test the script by hand</h3>
+    <p>Run it with the three environment variables set for one instance. This proves the script and its dependencies work before the AI client is involved.</p>
+<pre class="code">cd "<span class="c">&lt;project-root&gt;</span>/mcp-server"
+SN_INSTANCE="https://<span class="c">&lt;instance-a&gt;</span>.service-now.com" \
+SN_USERNAME="<span class="c">&lt;username&gt;</span>" \
+SN_PASSWORD="<span class="c">&lt;password&gt;</span>" \
+UV_PROJECT_ENVIRONMENT="$HOME/.venvs/mcp-server" \
+/opt/homebrew/bin/uv run python server_single.py</pre>
+    <div class="callout green"><b>Check:</b> the terminal prints <code>[OK] Connected</code>, then a short banner between two lines of <code>=</code> signs, and then waits. Press <code>Ctrl+C</code> to stop it.</div>
+    <div class="callout"><b>Caveat.</b> That output appears <b>even if the credentials are wrong</b>, because the script does not call the instance at start-up. Section 13 covers it.</div>
+    <h3 class="sub">Step 4 &middot; Register one server per instance</h3>
+    <p>Use the Claude Code CLI at <b>user scope</b> so the servers are available in every project. Repeat for each instance, changing the server name, URL, username and password. The <i>variable names stay the same</i> for every instance, only the values change.</p>
+<pre class="code">claude mcp add servicenow-sn-<span class="c">&lt;instance-a&gt;</span> --scope user \
+  -e SN_INSTANCE="https://<span class="c">&lt;instance-a&gt;</span>.service-now.com" \
+  -e SN_USERNAME="<span class="c">&lt;username&gt;</span>" \
+  -e SN_PASSWORD="<span class="c">&lt;password&gt;</span>" \
+  -e UV_PROJECT_ENVIRONMENT="$HOME/.venvs/mcp-server" \
+  -- /opt/homebrew/bin/uv --directory "<span class="c">&lt;project-root&gt;</span>/mcp-server" run python server_single.py
+
+claude mcp add servicenow-sn-<span class="c">&lt;instance-b&gt;</span> --scope user \
+  -e SN_INSTANCE="https://<span class="c">&lt;instance-b&gt;</span>.service-now.com" \
+  -e SN_USERNAME="<span class="c">&lt;username&gt;</span>" \
+  -e SN_PASSWORD="<span class="c">&lt;password&gt;</span>" \
+  -e UV_PROJECT_ENVIRONMENT="$HOME/.venvs/mcp-server" \
+  -- /opt/homebrew/bin/uv --directory "<span class="c">&lt;project-root&gt;</span>/mcp-server" run python server_single.py</pre>
+    <p class="code-label"><b>The result is stored in the Claude Code user config.</b> One entry looks like this:</p>
+<pre class="code">"servicenow-sn-<span class="c">&lt;instance-a&gt;</span>": {
+  "type": "stdio",
+  "command": "/opt/homebrew/bin/uv",
+  "args": [
+    "--directory",
+    "<span class="c">&lt;project-root&gt;</span>/mcp-server",
+    "run", "python", "server_single.py"
+  ],
+  "env": {
+    "SN_INSTANCE": "https://<span class="c">&lt;instance-a&gt;</span>.service-now.com",
+    "SN_USERNAME": "<span class="c">&lt;username&gt;</span>",
+    "SN_PASSWORD": "<span class="c">&lt;password&gt;</span>",
+    "UV_PROJECT_ENVIRONMENT": "<span class="c">&lt;home&gt;</span>/.venvs/mcp-server"
+  }
+}</pre>
+    <div class="callout green"><b>Check:</b> <code>claude mcp list</code> shows each server you added as <b>connected</b>.</div>
+    <h3 class="sub">Example server entries</h3>
+    <p>Every server in <code>~/.claude.json</code> is built this way. All of them use the same command, arguments and shared venv as step 4. Only the <code>env</code> values differ, as these examples show.</p>
+    <table>
+      <thead><tr><th>Server name</th><th>SN_INSTANCE</th><th>SN_USERNAME</th></tr></thead>
+      <tbody>
+        <tr><td><code>servicenow-sn-&lt;instance-a&gt;</code></td><td><code>https://&lt;instance-a&gt;.service-now.com</code></td><td><code>admin</code></td></tr>
+        <tr><td><code>servicenow-sn-&lt;instance-b&gt;</code></td><td><code>https://&lt;instance-b&gt;.service-now.com</code></td><td><code>admin</code></td></tr>
+        <tr><td><code>servicenow-sn-&lt;customer-a&gt;</code></td><td><code>https://&lt;customer-a&gt;.service-now.com</code></td><td><code>&lt;service-account&gt;</code></td></tr>
+      </tbody>
+    </table>
+    <h3 class="sub">Step 5 &middot; Restart the client and confirm the tools</h3>
+    <p>Restart the editor window or the CLI session. Tools are named <code>mcp__&lt;server name&gt;__&lt;tool name&gt;</code>, for example <code>mcp__servicenow-sn-&lt;instance-a&gt;__sn_query</code>.</p>
+    <div class="callout green"><b>Check:</b> asking the client to list its ServiceNow tools shows <b>60 per server</b>.</div>
+    <h3 class="sub">Step 6 &middot; Prove it reaches the instance</h3>
+    <p>Ask the client: <i>"Using the <code>&lt;instance-a&gt;</code> server, query <code>sys_user</code> with limit 1."</i> A returned record proves the whole chain: client, stdio, the script, HTTPS, Basic Auth, the instance.</p>
+    <div class="callout green"><b>Check:</b> the reply contains a record with a <code>sys_id</code>. An <b>HTTP 401</b> means the username or password is wrong.</div>
+    <h3 class="sub">Step 7 &middot; Optional: avoid permission prompts for read tools</h3>
+    <p>Add entries such as <code>mcp__servicenow-sn-&lt;instance-a&gt;__sn_query</code> to the <code>permissions.allow</code> list in <code>~/.claude/settings.json</code>. <b>Leave write and delete tools off the list</b> so the client still asks first.</p>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>6. Setup B: A Second Desktop MCP Client</h2><p>The second runtime. A separate copy of the script, launched by a second desktop client application.</p></div>
+  <div class="content">
+    <p>Client B is any second desktop MCP client that can launch a stdio server. The transferable part is the shape: its own copy of the script, its own virtual environment, and an <code>integrations.json</code> that stores the environment values as placeholders.</p>
+    <h3 class="sub">Step 1 &middot; Create the Client B project folder</h3>
+    <p>Client B runs its own copy. Create <code>~/&lt;client-b-folder&gt;</code> and place <code>server_single.py</code> (Script B), <code>pyproject.toml</code> with the same dependencies, and <code>.python-version</code> containing <code>3.13</code> in it.</p>
+<pre class="code">mkdir -p "$HOME/<span class="c">&lt;client-b-folder&gt;</span>"
+cd "$HOME/<span class="c">&lt;client-b-folder&gt;</span>"
+/opt/homebrew/bin/uv sync</pre>
+    <div class="callout green"><b>Check:</b> a <code>.venv</code> folder now exists inside the Client B folder. Unlike Script A, this copy uses <b>its own environment</b>, not the shared one.</div>
+    <h3 class="sub">Step 2 &middot; Get Script B</h3>
+    <p>Script B is Script A with the start-up code changed: <b>no OAuth support</b>, and it loads a <code>.env</code> from its own folder rather than using python-dotenv's default search. The easiest way to produce it is to copy Script A and apply the differences listed in section 13. Both copies expose the same 60 tool names.</p>
+    <h3 class="sub">Step 3 &middot; Add one MCP server per instance in Client B</h3>
+    <p>In the client application, add a <b>stdio</b> MCP server with this command, once per instance, with the three variables <code>SN_INSTANCE</code>, <code>SN_USERNAME</code> and <code>SN_PASSWORD</code>.</p>
+<pre class="code">/opt/homebrew/bin/uv --directory ~/<span class="c">&lt;client-b-folder&gt;</span> run server_single.py</pre>
+    <p>Client B records each server in <code>~/Library/Application Support/&lt;client-b&gt;/integrations.json</code> under <code>mcp_servers</code>. The <code>env</code> values are stored as placeholders of the form <code>$MCP_ENV_&lt;server-id&gt;_SN_USERNAME</code>, and the client substitutes the real value when it launches the process.</p>
+    <div class="callout"><b>Two things to expect here.</b> Menu labels vary by client version, so look for whatever the application calls adding a local or stdio MCP server. And where the client keeps the resolved value behind each <code>$MCP_ENV_*</code> placeholder is not documented, so treat the credential as present on the machine in some form and rotate it accordingly.</div>
+    <h3 class="sub">Step 4 &middot; Confirm Client B started it</h3>
+<pre class="code">ps aux | grep <span class="c">&lt;client-b-folder&gt;</span></pre>
+    <div class="callout green"><b>Check:</b> a process running <code>~/&lt;client-b-folder&gt;/.venv/bin/python3 server_single.py</code> whose parent is <code>uv --directory ~/&lt;client-b-folder&gt; run server_single.py</code>, started by the client application's bundled helper binary.</div>
+    <h3 class="sub">Script A and Script B side by side</h3>
+    <table>
+      <thead><tr><th>Aspect</th><th>A: Claude Code</th><th>B: second desktop client</th></tr></thead>
+      <tbody>
+        <tr><td>Launcher</td><td>Claude Code</td><td>Second desktop MCP client, through its bundled helper process</td></tr>
+        <tr><td>Project folder</td><td><code>&lt;project-root&gt;/mcp-server</code></td><td><code>~/&lt;client-b-folder&gt;</code></td></tr>
+        <tr><td>Script length</td><td>About 2,534 lines</td><td>About 2,478 lines</td></tr>
+        <tr><td>Virtual environment</td><td><code>~/.venvs/mcp-server</code>, shared, set with <code>UV_PROJECT_ENVIRONMENT</code></td><td><code>~/&lt;client-b-folder&gt;/.venv</code>, its own</td></tr>
+        <tr><td>Command</td><td><code>uv --directory … run python server_single.py</code></td><td><code>uv --directory ~/&lt;client-b-folder&gt; run server_single.py</code></td></tr>
+        <tr><td>Credentials stored in</td><td>Claude Code user config, as a plaintext <code>env</code> block</td><td><code>integrations.json</code>, as placeholders resolved at launch</td></tr>
+        <tr><td>OAuth password grant</td><td>Supported when <code>SN_CLIENT_ID</code> and <code>SN_CLIENT_SECRET</code> are set</td><td><b>Not supported</b>, Basic Auth only</td></tr>
+        <tr><td>Dotenv loading</td><td><code>load_dotenv()</code> with the default search</td><td><code>load_dotenv(Path(__file__).parent / '.env')</code></td></tr>
+      </tbody>
+    </table>
+    <div class="callout"><b>Two copies drift.</b> Editing Script A does not change what Client B runs. After adding a tool to one, copy the change to the other if you want both to have it.</div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>7. How Credentials Are Resolved</h2><p>The environment from the client's config wins. The <code>.env</code> file is only a fallback.</p></div>
+  <div class="content">
+    <div class="diagram-wrap"><pre class="mermaid">
+flowchart TD
+  A["Client starts the server process<br/>with the env block from its config"] --> B["Environment now holds<br/>SN_INSTANCE / SN_USERNAME / SN_PASSWORD"]
+  B --> C["Script runs load_dotenv()"]
+  C --> D{"Variable already set<br/>in the environment?"}
+  D -- "Yes" --> E["Environment value wins<br/>.env is ignored for that variable"]
+  D -- "No" --> F["Value is read from .env<br/>if a .env file is found"]
+  E --> G["os.getenv feeds ServiceNowClient"]
+  F --> G
+  G --> H{"Client id and secret<br/>both set? Script A only"}
+  H -- "Yes" --> I["OAuth password grant<br/>POST /oauth_token.do"]
+  H -- "No" --> J["Basic Auth<br/>username and password"]
+  classDef a fill:#e8f1ff,stroke:#3975c6,color:#132238;
+  classDef g fill:#e8f7f1,stroke:#157a5a,color:#103e31;
+  classDef y fill:#fff5dd,stroke:#9a6500,color:#5a3d00;
+  class A,B,C,G a;
+  class E,J g;
+  class D,H,F,I y;
+    </pre></div>
+    <h3 class="sub">What this means in practice</h3>
+    <ul style="margin:14px 0 0 20px;padding:0;font-size:14.5px">
+      <li>Both launchers pass the three variables in the <b>process environment</b>, so the project-folder <code>.env</code> is never consulted for them. python-dotenv does <b>not</b> override variables that are already set.</li>
+      <li>The only <code>.env</code> in the project folder holds one instance and goes stale. It can be deleted without changing behaviour. <b>Do not use it as the place to add new instances.</b></li>
+      <li>The instance value may be a <b>full URL</b> such as <code>https://&lt;instance&gt;.service-now.com</code>, a <b>bare name</b> such as <code>&lt;instance&gt;</code>, which becomes the full URL, or a <b>host name</b>. The script normalises all three.</li>
+      <li>Passwords are never written into the script. A search of Script A for hardcoded credentials and instance URLs found none.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>8. How a Tool Call Works</h2><p>Every tool is a Python function that calls ServiceNow's REST API and returns JSON text.</p></div>
+  <div class="content">
+    <div class="diagram-wrap"><pre class="mermaid">
+sequenceDiagram
+  autonumber
+  actor U as You
+  participant C as AI client
+  participant S as server_single.py · FastMCP over stdio
+  participant K as ServiceNowClient
+  participant N as ServiceNow instance
+  U->>C: Show me the last 5 failed flow logs
+  C->>S: tools/call sn_query_flow_logs · JSON over stdin
+  S->>K: table_get on sys_flow_log with query and limit
+  K->>N: GET /api/now/table/sys_flow_log · Basic Auth · 30 s timeout
+  N-->>K: 200 with a result array
+  K-->>S: success true, plus the data payload
+  S-->>C: JSON text string of records
+  C-->>U: Summary written from the records
+    </pre></div>
+    <h3 class="sub">The pieces inside server_single.py</h3>
+    <table class="prop-table">
+      <thead><tr><th>Piece</th><th>Approximate location</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td>ServiceNowClient</td><td>lines 16 to ~180</td><td>Builds the base URL, holds one <code>requests.Session</code>, applies Basic Auth, or OAuth when a client id and secret are set, sets JSON headers and a <b>30 second</b> timeout. Every response comes back as <code>{success, status_code, data, error}</code>.</td></tr>
+        <tr><td>table_get / table_create / table_update / table_delete</td><td>inside the client</td><td>GET, POST, PATCH and DELETE on <code>/api/now/table/&lt;table&gt;</code>. Reads set <code>sysparm_exclude_reference_link=true</code> and accept limit, offset, order and display value.</td></tr>
+        <tr><td>aggregate</td><td>inside the client</td><td>Calls the Aggregate API, <code>/api/now/stats/&lt;table&gt;</code>, for counts and statistics.</td></tr>
+        <tr><td>batch_operation</td><td>inside the client</td><td>Loops <code>table_update</code> or <code>table_delete</code> over a list of records and returns <code>{success: [...], failed: [...]}</code>.</td></tr>
+        <tr><td>client = ServiceNowClient(...)</td><td>~line 166</td><td>Reads the five environment variables <b>once at start-up</b>.</td></tr>
+        <tr><td>mcp = FastMCP("servicenow-&lt;instance&gt;")</td><td>~line 174</td><td>Creates the MCP server. Each function decorated with <code>@mcp.tool()</code> becomes a tool. <b>The docstring becomes the description the model reads.</b></td></tr>
+        <tr><td>qh() helper</td><td>~line 268</td><td>Quick query helper used by most read tools. Caps the limit at <b>1000</b> and defaults to display values.</td></tr>
+        <tr><td>_resolve_agent_fields()</td><td>~line 195</td><td>Probes the <code>sn_aia_agent</code> columns once and caches the names, because the role and instructions columns differ between releases: <code>role</code> against <code>agent_role</code>, <code>instructions</code> against <code>list_of_steps</code>.</td></tr>
+        <tr><td>mcp.run(transport="stdio")</td><td>end of file</td><td>Starts the server on stdin and stdout.</td></tr>
+      </tbody>
+    </table>
+    <div class="callout red"><b>Guard rails in the code.</b> Every delete tool, and batch delete, refuses to run unless <code>confirm=True</code> is passed. <b>Most other writes have no guard</b>, so the client's permission prompt is the safety net.</div>
+    <h3 class="sub">Three kinds of tool</h3>
+    <div class="steps">
+      <article class="step"><span class="num">1</span><h3>Generic Table API wrappers</h3>
+        <p>Query, get, create, update, delete and aggregate against any table you name.</p>
+        <p><b>Think:</b> the raw platform, with a permission prompt in front of it.</p>
+      </article>
+      <article class="step a2"><span class="num">2</span><h3>Domain wrappers</h3>
+        <p>The table and field names are fixed in the function, so the model does not have to know the AI agent object model to ask a useful question.</p>
+        <p><b>Think:</b> a named question, not a table scan.</p>
+      </article>
+      <article class="step a3"><span class="num">3</span><h3>Tools with real logic</h3>
+        <p>Multi-record operations such as <code>sn_create_ai_agent</code>, <code>sn_create_rag_pipeline</code>, <code>sn_clone_ai_agent</code> and <code>sn_add_record_operation_tool</code>.</p>
+        <p><b>Think:</b> a small piece of automation behind one call.</p>
+      </article>
+    </div>
+    <h3 class="sub">Illustrative snippets</h3>
+    <p class="code-label"><b>1. Reading the environment variables</b>, which happens once, at import time:</p>
+<pre class="code">import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+<span class="c"># Basic Auth uses SN_INSTANCE / SN_USERNAME / SN_PASSWORD.</span>
+<span class="c"># For the optional OAuth password grant, also set SN_CLIENT_ID / SN_CLIENT_SECRET.</span>
+<span class="c"># When the client id and secret are both present, OAuth is used instead of Basic Auth.</span>
+client = ServiceNowClient(
+    instance=os.getenv("SN_INSTANCE"),
+    username=os.getenv("SN_USERNAME"),
+    password=os.getenv("SN_PASSWORD"),
+    client_id=os.getenv("SN_CLIENT_ID"),
+    client_secret=os.getenv("SN_CLIENT_SECRET"),
+)
+
+mcp = FastMCP("servicenow-instance")
+print("[OK] Connected", file=sys.stderr)</pre>
+    <p class="code-label"><b>2. One representative tool definition</b> and the helper almost every read tool calls:</p>
+<pre class="code">@mcp.tool()
+def sn_query(table: str, query: str = "", fields: str = "", limit: int = 20) -&gt; str:
+    """Query any table on the active instance."""
+    return qh(table, query, fields, limit)
+
+
+def qh(tbl: str, qry: str = "", flds: str = "", lmt: int = 20,
+       ob: str = "-sys_created_on", dv: bool = True) -&gt; str:
+    """Quick helper for table queries."""
+    fl = [f.strip() for f in flds.split(",")] if flds else None
+    r = client.table_get(tbl, query=qry or None, fields=fl,
+                         limit=min(lmt, 1000), order_by=ob,
+                         display_value="true" if dv else "false")
+    if r["success"]:
+        return json.dumps({"count": len(r["data"].get("result", [])),
+                           "records": r["data"].get("result", [])}, indent=2)
+    return json.dumps({"error": r["error"]}, indent=2)</pre>
+    <p class="code-label"><b>3. The Table API request helper:</b></p>
+<pre class="code">def table_get(self, table: str, sys_id: str = None, query: str = None,
+              fields: list = None, limit: int = 100, offset: int = 0,
+              order_by: str = None, display_value: str = "false") -&gt; dict:
+    endpoint = (f"/api/now/table/{table}/{sys_id}" if sys_id
+                else f"/api/now/table/{table}")
+    params = {
+        "sysparm_limit": limit,
+        "sysparm_offset": offset,
+        "sysparm_display_value": display_value,
+        "sysparm_exclude_reference_link": "true",
+    }
+    if query:    params["sysparm_query"] = query
+    if fields:   params["sysparm_fields"] = ",".join(fields)
+    if order_by: params["sysparm_orderby"] = order_by
+    return self._request("GET", endpoint, params=params)</pre>
+    <p class="code-label"><b>4. The single <code>_request</code> method every verb funnels through,</b> which is what produces the uniform response envelope:</p>
+<pre class="code">def _request(self, method, endpoint, params=None, data=None) -&gt; dict:
+    url = f"{self.base_url}{endpoint}"
+    try:
+        response = self.session.request(method=method, url=url, params=params,
+                                        json=data, timeout=self.timeout)
+        return {
+            "success": response.ok,
+            "status_code": response.status_code,
+            "data": response.json() if response.text else None,
+            "error": None if response.ok
+                     else f"HTTP {response.status_code}: {response.reason}",
+        }
+    except Exception as e:
+        return {"success": False, "status_code": None, "data": None, "error": str(e)}</pre>
+    <div class="callout blue"><b>The real method does a little more.</b> On the OAuth path it fetches a bearer token before the call, and on a 401 with a refresh token present it refreshes once and retries.</div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>9. Tool Catalogue</h2><p>All 60 tools in Script A, grouped by purpose. The tool names are identical in Script B.</p></div>
+  <div class="content">
+    <p>Every tool name starts with the same prefix on every instance. In the client, the full name adds a server prefix, for example <code>mcp__servicenow-sn-&lt;instance-b&gt;__sn_query</code>, and that server part is what tells you which instance answered.</p>
+    <h3 class="sub">Generic data access (8)</h3>
+    <p>These work on any table. They are thin Table API wrappers.</p>
+    <table class="prop-table">
+      <thead><tr><th>Tool name</th><th>Type</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td>sn_query</td><td>read</td><td>Query any table on the active instance.</td></tr>
+        <tr><td>sn_get_record</td><td>read</td><td>Get a single record by <code>sys_id</code> from the instance.</td></tr>
+        <tr><td>sn_create_record</td><td>write</td><td>Create a new record in the instance.</td></tr>
+        <tr><td>sn_update_record</td><td>write</td><td>Update an existing record in the instance.</td></tr>
+        <tr><td>sn_delete_record</td><td>delete, confirm required</td><td>Delete a record from the instance. Requires confirmation.</td></tr>
+        <tr><td>sn_aggregate</td><td>read</td><td>Get aggregated statistics from the instance.</td></tr>
+        <tr><td>sn_batch_update</td><td>write</td><td>Update multiple records in the instance.</td></tr>
+        <tr><td>sn_batch_delete</td><td>delete, confirm required</td><td>Delete multiple records from the instance. Requires confirmation.</td></tr>
+      </tbody>
+    </table>
+    <h3 class="sub">Logs and diagnostics (9)</h3>
+    <p>Read syslog, Flow Designer, generative AI logs and RAG index health.</p>
+    <table class="prop-table">
+      <thead><tr><th>Tool name</th><th>Type</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td>sn_query_syslog</td><td>read</td><td>Query the ServiceNow <code>syslog</code> table for debugging.</td></tr>
+        <tr><td>sn_query_syslog_app_scope</td><td>read</td><td>Query <code>syslog_app_scope</code>, the scoped log view accessible without cross-scope privilege.</td></tr>
+        <tr><td>sn_query_flow_contexts</td><td>read</td><td>Query Flow Designer execution contexts, <code>sys_flow_context</code>.</td></tr>
+        <tr><td>sn_query_flow_logs</td><td>read</td><td>Query Flow Designer detailed logs, <code>sys_flow_log</code>.</td></tr>
+        <tr><td>sn_get_flow_context_details</td><td>read</td><td>Get complete details of a flow execution including its logs.</td></tr>
+        <tr><td>sn_query_generative_ai_logs_detailed</td><td>read</td><td>Query <code>sys_generative_ai_log</code> with full field access for detailed AI and LLM debugging.</td></tr>
+        <tr><td>sn_query_flow_reports</td><td>read</td><td>Query Flow Designer reporting data, <code>sys_flow_report_doc_chunk</code>.</td></tr>
+        <tr><td>sn_query_generative_ai_logs</td><td>read</td><td>Query generative AI logs, <code>sys_generative_ai_log</code>.</td></tr>
+        <tr><td>sn_check_rag_index_health</td><td>read</td><td>Check RAG indexing status via <code>ais_ingest_table_stats</code>.</td></tr>
+      </tbody>
+    </table>
+    <h3 class="sub">AI agent inspection (15)</h3>
+    <p>Read agents, tools, workers, triggers and execution history on the <code>sn_aia_*</code> tables.</p>
+    <table class="prop-table">
+      <thead><tr><th>Tool name</th><th>Type</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td>sn_list_agentic_workflows</td><td>read</td><td>List all agentic workflows, the use cases, configured in the system.</td></tr>
+        <tr><td>sn_list_ai_agents</td><td>read</td><td>List all AI agents configured in the system.</td></tr>
+        <tr><td>sn_get_agent_details</td><td>read</td><td>Get detailed information about a specific AI agent including its tools.</td></tr>
+        <tr><td>sn_list_agent_tools</td><td>read</td><td>List all tools available to AI agents.</td></tr>
+        <tr><td>sn_list_agent_tool_m2ms</td><td>read</td><td>List all tool M2M records wired to a specific agent, <code>sn_aia_agent_tool_m2m</code>.</td></tr>
+        <tr><td>sn_query_execution_plans</td><td>read</td><td>Query AI agent execution plans, <code>sn_aia_execution_plan</code>.</td></tr>
+        <tr><td>sn_query_execution_tasks</td><td>read</td><td>Query AI agent execution tasks, <code>sn_aia_execution_task</code>.</td></tr>
+        <tr><td>sn_query_tool_executions</td><td>read</td><td>Query tool executions to see which tools were called and what they returned.</td></tr>
+        <tr><td>sn_get_execution_details</td><td>read</td><td>Get complete details of an agentic workflow execution including all tasks and tool calls.</td></tr>
+        <tr><td>sn_query_agent_messages</td><td>read</td><td>Query AI agent conversation messages, <code>sn_aia_message</code>.</td></tr>
+        <tr><td>sn_list_trigger_configurations</td><td>read</td><td>List trigger configurations for agentic workflows.</td></tr>
+        <tr><td>sn_list_agent_child_mappings</td><td>read</td><td>List agent child mappings, <code>sn_aia_agent_child</code>, which is the orchestration tree.</td></tr>
+        <tr><td>sn_list_ai_workers</td><td>read</td><td>List all AI Workers configured in the system.</td></tr>
+        <tr><td>sn_get_ai_worker_details</td><td>read</td><td>Get full details of a specific AI Worker including its template and mapped users.</td></tr>
+        <tr><td>sn_list_worker_templates</td><td>read</td><td>List all AI Worker Templates in the system.</td></tr>
+      </tbody>
+    </table>
+    <h3 class="sub">AI agent authoring (19)</h3>
+    <p>Create, change and delete agents, workflows, tools, triggers and parent-to-child mappings.</p>
+    <table class="prop-table">
+      <thead><tr><th>Tool name</th><th>Type</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td>sn_create_ai_agent</td><td>write</td><td>Create a new AI agent.</td></tr>
+        <tr><td>sn_update_ai_agent</td><td>write</td><td>Update an existing AI agent. Only provide the fields you want to update.</td></tr>
+        <tr><td>sn_delete_ai_agent</td><td>delete, confirm required</td><td>Delete an AI agent. Requires confirmation.</td></tr>
+        <tr><td>sn_add_tool_to_agent</td><td>write</td><td>Add a tool to an AI agent, with optional input definitions.</td></tr>
+        <tr><td>sn_remove_tool_from_agent</td><td>write</td><td>Remove a tool from an AI agent.</td></tr>
+        <tr><td>sn_create_agentic_workflow</td><td>write</td><td>Create a new agentic workflow, or use case.</td></tr>
+        <tr><td>sn_update_agentic_workflow</td><td>write</td><td>Update an existing agentic workflow. Only provide the fields you want to update.</td></tr>
+        <tr><td>sn_delete_agentic_workflow</td><td>delete, confirm required</td><td>Delete an agentic workflow. Requires confirmation.</td></tr>
+        <tr><td>sn_create_tool</td><td>write</td><td>Create a new tool for AI agents.</td></tr>
+        <tr><td>sn_add_record_operation_tool</td><td>write</td><td>Create <b>and</b> attach a fully configured Record Operation, or CRUD, tool to an AI agent.</td></tr>
+        <tr><td>sn_update_tool</td><td>write</td><td>Update an existing tool. Only provide the fields you want to update.</td></tr>
+        <tr><td>sn_delete_tool</td><td>delete, confirm required</td><td>Delete a tool. Requires confirmation.</td></tr>
+        <tr><td>sn_create_trigger</td><td>write</td><td>Create a trigger for an agentic workflow.</td></tr>
+        <tr><td>sn_update_trigger</td><td>write</td><td>Update an existing trigger. Only provide the fields you want to update.</td></tr>
+        <tr><td>sn_delete_trigger</td><td>delete, confirm required</td><td>Delete a trigger. Requires confirmation.</td></tr>
+        <tr><td>sn_clone_ai_agent</td><td>write</td><td>Clone an existing AI agent with all its tools and configuration.</td></tr>
+        <tr><td>sn_cleanup_agent_configs</td><td>write</td><td>Clean up duplicate agent config records for an agent.</td></tr>
+        <tr><td>sn_create_agent_child_mapping</td><td>write</td><td>Create a parent-to-child agent mapping, <code>sn_aia_agent_child</code>.</td></tr>
+        <tr><td>sn_delete_agent_child_mapping</td><td>delete, confirm required</td><td>Delete an agent child mapping, removing a parent-to-child delegation relationship.</td></tr>
+      </tbody>
+    </table>
+    <h3 class="sub">AI Worker management (8)</h3>
+    <p>Create and change AI Workers and Worker Templates, and map users to workers.</p>
+    <table class="prop-table">
+      <thead><tr><th>Tool name</th><th>Type</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td>sn_create_ai_worker</td><td>write</td><td>Create a new AI Worker and attach a Worker Template to it.</td></tr>
+        <tr><td>sn_update_ai_worker</td><td>write</td><td>Update an existing AI Worker. Only provide the fields you want to change.</td></tr>
+        <tr><td>sn_delete_ai_worker</td><td>delete, confirm required</td><td>Delete an AI Worker. Requires confirmation.</td></tr>
+        <tr><td>sn_assign_user_to_worker</td><td>write</td><td>Map a ServiceNow user to an AI Worker via <code>sn_aia_worker_user_m2m</code>.</td></tr>
+        <tr><td>sn_remove_user_from_worker</td><td>delete, confirm required</td><td>Remove a user mapping from an AI Worker, deleting the <code>sn_aia_worker_user_m2m</code> record.</td></tr>
+        <tr><td>sn_create_worker_template</td><td>write</td><td>Create a new AI Worker Template and associate it with a root agent.</td></tr>
+        <tr><td>sn_update_worker_template</td><td>write</td><td>Update an existing Worker Template. Only provide the fields you want to change.</td></tr>
+        <tr><td>sn_delete_worker_template</td><td>delete, confirm required</td><td>Delete a Worker Template. Requires confirmation.</td></tr>
+      </tbody>
+    </table>
+    <h3 class="sub">RAG pipeline (1)</h3>
+    <p>Build a complete RAG search pipeline and attach it to an agent. This one tool carries about 300 lines of logic.</p>
+    <table class="prop-table">
+      <thead><tr><th>Tool name</th><th>Type</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td>sn_create_rag_pipeline</td><td>write</td><td>Create a complete RAG search pipeline and wire it to an AI agent.</td></tr>
+      </tbody>
+    </table>
+    <div class="callout green"><b>Totals:</b> 8 + 9 + 15 + 19 + 8 + 1 = <b>60</b> tools per server, on every instance you register.</div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>10. Verification Checklist</h2><p>Run these in order. Stop at the first one that fails and go to Troubleshooting.</p></div>
+  <div class="content"><table>
+    <thead><tr><th>#</th><th>Check</th><th>Command or action</th><th>Expected result</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Python and uv</td><td><code>/opt/homebrew/bin/uv --version</code> and <code>~/.venvs/mcp-server/bin/python --version</code></td><td><code>uv 0.x</code> prints a version, and Python prints 3.13.x</td></tr>
+      <tr><td>2</td><td>Dependencies</td><td><code>~/.venvs/mcp-server/bin/python -c "import mcp, requests, dotenv"</code></td><td>No output and no error</td></tr>
+      <tr><td>3</td><td>Instance reachable</td><td><code>curl -sI https://&lt;instance&gt;.service-now.com | head -1</code></td><td>An HTTP status line, such as 200 or 302</td></tr>
+      <tr><td>4</td><td>Credentials valid</td><td><code>curl -s -o /dev/null -w '%{http_code}' -u '&lt;username&gt;:&lt;password&gt;' 'https://&lt;instance&gt;.service-now.com/api/now/table/sys_user?sysparm_limit=1'</code></td><td><code>200</code>. A <code>401</code> means wrong credentials, a <code>403</code> means a missing role</td></tr>
+      <tr><td>5</td><td>Script starts</td><td>Step 3 of section 5</td><td>Banner with <code>[OK] Connected</code>, and the process stays running</td></tr>
+      <tr><td>6</td><td>Servers registered</td><td><code>claude mcp list</code></td><td>Every server you added listed as <b>connected</b></td></tr>
+      <tr><td>7</td><td>Tools visible</td><td>Ask the client to list the ServiceNow tools</td><td><b>60 tools per server</b></td></tr>
+      <tr><td>8</td><td>End to end</td><td>Ask the client to query <code>sys_user</code> with limit 1 on each server</td><td>A record is returned from each instance</td></tr>
+      <tr><td>9</td><td>Client B copy running</td><td><code>ps aux | grep &lt;client-b-folder&gt;</code></td><td>A process running <code>~/&lt;client-b-folder&gt;/.venv/bin/python3 server_single.py</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>11. Troubleshooting</h2><p>The failures you are most likely to hit, and what each one actually means.</p></div>
+  <div class="content"><table>
+    <thead><tr><th>Symptom</th><th>Likely cause</th><th>Fix</th></tr></thead>
+    <tbody>
+      <tr><td>Server shows as <b>failed</b> in <code>claude mcp list</code></td><td><code>uv</code> not found, wrong <code>--directory</code>, or Python 3.13 missing</td><td>Run step 3 of section 5 by hand and read the error. Use the <b>absolute</b> path <code>/opt/homebrew/bin/uv</code> in the config, because GUI applications do not inherit your shell <code>PATH</code>.</td></tr>
+      <tr><td>A folder path with spaces breaks</td><td>The project path contains spaces</td><td>Keep the path as a single quoted argument. In JSON it is already one string in the <code>args</code> array. In the shell, wrap it in double quotes.</td></tr>
+      <tr><td>Tool returns <b>HTTP 401: Unauthorized</b></td><td>Wrong username or password, or Basic Auth is blocked for the account</td><td>Re-run the credentials check, row 4 of section 10. Update the <code>env</code> block in the config and restart.</td></tr>
+      <tr><td>Tool returns <b>HTTP 403: Forbidden</b></td><td>The user lacks a role for that table or operation</td><td>Grant the role, or use a user that has it. Reads of <code>sn_aia_*</code> tables need AI Agent roles or admin.</td></tr>
+      <tr><td>Tool returns <b>HTTP 404</b>, or an empty result for <code>sn_aia_*</code> tables</td><td>The AI Agent Studio plugins are not installed on that instance</td><td>Check the table exists in <code>sys_db_object</code> on the instance.</td></tr>
+      <tr><td>Banner says <b>Connected</b> but every call fails</td><td>The banner is printed without ever calling the instance</td><td>Use the credentials check to find the real error.</td></tr>
+      <tr><td>Changes to the script are not picked up</td><td>The process is still the old one</td><td>Restart the client so it relaunches the server. Client B runs its <b>own copy</b>, so edit <code>~/&lt;client-b-folder&gt;/server_single.py</code> for it.</td></tr>
+      <tr><td>Tools from the wrong instance answered</td><td>Every server exposes the same 60 tool names</td><td>Look at the <b>server</b> part of the full tool name, <code>mcp__servicenow-sn-&lt;name&gt;__</code>, to see which instance answered.</td></tr>
+      <tr><td>Timeout errors on large queries</td><td>The 30 second request timeout, and the 1000-row cap in the quick query helper</td><td>Narrow the query, lower the limit, or raise <code>self.timeout</code> in <code>ServiceNowClient</code>.</td></tr>
+      <tr><td>Python or package errors after a <code>uv</code> upgrade</td><td>Stale virtual environment</td><td>Delete <code>~/.venvs/mcp-server</code> and re-run <code>uv sync</code>, step 2 of section 5.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>12. Security Hardening</h2><p>The setup works as described. These are the risks it carries, and how to reduce them.</p></div>
+  <div class="content">
+    <div class="callout red"><b>Current state.</b> The password for each Claude Code server sits in <b>plaintext</b> in the Claude Code user config. Client B keeps only placeholders in <code>integrations.json</code>, and where it stores the resolved values is not documented. Servers that run as an admin user give every tool call, including the delete and batch tools, <b>full admin rights</b> on the instance. Servers on service accounts can do only what those accounts' roles allow.</div>
+    <h3 class="sub">Recommended changes</h3>
+    <div class="decision-grid" style="margin-top:16px">
+      <div class="decision"><b>1. A dedicated service user per instance</b><p>Give it only the roles the tools need, instead of admin. A read-only user is enough if you only use the query and inspection tools.</p></div>
+      <div class="decision"><b>2. Prefer OAuth where possible</b><p>Script A supports the OAuth password grant when <code>SN_CLIENT_ID</code> and <code>SN_CLIENT_SECRET</code> are set. It lets you revoke access without changing the user's password. Script B does not support it.</p></div>
+      <div class="decision"><b>3. Keep secrets out of synced folders</b><p>Do not put a <code>.env</code> holding credentials in a cloud-synced project folder. It is copied to the cloud and to your other devices.</p></div>
+      <div class="decision"><b>4. Keep write tools behind prompts</b><p>Only allow-list the read tools in <code>settings.json</code>. Leave create, update and delete tools to prompt every time.</p></div>
+      <div class="decision"><b>5. Rotate in every place</b><p>When a password changes, update <i>each</i> location that stores it: the matching entry in the Claude Code user config, the matching server's <code>env</code> values in Client B, and any other tool holding the same credential.</p></div>
+      <div class="decision"><b>6. Do not share the config files</b><p>They are personal. Share this guide, which contains no credentials, instead.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>13. Known Issues in This Setup</h2><p>Things that work today but will surprise the next person who opens the folder.</p></div>
+  <div class="content"><table>
+    <thead><tr><th>Issue</th><th>Detail</th><th>Suggested action</th></tr></thead>
+    <tbody>
+      <tr><td>Two diverged copies of the script</td><td>Script B is about 56 lines shorter than Script A: no OAuth code, and it loads a <code>.env</code> from its own folder instead of using the default search. The 60 tool names are the same.</td><td>Pick one as the source of truth and copy changes across, or point both launchers at one file.</td></tr>
+      <tr><td>Unused <code>.env</code></td><td>The project-folder <code>.env</code> contains one instance only, and is overridden by the <code>env</code> blocks.</td><td>Delete it, or keep it only as a documented fallback.</td></tr>
+      <tr><td>Instance names inside tool docstrings</td><td>A docstring that names one particular instance is misleading on every other instance, and <b>the model reads these descriptions</b>.</td><td>Replace with neutral wording such as "the instance".</td></tr>
+      <tr><td>Misleading start-up banner</td><td>It prints a fixed instance name and <code>[OK] Connected</code> for every instance, and it never calls the instance.</td><td>Print the real <code>SN_INSTANCE</code> value, and make one test call.</td></tr>
+      <tr><td>Legacy swap scripts</td><td><code>swap_instance.sh</code> lists two hardcoded instance names and rewrites <code>server_single.py</code> with <code>sed</code>.</td><td>Do not use it with this setup. It conflicts with the <code>env</code> block approach.</td></tr>
+      <tr><td>Dead editor and Copilot MCP files</td><td>An editor <code>mcp.json</code> points at an old project path and has no credentials. A separate Copilot <code>mcp.json</code> targets a conda environment.</td><td>Remove or update them if you do not use those clients.</td></tr>
+      <tr><td>Dead client settings</td><td><code>enabledMcpjsonServers</code> in <code>~/.claude/settings.json</code> names two servers, but <code>~/.mcp.json</code> is empty. The allow list also holds a stale tool entry from a renamed server.</td><td>Clean up the settings.</td></tr>
+      <tr><td>Extra copies of the script</td><td>Further copies of <code>server_single.py</code> exist in other local folders. Nothing launches them.</td><td>Archive or delete them, to avoid editing the wrong file.</td></tr>
+      <tr><td>Plaintext credentials in two places</td><td>The Claude Code user config holds the passwords for every Claude Code server, and the unused legacy <code>.env</code> holds one more. See section 12.</td><td>Apply the hardening changes.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>14. Comparison with the Native MCP Server Console</h2><p>ServiceNow's own way to expose tools to an AI client. A complement to this setup, not a replacement for it.</p></div>
+  <div class="content">
+    <table>
+      <thead><tr><th>Aspect</th><th>This FastMCP setup</th><th>Native MCP Server Console</th></tr></thead>
+      <tbody>
+        <tr><td>Adding a tool</td><td>Write one Python function in <code>server_single.py</code></td><td>Build a backing implementation first, for example a Scripted REST API with an OpenAPI schema, create the tool in the console, then add it to a server record</td></tr>
+        <tr><td>Identity</td><td>One shared credential per instance, admin on dev instances and service accounts elsewhere</td><td><b>Per-user OAuth.</b> The user consents once, and tools run with that user's permissions and ACLs</td></tr>
+        <tr><td>Reach</td><td>Any instance reachable over HTTPS, from one script</td><td>One server record per instance, and it needs the <code>sn_mcp_server</code> plugin</td></tr>
+        <tr><td>Best for</td><td>Building and debugging AI agents, flows and execution plans, which is platform authoring work</td><td>Governed, narrow business tools such as incident read and update</td></tr>
+        <tr><td>Hosting</td><td>A local process on your machine, over stdio</td><td>Hosted on the instance. The client connects to a Server URL as a custom connector</td></tr>
+        <tr><td>Audit and control</td><td>Whatever your own discipline gives you</td><td>Servers and tools are <b>records on the instance</b>, so update sets and reviews apply</td></tr>
+      </tbody>
+    </table>
+    <h3 class="sub">Platform baseline assumed here</h3>
+    <ul style="margin:14px 0 0 20px;padding:0;font-size:14.5px">
+      <li>Both instances in this example run a recent Australia patch with the Model Context Protocol Server plugin (<code>sn_mcp_server</code>) and the client plugin (<code>sn_mcp_client</code>) installed.</li>
+      <li>Each instance already had several provisioned MCP servers in <code>sn_mcp_server_registry</code>, for example <code>sn_itsm_mcp_server.itsm_default</code>, <code>sn_hr_mcp_server.hr_default</code> and <code>sn_csm_mcp_server.csm_default</code>.</li>
+      <li>The Dev Program series this appendix follows assumes a recent Australia patch with the plugin installed, an OAuth Application Registry entry whose redirect URL is <code>https://claude.ai/api/mcp/auth_callback</code>, <b>Token Format JWT</b> and the <code>useraccount</code> scope. The authenticating user needs <code>itil</code> or an equivalent role on <code>incident</code>.</li>
+    </ul>
+    <h3 class="sub">Which one to reach for</h3>
+    <div class="decision-grid" style="margin-top:16px">
+      <div class="decision"><b>Building and debugging agents</b><p>Use the FastMCP setup. You need broad table access across several instances, and you are the only user.</p></div>
+      <div class="decision"><b>Reading and updating business records</b><p>Use the native console, so calls run <b>under a real user's permissions</b> rather than as admin.</p></div>
+      <div class="decision"><b>Anything you hand to someone else</b><p>Use the native console. The server, its tools and the consent are records on the instance, which is what makes the access reviewable.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>15. Appendix: the Native MCP Server Console, Step by Step</h2><p>ServiceNow hosts the MCP server on the instance and the client connects to it with OAuth. No local Python process is involved.</p></div>
+  <div class="content">
+    <p><b>Source.</b> This walkthrough follows the ServiceNow Dev Program series by Travis Toulson, namely <i>Build MCP Tools in the MCP Server Console</i>, <i>Create the MCP Server Record in ServiceNow</i>, <i>Connect Claude to a ServiceNow MCP Server</i> and <i>Claude Reads and Updates a Real ServiceNow Incident</i>, together with the written ServiceNow Community article <i>Building an MCP Server on ServiceNow and Connecting Claude to It</i>. <b>Check the scripts below against the originals before using them on a customer instance.</b></p>
+    <div class="diagram-wrap"><pre class="mermaid">
+flowchart TD
+  U["You"] --> CL["AI client<br/>custom connector"]
+  CL -- "OAuth 2.0 consent<br/>scope useraccount" --> OA["OAuth Application Registry<br/>MCP connector entry, JWT tokens"]
+  CL -- "HTTPS MCP calls<br/>to the Server URL" --> MS["MCP Server record<br/>Incident MCP Server"]
+  MS --> T1["Tool: Get Incident"]
+  MS --> T2["Tool: Update Incident"]
+  T1 -- "GET /incident_api by number" --> API["Scripted REST API<br/>incident_api"]
+  T2 -- "POST /incident_api by number<br/>validated by UpdateIncidentSchema" --> API
+  API --> GR["GlideRecord on incident<br/>runs as the consenting user"]
+  classDef a fill:#e8f1ff,stroke:#3975c6,color:#132238;
+  classDef b fill:#fff5dd,stroke:#9a6500,color:#5a3d00;
+  classDef c fill:#f1eaff,stroke:#7b52b9,color:#2f1f4b;
+  classDef d fill:#e8f7f1,stroke:#157a5a,color:#103e31;
+  class U,CL a;
+  class OA b;
+  class MS,T1,T2 c;
+  class API,GR d;
+    </pre></div>
+    <h3 class="sub">Step 1 &middot; Check the instance and install the plugin</h3>
+    <p>You need a recent Australia patch, the Now Assist Admin Console plugin (<code>sn_nowassist_admin</code>, listed as <b>AI Admin Hub</b> on newer instances) and the <code>admin</code> role. Install <b>Model Context Protocol Server</b> (<code>sn_mcp_server</code>) from <b>All &gt; System Applications &gt; All Available Applications &gt; All</b>.</p>
+<pre class="code">curl https://<span class="c">&lt;instance&gt;</span>.service-now.com/sncapps/mcp-server/health</pre>
+    <div class="callout green"><b>Check:</b> the response is <code>{"status":"healthy"}</code>. In the filter navigator, <code>sys_service.list</code> should show the MCP-S and mcp-server records. Then create a scoped application in Studio, which the article calls "Incident MCP Server", to hold everything below.</div>
+    <h3 class="sub">Step 2 &middot; Create the Scripted REST API and the GET resource</h3>
+    <p>Go to <b>All &gt; System Web Services &gt; Scripted REST APIs</b>. Create an API named <b>Incident API</b> with API ID <code>incident_api</code> and Default ACLs <b>Scripted REST External Default</b>. Add a resource <b>Get Incident</b>: method <code>GET</code>, relative path <code>/{number}</code>, the same default ACLs, with this script.</p>
+<pre class="code">(function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
+  var number = request.pathParams.number;
+  if (!number) {
+    response.setStatus(400);
+    response.setBody({ message: "Incident number is required." });
+    return;
+  }
+  var gr = new GlideRecord('incident');
+  gr.addQuery('number', number);
+  gr.query();
+  if (gr.next()) {
+    response.setStatus(200);
+    response.setBody({
+      sys_id: gr.getValue('sys_id'),
+      number: gr.getValue('number'),
+      short_description: gr.getValue('short_description'),
+      description: gr.getValue('description'),
+      state: gr.getValue('state'),
+      urgency: gr.getValue('urgency'),
+      priority: gr.getValue('priority'),
+      assigned_to: gr.getDisplayValue('assigned_to'),
+      assignment_group: gr.getDisplayValue('assignment_group'),
+      opened_at: gr.getValue('opened_at'),
+      caller_id: gr.getDisplayValue('caller_id')
+    });
+  } else {
+    response.setStatus(404);
+    response.setBody({ message: "Incident not found: " + number });
+  }
+})(request, response);</pre>
+    <div class="callout green"><b>Check:</b> the resource saves with no script errors.</div>
+    <h3 class="sub">Step 3 &middot; Add the POST resource and its OpenAPI schema</h3>
+    <p>On the same API add a resource <b>Update Incident</b>: method <code>POST</code>, relative path <code>/{number}</code>, the same default ACLs, with this script.</p>
+<pre class="code">(function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
+  var number = request.pathParams.number;
+  if (!number) {
+    response.setStatus(400);
+    response.setBody({ message: "Incident number is required." });
+    return;
+  }
+  try {
+    var params = request.body.data;
+    var gr = new GlideRecord('incident');
+    gr.addQuery('number', number);
+    gr.query();
+    if (!gr.next()) {
+      response.setStatus(404);
+      response.setBody({ message: "Incident not found: " + number });
+      return;
+    }
+    for (var key in params) {
+      if (params.hasOwnProperty(key)) {
+        if (key === 'work_notes' || key === 'comments') {
+          gr[key] = params[key];
+        } else {
+          gr.setValue(key, params[key]);
+        }
+      }
+    }
+    gr.update();
+    response.setStatus(200);
+    response.setBody({
+      message: "Incident updated successfully.",
+      number: gr.getValue('number'),
+      sys_id: gr.getUniqueValue()
+    });
+  } catch (e) {
+    response.setStatus(500);
+    response.setBody({ message: "Error occurred: " + e.message });
+  }
+})(request, response);</pre>
+    <p class="code-label">In the API's <b>Schemas</b> related list create <code>UpdateIncidentSchema</code>, OpenAPI version 3.0.1, with this JSON, then link it to the POST resource through the <b>Request Schema</b> related list. <b>This is what gives the tool its input fields.</b></p>
+<pre class="code">{
+  "type": "object",
+  "description": "Fields to update on the incident. All fields are optional. Include only what you want to change.",
+  "properties": {
+    "short_description": { "type": "string", "description": "Brief summary of the incident.", "example": "User cannot log in to VPN" },
+    "description": { "type": "string", "description": "Detailed description of the incident.", "example": "User reports being unable to connect to VPN since this morning." },
+    "urgency": { "type": "string", "description": "Urgency code. 1=High, 2=Medium, 3=Low.", "example": "2" },
+    "impact": { "type": "string", "description": "Impact code. 1=High, 2=Medium, 3=Low.", "example": "2" },
+    "state": { "type": "string", "description": "Incident state code. 1=New, 2=In Progress, 6=Resolved, 7=Closed.", "example": "2" },
+    "assignment_group": { "type": "string", "description": "sys_id or name of the group to assign the incident to.", "example": "Service Desk" },
+    "assigned_to": { "type": "string", "description": "sys_id or username of the person to assign the incident to.", "example": "<span class="c">&lt;username&gt;</span>" },
+    "work_notes": { "type": "string", "description": "Internal notes to add to the incident work notes journal. Visible to agents only.", "example": "Investigated and escalated to network team." },
+    "comments": { "type": "string", "description": "Customer-visible notes to add to the incident comments journal. Visible to the caller and agents.", "example": "We are investigating your issue and will update you shortly." }
+  }
+}</pre>
+    <div class="callout green"><b>Check:</b> the POST resource shows <code>UpdateIncidentSchema</code> under <b>Request Schema</b>.</div>
+    <h3 class="sub">Step 4 &middot; Register the OAuth client</h3>
+    <p>Go to <b>All &gt; System OAuth &gt; Application Registry</b> and create a new entry. On the interceptor page choose <b>[Deprecated UI] Create an OAuth API endpoint for external clients</b>, which is still the right choice despite the label.</p>
+    <ul style="margin:14px 0 0 20px;padding:0;font-size:14.5px">
+      <li><b>Name:</b> MCP connector entry</li>
+      <li><b>Redirect URL:</b> <code>https://claude.ai/api/mcp/auth_callback</code>, exactly, with no trailing slash</li>
+      <li><b>Token Format:</b> <b>JWT</b>, not the default Opaque</li>
+      <li><b>Auth Scopes:</b> add <code>useraccount</code></li>
+    </ul>
+    <p>Save, then copy the <b>Client ID</b> (<code>&lt;client-id&gt;</code>) and <b>Client Secret</b> (<code>&lt;client-secret&gt;</code>).</p>
+    <div class="callout green"><b>Check:</b> the saved record shows Token Format <b>JWT</b>.</div>
+    <h3 class="sub">Step 5 &middot; Create the two MCP tools</h3>
+    <p>Go to <b>All &gt; Admin Center &gt; MCP Server Console &gt; Tools &gt; Create Tool &gt; REST API</b>. In the endpoint search, type <code>/x</code> to filter to scoped endpoints.</p>
+    <ul style="margin:14px 0 0 20px;padding:0;font-size:14.5px">
+      <li>Select <code>[GET] /x_snc_&lt;scope&gt;/incident_api/{number}</code>. Label <b>Get Incident</b>. Description: <i>Retrieves the details of a specific ServiceNow incident by incident number. Call this tool when the user wants to look up, check, or get information about a specific incident.</i></li>
+      <li>Select <code>[POST] /x_snc_&lt;scope&gt;/incident_api/{number}</code>. Label <b>Update Incident</b>. Description: <i>Updates fields on an existing ServiceNow incident by incident number. Call this tool when the user wants to change, modify, or update an incident. Pass only the fields you want to change along with the required incident number.</i></li>
+    </ul>
+    <div class="callout blue"><b>The Label and Description are what the model reads</b> to decide when to call the tool, so write them for the model, not for a form.</div>
+    <div class="callout green"><b>Check:</b> the GET tool has one required input, <code>number</code>. The POST tool has <code>number</code> plus all the schema fields.</div>
+    <h3 class="sub">Step 6 &middot; Create and activate the MCP server</h3>
+    <p>In the console open <b>Servers &gt; Create Server</b>. Label <b>Incident MCP Server</b>. Short description: <i>Access and manage ServiceNow incidents by incident number. Use this server to retrieve incident details or update incident fields including urgency, state, assignment, and work notes.</i> Click <b>Add Tools</b>, select both tools, then <b>Create</b>. Click <b>Activate</b>; if the button reads <b>Deactivate</b> it is already active.</p>
+    <div class="callout green"><b>Check:</b> copy the <b>Server URL</b> from the record. You need it in the next step.</div>
+    <h3 class="sub">Step 7 &middot; Connect the AI client</h3>
+    <p>In Claude.ai, go to the profile icon, then <b>Settings &gt; Connectors &gt; Add &gt; Add custom connector</b>. Name it, for example <i>ServiceNow Incident MCP</i>. The <b>Remote MCP Server URL</b> is the Server URL, and the <b>OAuth Client ID</b> and <b>Client Secret</b> are the values from step 4. Click <b>Add</b>, then <b>Connect</b>. Sign in to ServiceNow and approve the consent screen for the connector with the <code>useraccount</code> scope.</p>
+    <div class="callout green"><b>Check:</b> the connector status changes to <b>Connected</b> and lists two tools. The consent screen plus the Application Registry entry are your answer to <i>"what can this AI actually do"</i>.</div>
+    <h3 class="sub">Step 8 &middot; Test a read and a write</h3>
+    <p>Open a new chat with the connector enabled and use a test incident number.</p>
+<pre class="code">Get the details of ServiceNow incident <span class="c">&lt;incident-number&gt;</span>.
+
+Update incident <span class="c">&lt;incident-number&gt;</span>. Set urgency to High and add a work note
+that says "Escalated to network team for investigation."</pre>
+    <div class="callout green"><b>Check:</b> open the incident in ServiceNow and confirm that the urgency and the work note match. The client's confirmation only shows what the model <i>believes</i> happened. <b>The record is the proof.</b></div>
+    <h3 class="sub">Appendix troubleshooting</h3>
+    <table>
+      <thead><tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td>Connector shows zero tools</td><td>Token Format is <b>Opaque</b> instead of JWT</td><td>Change it to JWT in the Application Registry, then disconnect and reconnect</td></tr>
+        <tr><td>Tool calls return errors</td><td>The authenticating user lacks access to <code>incident</code></td><td>Give the user <code>itil</code> or an equivalent role. The <code>useraccount</code> scope <b>delegates</b> the user's permissions, it does not add new ones</td></tr>
+        <tr><td>OAuth flow fails</td><td>The redirect URL differs from <code>https://claude.ai/api/mcp/auth_callback</code>, for example by a trailing slash</td><td>Correct it exactly. Being routed through SSO during the flow is normal</td></tr>
+        <tr><td>Nothing works</td><td>Plugin or service unhealthy</td><td>Re-run the health check from step 1</td></tr>
+      </tbody>
+    </table>
+    <div class="callout"><b>Differences from the FastMCP setup.</b> Each tool needs a backing implementation, here a Scripted REST API, and calls run <b>as the consenting user under ACLs</b> rather than as admin. The series author notes that later parts back tools with flow actions, Now Assist skills, knowledge graphs and subflows.</div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head"><h2>16. Quick Decision Guide</h2><p>Five questions that place you in the right section of this guide.</p></div>
+  <div class="content">
+    <div class="qa"><span class="ans mix">FastMCP setup</span><h3>“I am building and debugging AI agents, and I need broad table access across several instances.”</h3><p>Use this setup. Register the same command once per instance with its own <code>SN_INSTANCE</code>, <code>SN_USERNAME</code> and <code>SN_PASSWORD</code>, as in section 5, and read the server part of each tool name to know which instance answered.</p></div>
+    <div class="qa"><span class="ans mix">Native console</span><h3>“Someone else will use this against real business records.”</h3><p>Use the native MCP Server Console instead, as sections 14 and 15 describe. Calls then run under the consenting user's permissions and ACLs, and the server, its tools and the consent are all records on the instance.</p></div>
+    <div class="qa"><span class="ans mix">Troubleshooting</span><h3>“My server shows as failed, or every tool call returns an error.”</h3><p>Run the script by hand with the three variables, step 3 of section 5, and read the error. A start-up banner is not proof of a working credential, so confirm with the curl check in row 4 of section 10 before you change anything else.</p></div>
+    <div class="qa"><span class="ans mix">Two copies</span><h3>“I added a tool, but one of my clients still cannot see it.”</h3><p>The two clients run two separate copies of the script. Edit the copy that client launches, then restart the client so it relaunches the process. Sections 6 and 13 cover the drift and what to do about it.</p></div>
+    <div class="qa"><span class="ans mix">Credentials</span><h3>“Where do the passwords live, and what has to change when one is rotated?”</h3><p>In the client configuration, in plaintext, and the process environment always wins over any <code>.env</code> file. Section 7 traces the resolution order, and section 12 lists every place a rotated credential has to be updated.</p></div>
+  </div>
+</section>
+
+</main>
+<footer>
+  <b>Author:</b> Yogesh Shinde, AI Architect &middot; <a href="index.html">Back to cipheryogi portfolio</a>
+</footer>
+</body>
+</html>

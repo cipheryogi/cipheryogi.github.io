@@ -86,6 +86,9 @@
             --tag-bg: #1e3a5f;
             --tag-text: #7dd3fc;
             --green: #4ade80;
+            --text-strong: #ffffff;
+            --shadow: 0 10px 30px rgba(2, 8, 20, 0.45);
+            --radius: 12px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -140,9 +143,13 @@
 
         /* Header */
         header {
+            position: relative;
             border-bottom: 1px solid var(--border);
-            padding: 48px 0 40px;
+            padding: 56px 0 44px;
             text-align: center;
+            background:
+                radial-gradient(ellipse 80% 60% at 50% 0%, rgba(56, 189, 248, 0.13), transparent 70%),
+                var(--bg);
         }
         header h1 {
             font-size: 2.2rem;
@@ -169,6 +176,24 @@
             font-size: 0.95rem;
         }
         .header-links a:hover { text-decoration: underline; }
+        .hero-stats {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 22px 0 0;
+            padding: 0;
+        }
+        .hero-stats li {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 6px 15px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        .hero-stats b { color: var(--accent); font-weight: 650; }
         .notice {
             margin-top: 20px;
             padding: 12px 20px;
@@ -221,6 +246,37 @@
             color: var(--accent);
             background: var(--tag-bg);
         }
+        .filterbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 0 24px 12px;
+            align-items: center;
+        }
+        .filterbar .flabel {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            margin-right: 2px;
+        }
+        .chip {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font: inherit;
+            font-size: 0.82rem;
+            padding: 5px 12px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s, background 0.2s;
+        }
+        .chip:hover { border-color: var(--accent); color: var(--accent); }
+        .chip[aria-pressed="true"] {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--tag-bg);
+        }
         .search-wrap { position: relative; flex: 0 1 260px; }
         #search {
             width: 100%;
@@ -247,38 +303,77 @@
         }
 
         /* Section */
-        section { padding: 40px 0; }
+        section { padding: 44px 0; scroll-margin-top: 90px; }
         section h2 {
             font-size: 1.4rem;
-            font-weight: 600;
-            margin-bottom: 24px;
+            font-weight: 650;
+            margin-bottom: 6px;
             padding-bottom: 8px;
             border-bottom: 2px solid var(--accent);
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: -0.2px;
+        }
+        section h2 .count {
+            font-size: 0.72rem;
+            font-weight: 650;
+            color: var(--tag-text);
+            background: var(--tag-bg);
+            border-radius: 999px;
+            padding: 2px 9px;
+            letter-spacing: 0;
+        }
+        .section-intro {
+            color: var(--text-muted);
+            font-size: 0.92rem;
+            margin: 0 0 24px;
+            max-width: 760px;
         }
 
         /* Project cards */
         .projects-grid {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
             gap: 16px;
+            align-items: start;
         }
         .card {
+            position: relative;
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 24px;
-            transition: border-color 0.2s, transform 0.2s;
+            border-radius: var(--radius);
+            padding: 22px 24px;
+            overflow: hidden;
+            transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+        }
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: 3px;
+            background: var(--card-accent, transparent);
+            opacity: 0;
+            transition: opacity 0.2s;
         }
         .card:hover {
             border-color: var(--accent-dim);
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
         }
+        .card:hover::before { opacity: 1; }
+        .card[data-cat="agent"]       { --card-accent: #4ade80; }
+        .card[data-cat="skill"]       { --card-accent: #c084fc; }
+        .card[data-cat="integration"] { --card-accent: #fbbf24; }
+        .card[data-cat="whitepaper"]  { --card-accent: #67e8f9; }
+        .card[data-cat="tooling"]     { --card-accent: #d4d48a; }
+        .card[data-cat="guide"]       { --card-accent: #86efac; }
         .card h3 {
-            font-size: 1.1rem;
-            font-weight: 600;
+            font-size: 1.08rem;
+            font-weight: 650;
             margin-bottom: 8px;
-            color: #fff;
+            color: var(--text-strong);
+            line-height: 1.35;
         }
         .card p {
             color: var(--text-muted);
@@ -310,7 +405,6 @@
         .cat-skill { background: #3b1f4a; color: #c084fc; }
         .cat-integration { background: #3b2f1a; color: #fbbf24; }
         .cat-whitepaper { background: #1a2e3b; color: #67e8f9; }
-        .cat-governance { background: #3b1a1a; color: #fca5a5; }
         .cat-tooling { background: #2a2a1a; color: #d4d48a; }
         .cat-guide { background: #1a3b2a; color: #86efac; }
         .cat-mainframe { background: #2d2a1a; color: #fcd34d; }
@@ -324,20 +418,21 @@
         .article-card {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 10px;
+            border-radius: var(--radius);
             padding: 20px;
-            transition: border-color 0.2s, transform 0.2s;
+            transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
             text-decoration: none;
             display: block;
         }
         .article-card:hover {
             border-color: #fbbf24;
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
         }
         .article-card h4 {
             font-size: 0.95rem;
             font-weight: 600;
-            color: #fff;
+            color: var(--text-strong);
             margin-bottom: 6px;
         }
         .article-card p {
@@ -370,6 +465,9 @@
         }
 
         /* Responsive */
+        @media (max-width: 820px) {
+            .projects-grid { grid-template-columns: 1fr; }
+        }
         @media (max-width: 640px) {
             header h1 { font-size: 1.6rem; }
             .card { padding: 18px; }
@@ -377,6 +475,9 @@
             .navlinks { justify-content: center; }
             .search-wrap { flex-basis: auto; }
             .navlinks a { font-size: 0.82rem; padding: 6px 11px; }
+            .filterbar { padding: 0 16px 10px; }
+            .hero-stats { gap: 8px; }
+            section h2 { font-size: 1.22rem; }
         }
     </style>
 </head>
@@ -391,8 +492,16 @@
         <div class="header-links">
             <a href="https://github.com/cipheryogi">GitHub</a>
             <a href="https://www.linkedin.com/in/ypshinde/">LinkedIn</a>
-            <a href="https://www.servicenow.com/community/user/viewprofilepage/user-id/289739" target="_blank">SN Community</a>
+            <a href="https://www.servicenow.com/community/user/viewprofilepage/user-id/289739" target="_blank" rel="noopener">SN Community</a>
         </div>
+        <ul class="hero-stats">
+            <li><b>20</b> AI agents</li>
+            <li><b>8</b> integrations</li>
+            <li><b>4</b> whitepapers</li>
+            <li><b>15</b> guides</li>
+            <li><b>9</b> tools &amp; MCP servers</li>
+            <li><b>28</b> mainframe articles</li>
+        </ul>
         <div class="notice">The source repository is <strong>private</strong>. Access to specific projects, agents, or integrations can be enabled on request.</div>
     </div>
 </header>
@@ -403,21 +512,35 @@
             <a href="#agents">AI Agents</a>
             <a href="#skills">Custom Skills</a>
             <a href="#integrations">Integrations</a>
-            <a href="#guides">Guides &amp; Tooling</a>
-            <a href="#mainframe">Mainframe Articles</a>
+            <a href="#research">Research</a>
+            <a href="#guides">Guides</a>
+            <a href="#tooling">Tooling</a>
+            <a href="#mainframe">Mainframe</a>
         </div>
         <div class="search-wrap">
             <input type="search" id="search" placeholder="Search projects &amp; articles&hellip;" aria-label="Search projects and articles" autocomplete="off">
         </div>
+    </div>
+    <div class="filterbar" id="filterbar" role="group" aria-label="Filter by category">
+        <span class="flabel">Filter</span>
+        <button type="button" class="chip" data-filter="all" aria-pressed="true">All</button>
+        <button type="button" class="chip" data-filter="agent" aria-pressed="false">AI Agents</button>
+        <button type="button" class="chip" data-filter="skill" aria-pressed="false">Custom Skills</button>
+        <button type="button" class="chip" data-filter="integration" aria-pressed="false">Integrations</button>
+        <button type="button" class="chip" data-filter="whitepaper" aria-pressed="false">Research</button>
+        <button type="button" class="chip" data-filter="guide" aria-pressed="false">Guides</button>
+        <button type="button" class="chip" data-filter="tooling" aria-pressed="false">Tooling</button>
+        <button type="button" class="chip" data-filter="mainframe" aria-pressed="false">Mainframe</button>
     </div>
     <p class="search-status" id="searchStatus" role="status" aria-live="polite" hidden></p>
 </nav>
 
 <div class="container">
 
-    <!-- AI Agents -->
+    <!-- AI Agents &amp; Agentic Workflows -->
     <section id="agents">
-        <h2>AI Agents</h2>
+        <h2>AI Agents &amp; Agentic Workflows <span class="count" aria-hidden="true">20</span></h2>
+        <p class="section-intro">Production-grade ServiceNow AI agents, agentic workflows and multi-agent solution designs.</p>
         <div class="projects-grid">
 
             <div class="card">
@@ -431,7 +554,6 @@
                     <span class="tag">Confidence Scoring</span>
                 </div>
             </div>
-
             <div class="card">
                 <span class="category cat-agent">AI Agent</span>
                 <h3>Duplicate Incident Prevention — AI Governance Agent</h3>
@@ -443,7 +565,6 @@
                     <span class="tag">Two-Layer Governance</span>
                 </div>
             </div>
-
             <div class="card">
                 <span class="category cat-agent">AI Agent</span>
                 <h3>Incident Quality Documentation Improvement</h3>
@@ -455,7 +576,6 @@
                     <span class="tag">Audit Table</span>
                 </div>
             </div>
-
             <div class="card">
                 <span class="category cat-agent">AI Agent</span>
                 <h3>Create Problem — AI Agent</h3>
@@ -467,7 +587,6 @@
                     <span class="tag">Human-in-the-Loop</span>
                 </div>
             </div>
-
             <div class="card">
                 <span class="category cat-agent">AI Agent</span>
                 <h3>Image Processor Agent Using ServiceNow Lens</h3>
@@ -479,7 +598,6 @@
                     <span class="tag">Script Tools</span>
                 </div>
             </div>
-
             <div class="card">
                 <span class="category cat-agent">AI Agent</span>
                 <h3>SAM Use Case — Software Entitlement Validation</h3>
@@ -491,7 +609,6 @@
                     <span class="tag">Auto-Decisioning</span>
                 </div>
             </div>
-
             <div class="card">
                 <span class="category cat-agent">AI Agent</span>
                 <h3>SPM Risk Articulation</h3>
@@ -503,7 +620,6 @@
                     <span class="tag">NACM Extension</span>
                 </div>
             </div>
-
             <div class="card">
                 <span class="category cat-agent">AI Agent</span>
                 <h3>Email and WhatsApp AI Intake</h3>
@@ -515,8 +631,6 @@
                     <span class="tag">RAG / AI Search</span>
                 </div>
             </div>
-
-
             <div class="card">
                 <span class="category cat-agent">AI Agent</span>
                 <h3>HRSD Case Auto-Resolver — Tone-Classification AI Agent</h3>
@@ -529,7 +643,6 @@
                     <span class="tag">Human Escalation</span>
                 </div>
             </div>
-
             <div class="card">
                 <span class="category cat-agent">AI Agent</span>
                 <h3>CSM Unified Intelligent Agent</h3>
@@ -543,7 +656,6 @@
                     <span class="tag">Customer 360</span>
                 </div>
             </div>
-
             <div class="card">
                 <span class="category cat-agent">AI Agent</span>
                 <h3>CSM Auto QA Scoring + High-Emotion Case Flagging</h3>
@@ -556,7 +668,6 @@
                     <span class="tag">CSM</span>
                 </div>
             </div>
-
             <div class="card">
                 <span class="category cat-agent">AI Agent</span>
                 <h3>Enterprise Conversational Service &amp; ADO Automation</h3>
@@ -569,7 +680,6 @@
                     <span class="tag">Employee Center</span>
                 </div>
             </div>
-
             <div class="card">
                 <span class="category cat-agent">Agentic Workflow</span>
                 <h3>CAB Assessment Agentic Workflow</h3>
@@ -583,7 +693,6 @@
                     <span class="tag">Assessments</span>
                 </div>
             </div>
-
             <div class="card">
                 <span class="category cat-agent">AI Agent</span>
                 <h3>HRSD HR Case QA AI Agent</h3>
@@ -596,7 +705,6 @@
 
                 </div>
             </div>
-
             <div class="card">
                 <span class="category cat-agent">AI Agent</span>
                 <h3>AI Response Quality QA AI Agent</h3>
@@ -609,7 +717,6 @@
                     <span class="tag">sys_generative_ai_log</span>
                 </div>
             </div>
-
             <div class="card">
                 <span class="category cat-agent">AI Agent</span>
                 <h3>Customer 360 Autonomous NAP Visibility Proof</h3>
@@ -623,7 +730,6 @@
                     <span class="tag">Autonomous Trigger</span>
                 </div>
             </div>
-
             <div class="card">
                 <span class="category cat-agent">Multi-Agent Design</span>
                 <h3>Multi-Agent ITSM &amp; SPM Solution Design — Architect Capstone</h3>
@@ -637,7 +743,6 @@
                     <span class="tag">Solution Architecture</span>
                 </div>
             </div>
-
             <div class="card">
                 <span class="category cat-agent">AI Agent</span>
                 <h3>Universal Request Automation — Real-Time Triage &amp; Resolution Intelligence</h3>
@@ -651,7 +756,6 @@
                     <span class="tag">Employee Center</span>
                 </div>
             </div>
-
             <div class="card">
                 <span class="category cat-agent">AI Agent</span>
                 <h3>Multi-Channel Colleague Sentiment Synthesis Agent</h3>
@@ -664,7 +768,6 @@
                     <span class="tag">Platform Analytics</span>
                 </div>
             </div>
-
             <div class="card">
                 <span class="category cat-agent">AI Agent</span>
                 <h3>Rapid Agentic Deployment — ITSM Incident Triage &amp; Change Risk Assessment</h3>
@@ -681,9 +784,10 @@
         </div>
     </section>
 
-    <!-- Custom Skills -->
+    <!-- Now Assist Custom Skills -->
     <section id="skills">
-        <h2>Now Assist Custom Skills</h2>
+        <h2>Now Assist Custom Skills <span class="count" aria-hidden="true">2</span></h2>
+        <p class="section-intro">Custom Now Assist skills built on Skill Kit and the OneExtend framework.</p>
         <div class="projects-grid">
 
             <div class="card">
@@ -697,7 +801,6 @@
                     <span class="tag">Article Lifecycle</span>
                 </div>
             </div>
-
             <div class="card">
                 <span class="category cat-skill">Custom Skill</span>
                 <h3>Custom Agentic Evaluation Metrics</h3>
@@ -712,14 +815,15 @@
         </div>
     </section>
 
-    <!-- Integrations -->
+    <!-- Platform Integrations -->
     <section id="integrations">
-        <h2>Platform Integrations</h2>
+        <h2>Platform Integrations <span class="count" aria-hidden="true">8</span></h2>
+        <p class="section-intro">MCP, A2A and vendor integrations connecting ServiceNow to external agents and search.</p>
         <div class="projects-grid">
 
             <div class="card">
                 <span class="category cat-integration">Integration</span>
-                <h3><a href="https://www.servicenow.com/community/ceg-ai-coe-articles/expose-servicenow-ai-agents-to-external-systems-with-google-a2a/ta-p/3525805" target="_blank" style="color:inherit;text-decoration:none;">Google A2A Protocol — ServiceNow as A2A Server</a></h3>
+                <h3><a href="https://www.servicenow.com/community/ceg-ai-coe-articles/expose-servicenow-ai-agents-to-external-systems-with-google-a2a/ta-p/3525805" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">Google A2A Protocol — ServiceNow as A2A Server</a></h3>
                 <p>End-to-end proof of concept enabling external A2A-compliant clients to discover and invoke ServiceNow AI Agents via Google A2A v2 protocol endpoints using OAuth 2.0 Client Credentials.</p>
                 <div class="tags">
                     <span class="tag">A2A Protocol</span>
@@ -728,10 +832,9 @@
                     <span class="tag">Linux Foundation</span>
                 </div>
             </div>
-
             <div class="card">
                 <span class="category cat-integration">Integration</span>
-                <h3><a href="https://www.servicenow.com/community/ceg-ai-coe-articles/servicenow-as-a-primary-a2a-agent-discovering-and-invoking/ta-p/3528579" target="_blank" style="color:inherit;text-decoration:none;">Google A2A Protocol — ServiceNow as A2A Client</a></h3>
+                <h3><a href="https://www.servicenow.com/community/ceg-ai-coe-articles/servicenow-as-a-primary-a2a-agent-discovering-and-invoking/ta-p/3528579" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">Google A2A Protocol — ServiceNow as A2A Client</a></h3>
                 <p>Outbound-direction companion PoC: ServiceNow as primary A2A agent discovering and invoking an external Google ADK agent via JSON-RPC message/send — no custom code, OOB AI Agent Fabric. Validated end-to-end on Zurich Patch 7.</p>
                 <div class="tags">
                     <span class="tag">AI Agent Fabric</span>
@@ -740,7 +843,6 @@
                     <span class="tag">Agent Card Discovery</span>
                 </div>
             </div>
-
             <div class="card">
                 <span class="category cat-integration">Integration</span>
                 <h3>Federated Search in Google Chat</h3>
@@ -752,7 +854,6 @@
                     <span class="tag">Table API</span>
                 </div>
             </div>
-
             <div class="card">
                 <span class="category cat-integration">Integration</span>
                 <h3>Gemini Deep Research Integration via A2A</h3>
@@ -764,20 +865,6 @@
                     <span class="tag">Deep Research</span>
                 </div>
             </div>
-
-            <div class="card">
-                <span class="category cat-whitepaper">Research</span>
-                <h3>Google ADK + ServiceNow — Integration Patterns</h3>
-                <p>Use case exploration documenting three integration patterns between Google Agent Development Kit (ADK) and ServiceNow: ADK consuming ServiceNow via MCP, ADK exposed as an A2A server for ServiceNow to call, and ADK as a multi-system orchestrator with ServiceNow AI Agents as A2A peers. Identifies where ADK adds genuine value — multi-system incident correlation, Gemini multimodal document processing, Google Workspace RAG, and pre-change risk scoring with external signals — and where ServiceNow-native capabilities are sufficient.</p>
-                <div class="tags">
-                    <span class="tag">Google ADK</span>
-                    <span class="tag">A2A Protocol</span>
-                    <span class="tag">MCP Protocol</span>
-                    <span class="tag">Gemini</span>
-                    <span class="tag">Multi-System Orchestration</span>
-                </div>
-            </div>
-
             <div class="card">
                 <span class="category cat-integration">Integration</span>
                 <h3>How to Leverage MCP in ServiceNow — Cross-Instance PoC</h3>
@@ -789,7 +876,6 @@
                     <span class="tag">Tool Invocation</span>
                 </div>
             </div>
-
             <div class="card">
                 <span class="category cat-integration">Integration</span>
                 <h3>How to Leverage MCP in ServiceNow — External Client PoC (Postman)</h3>
@@ -802,7 +888,6 @@
                     <span class="tag">JSON-RPC 2.0</span>
                 </div>
             </div>
-
             <div class="card">
                 <span class="category cat-integration">Integration</span>
                 <h3>Now Assist in Virtual Agent — Microsoft Teams Integration</h3>
@@ -815,7 +900,6 @@
                     <span class="tag">Australia Release</span>
                 </div>
             </div>
-
             <div class="card">
                 <span class="category cat-integration">Integration</span>
                 <h3>AIOps Alert Investigation Chatbot for Microsoft Teams</h3>
@@ -832,11 +916,24 @@
         </div>
     </section>
 
-    <!-- Whitepapers & Guides -->
-    <section id="guides">
-        <h2>Whitepapers, Guides, and Tooling</h2>
+    <!-- Research &amp; Whitepapers -->
+    <section id="research">
+        <h2>Research &amp; Whitepapers <span class="count" aria-hidden="true">4</span></h2>
+        <p class="section-intro">Deep dives on the mechanics behind agentic AI — embeddings, context windows, protocols and runtimes.</p>
         <div class="projects-grid">
 
+            <div class="card">
+                <span class="category cat-whitepaper">Research</span>
+                <h3>Google ADK + ServiceNow — Integration Patterns</h3>
+                <p>Use case exploration documenting three integration patterns between Google Agent Development Kit (ADK) and ServiceNow: ADK consuming ServiceNow via MCP, ADK exposed as an A2A server for ServiceNow to call, and ADK as a multi-system orchestrator with ServiceNow AI Agents as A2A peers. Identifies where ADK adds genuine value — multi-system incident correlation, Gemini multimodal document processing, Google Workspace RAG, and pre-change risk scoring with external signals — and where ServiceNow-native capabilities are sufficient.</p>
+                <div class="tags">
+                    <span class="tag">Google ADK</span>
+                    <span class="tag">A2A Protocol</span>
+                    <span class="tag">MCP Protocol</span>
+                    <span class="tag">Gemini</span>
+                    <span class="tag">Multi-System Orchestration</span>
+                </div>
+            </div>
             <div class="card">
                 <span class="category cat-whitepaper">Whitepaper</span>
                 <h3><a href="Cosine_Similarity_Vector_Search_And_Reranking_Deep_Dive.html" style="color:inherit;text-decoration:none;">Why Cosine Similarity Powers Semantic Search — Vector Search and Reranking Deep Dive</a></h3>
@@ -849,59 +946,6 @@
                     <span class="tag">ANN / HNSW</span>
                 </div>
             </div>
-
-            <div class="card">
-                <span class="category cat-guide">Guide</span>
-                <h3><a href="Claude_Code_Capabilities_Guide.html" style="color:inherit;text-decoration:none;">Claude Code Capabilities</a></h3>
-                <p>Field guide to what Claude Code can do and how to steer it: built-in tools, subagents, agent teams and dynamic workflows, skills, plugins and hooks, permission modes, model choice, and headless runs in GitHub Actions and GitLab CI. Closes with a quick decision guide for common asks.</p>
-                <div class="tags">
-                    <span class="tag">Claude Code</span>
-                    <span class="tag">Subagents</span>
-                    <span class="tag">Skills &amp; Plugins</span>
-                    <span class="tag">Hooks</span>
-                    <span class="tag">CI Automation</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <span class="category cat-guide">Guide</span>
-                <h3><a href="Claude_Code_File_Structure_Guide.html" style="color:inherit;text-decoration:none;">Claude Code File Structure and Configuration</a></h3>
-                <p>Practical map of where Claude Code keeps instructions, settings, MCP server configuration, skills, project state and credentials, and how personal and project scopes differ. Covers secret handling and the pitfalls of environment-variable expansion in MCP config, and ends with a decision guide for where each change belongs.</p>
-                <div class="tags">
-                    <span class="tag">Claude Code</span>
-                    <span class="tag">CLAUDE.md</span>
-                    <span class="tag">settings.json</span>
-                    <span class="tag">MCP Configuration</span>
-                    <span class="tag">Secrets Handling</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <span class="category cat-guide">Guide</span>
-                <h3>FastMCP Server for ServiceNow Instances</h3>
-                <p>Runbook for a single Python FastMCP server that wraps the ServiceNow Table API as 60 MCP tools over stdio. The same script is registered once per instance and only its environment variables differ, so adding an instance needs no code change. Covers architecture, file inventory, step-by-step setup for two MCP clients, Basic Auth and optional OAuth, verification, troubleshooting, and a comparison with the native MCP Server Console.</p>
-                <div class="tags">
-                    <span class="tag">FastMCP</span>
-                    <span class="tag">MCP</span>
-                    <span class="tag">Python</span>
-                    <span class="tag">Table API</span>
-                    <span class="tag">Claude Code</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <span class="category cat-tooling">Tooling</span>
-                <h3>CTA Mock Exam Generator</h3>
-                <p>Prompt-driven generator and Node.js toolchain that builds blueprint-aligned mock exams for the ServiceNow Certified Technical Architect certification. A 60-slot plan enforces coverage of every objective and module, question type and answer-key position; a duplicate set blocks question angles already used in earlier mocks; and a 13-step validator checks each built exam before blind reviewer packets score it. Used to build a series of full-length mock exams.</p>
-                <div class="tags">
-                    <span class="tag">Prompt Engineering</span>
-                    <span class="tag">Node.js</span>
-                    <span class="tag">Exam Blueprint</span>
-                    <span class="tag">Validation</span>
-                    <span class="tag">Certification Prep</span>
-                </div>
-            </div>
-
             <div class="card">
                 <span class="category cat-whitepaper">Whitepaper</span>
                 <h3>ServiceNow AI Agent Context Token Management</h3>
@@ -913,258 +957,6 @@
                     <span class="tag">LLM Orchestration</span>
                 </div>
             </div>
-
-            <div class="card">
-                <span class="category cat-guide">Guide</span>
-                <h3>DocIntel Custom Table Implementation</h3>
-                <p>End-to-end guide for implementing ServiceNow Document Intelligence on custom tables, addressing flow triggering, attachment handling, ML confidence thresholds, and two-flow orchestration pattern.</p>
-                <div class="tags">
-                    <span class="tag">Document Intelligence</span>
-                    <span class="tag">ML Processing</span>
-                    <span class="tag">Custom Tables</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <span class="category cat-guide">Guide</span>
-                <h3>AI Agent Production Deployment Checklist</h3>
-                <p>Comprehensive 10-point production deployment checklist for five AI agents covering platform prerequisites, service accounts/RBAC, custom fields, agent configuration, monitoring, and rollback procedures.</p>
-                <div class="tags">
-                    <span class="tag">Production Readiness</span>
-                    <span class="tag">RBAC</span>
-                    <span class="tag">Audit Logging</span>
-                    <span class="tag">Safety Guardrails</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <span class="category cat-tooling">Tooling</span>
-                <h3>ServiceNow AI Charts</h3>
-                <p>Public web portal (azurecharts.com-style) visualising the ServiceNow AI product landscape — AI products catalogue, table inventory, and relationship graph. Built on Next.js + Tailwind + D3.js with live data from a personal ServiceNow instance via Table API and static docs.servicenow.com data.</p>
-                <div class="tags">
-                    <span class="tag">Next.js</span>
-                    <span class="tag">D3.js</span>
-                    <span class="tag">Tailwind CSS</span>
-                    <span class="tag">Table API</span>
-                    <span class="tag">Fuse.js</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <span class="category cat-tooling">Tooling</span>
-                <h3>Genius Results in New Tab</h3>
-                <p>JavaScript customization enabling Genius Search results to open in new browser tabs instead of replacing the current window.</p>
-                <div class="tags">
-                    <span class="tag">Service Portal</span>
-                    <span class="tag">Genius Search</span>
-                    <span class="tag">JavaScript</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <span class="category cat-tooling">Claude Skills</span>
-                <h3>Claude Code Custom Skills</h3>
-                <p>A growing suite of custom AI skills for ServiceNow delivery and productivity: AI Solution Design Generator (interactive runbook creation with a maker-checker quality pass, now also packaged as a standalone, installable Design and Runbook Generator with a 92-check quality gate), Markdown-to-DOCX Converter (branded Word documents with mermaid/Graphviz diagrams), Community Articles Creator (portal-formatted articles), branded PowerPoint generation, AI Agent instruction authoring and review, accomplishment-deck automation, an evidence-backed Now Assist entitlement and consumption report with a cited source on every figure, a Chunkwise Markdown Editor (applies many discrete revisions to large design docs and runbooks in small chunks, verifying each by diff and grep so no restated fact drifts out of sync), and a git commit-and-push helper. Each skill is self-contained with its own README and bundled scripts/templates.</p>
-                <div class="tags">
-                    <span class="tag">Claude Code</span>
-                    <span class="tag">Skill Authoring</span>
-                    <span class="tag">Python</span>
-                    <span class="tag">python-docx / pptx</span>
-                    <span class="tag">Mermaid / Graphviz</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <span class="category cat-guide">Guide</span>
-                <h3><a href="https://www.servicenow.com/community/intelligence-ml-articles/deep-dive-managing-and-optimizing-cache-for-now-assist-q-amp-a/ta-p/3454455" target="_blank" style="color:inherit;text-decoration:none;">Deep Dive: Managing and Optimizing Cache for Now Assist Q&A Genius Results</a></h3>
-                <p>Technical guide covering cache management for Now Assist Q&A Genius Results — identifying stale cache entries, cleanup procedures, performance optimization, and troubleshooting common issues.</p>
-                <div class="tags">
-                    <span class="tag">Now Assist</span>
-                    <span class="tag">Genius Results</span>
-                    <span class="tag">Cache Management</span>
-                    <span class="tag">Performance</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <span class="category cat-guide">Guide</span>
-                <h3><a href="https://www.servicenow.com/community/now-assist-articles/how-to-leverage-ootb-define-availability-of-the-now-assist/ta-p/3364852" target="_blank" style="color:inherit;text-decoration:none;">How to Leverage OOTB 'Define Availability' of the Now Assist Skills</a></h3>
-                <p>Guide to using the out-of-the-box Define Availability feature in Now Assist Skills to conditionally activate skills based on custom logic with practical examples.</p>
-                <div class="tags">
-                    <span class="tag">Now Assist</span>
-                    <span class="tag">Skill Configuration</span>
-                    <span class="tag">Conditional Activation</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <span class="category cat-guide">Guide</span>
-                <h3><a href="https://www.servicenow.com/community/now-assist-blog/suggested-steps-generation-in-now-assist-for-customer-service/ba-p/3337391" target="_blank" style="color:inherit;text-decoration:none;">Suggested Steps Generation in Now Assist for CSM</a></h3>
-                <p>Resolution for the Record Clustering step failure during Now Assist skill activation — requires minimum 500 resolved cases, with workaround and configuration guidance.</p>
-                <div class="tags">
-                    <span class="tag">Now Assist</span>
-                    <span class="tag">CSM</span>
-                    <span class="tag">Skill Activation</span>
-                    <span class="tag">Record Clustering</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <span class="category cat-tooling">Tooling</span>
-                <h3>ServiceNow AI Agent Builder via Claude Desktop MCP</h3>
-                <p>PoC demonstrating Claude Desktop + a Python FastMCP server building fully-configured ServiceNow AI Agents through natural language — bypasses the KB2676985 routing prerequisite that gates the platform&rsquo;s native MCP Server Console path on many sandboxes and PDIs. Treat as a developer-tooling alternative for AI Agent authoring when native routing isn&rsquo;t available.</p>
-                <div class="tags">
-                    <span class="tag">MCP Protocol</span>
-                    <span class="tag">Claude Desktop</span>
-                    <span class="tag">Python FastMCP</span>
-                    <span class="tag">AI Agent Studio</span>
-                    <span class="tag">Natural-Language Build</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <span class="category cat-tooling">Tooling</span>
-                <h3>AI Solution Designer MCP Server</h3>
-                <p>Self-contained Python MCP server packaging the AI Solution Design Generator V2 skill for distribution. Any Claude Code user can install via pip or uvx, configure two environment variables, and access the full V2 design capability — prompts, resources, and tools bundled with no dependency on personal memory paths or private MCP subscriptions.</p>
-                <div class="tags">
-                    <span class="tag">Python FastMCP</span>
-                    <span class="tag">MCP Protocol</span>
-                    <span class="tag">Claude Code</span>
-                    <span class="tag">PyPI Distribution</span>
-                    <span class="tag">AI Solution Design</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <span class="category cat-tooling">Tooling</span>
-                <h3>ServiceNow Instance MCP Server</h3>
-                <p>Distributable Python FastMCP server exposing a ServiceNow instance&rsquo;s full AI Agent Studio, agentic workflows, tools, triggers, workers, execution logs, GenAI logs, and general-purpose table CRUD as MCP tools. Supports Basic Auth and OAuth 2.0 Client Credentials — configure two environment variables and get full read/write access from Claude Code without a native MCP subscription.</p>
-                <div class="tags">
-                    <span class="tag">Python FastMCP</span>
-                    <span class="tag">MCP Protocol</span>
-                    <span class="tag">ServiceNow REST APIs</span>
-                    <span class="tag">OAuth 2.0</span>
-                    <span class="tag">AI Agent Studio</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <span class="category cat-guide">Guide</span>
-                <h3>Now Assist Document Intelligence — HRSD Form Field Extraction</h3>
-                <p>NADI implementation for HRSD Workforce Administration: auto-extracts structured field values from uploaded PDF forms (EPF/EPS membership answers) at case creation, writes results to case fields, and alerts the agent when extraction confidence is below threshold — eliminating manual transcription for every new-joiner onboarding case.</p>
-                <div class="tags">
-                    <span class="tag">Now Assist Document Intelligence</span>
-                    <span class="tag">HRSD</span>
-                    <span class="tag">PDF Extraction</span>
-                    <span class="tag">Flow Designer</span>
-                    <span class="tag">NADI Use Case</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <span class="category cat-guide">Guide</span>
-                <h3>Now Assist Model Provider Troubleshooting</h3>
-                <p>Root-cause and remediation runbook for the Now Assist Admin &ldquo;Edit model provider — one or more property values are invalid&rdquo; error that blocks saving model-provider changes. Traces the failure to GenAI license-metadata records created under the wrong application scope, ships read-only detection scripts to find the mis-scoped records, and walks through moving them back to the correct scope and verifying the fix — restoring the ability to manage AI models.</p>
-                <div class="tags">
-                    <span class="tag">Now Assist Admin</span>
-                    <span class="tag">Model Providers</span>
-                    <span class="tag">Application Scope</span>
-                    <span class="tag">GenAI Metadata</span>
-                    <span class="tag">Troubleshooting</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <span class="category cat-guide">Guide</span>
-                <h3>Local LLM Setup Guidebook</h3>
-                <p>Step-by-step runbook for running a local coding LLM on Apple Silicon — Ollama serving Qwen3-Coder, wired into VS Code and Claude Code, with an optional local RAG index for codebase-aware completions. Includes a side-by-side reference comparing the local model against frontier cloud models so you know when a local model is good enough and when to reach for the cloud.</p>
-                <div class="tags">
-                    <span class="tag">Local LLM</span>
-                    <span class="tag">Ollama</span>
-                    <span class="tag">Qwen3-Coder</span>
-                    <span class="tag">VS Code</span>
-                    <span class="tag">Claude Code</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <span class="category cat-guide">Guide</span>
-                <h3>Group Action Framework — Activation &amp; Troubleshooting</h3>
-                <p>Practical guide to the Now Platform Group Action Framework (GAF) — the capability that clusters related records (incidents, cases, KB articles) with machine learning and runs LLM-driven actions across the cluster to generate summaries, resolution steps, and pattern-level insights. Covers what GAF is, why cluster-level context beats single-record reasoning for AI agents, and how to verify and troubleshoot GAF activation on an instance.</p>
-                <div class="tags">
-                    <span class="tag">Group Action Framework</span>
-                    <span class="tag">Record Clustering</span>
-                    <span class="tag">Machine Learning</span>
-                    <span class="tag">Now Assist</span>
-                    <span class="tag">Pattern Insights</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <span class="category cat-guide">Guide</span>
-                <h3>Agentic AI Security &amp; Governance Checklist Response</h3>
-                <p>A documentation-grounded reference answering the architecture and security questions enterprise governance teams raise about ServiceNow AI Agents: whether a vector database is used, where short-term and long-term agent memory is stored (sn_aia_memory, instance-resident, on MariaDB or RaptorDB), inference data zero-persistence, and the observability stack — Generative AI Controller logs, Now Assist Guardian runtime safety, and AI Control Tower governance and anomaly signals. Every position is cited to published product documentation.</p>
-                <div class="tags">
-                    <span class="tag">AI Governance</span>
-                    <span class="tag">Security Review</span>
-                    <span class="tag">Agent Memory</span>
-                    <span class="tag">Now Assist Guardian</span>
-                    <span class="tag">AI Control Tower</span>
-                    <span class="tag">RaptorDB</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <span class="category cat-tooling">Tooling</span>
-                <h3>Deep Research + Solution Design Writer — Multi-Agent MCP System</h3>
-                <p>Two-server multi-agent system built on Python FastMCP: a goal-directed Deep Research agent (ReAct loop over web search, web pages, and video transcripts that reflects on evidence gaps before compiling a research artifact) hands off to a constrained Solution Design Writer running an evaluator-optimizer (maker-checker) loop with deterministic structure checks, producing a ServiceNow AI Solution Design and Build Runbook. Clean separation of research from writing, hard stop conditions on every loop.</p>
-                <div class="tags">
-                    <span class="tag">Python FastMCP</span>
-                    <span class="tag">Multi-Agent</span>
-                    <span class="tag">ReAct Research Loop</span>
-                    <span class="tag">Evaluator-Optimizer</span>
-                    <span class="tag">Claude API</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <span class="category cat-tooling">Tooling</span>
-                <h3>markitdown MCP — Local Document-to-Markdown</h3>
-                <p>Research and reference on running the markitdown MCP server as a local process to convert PDF, PPTX, DOCX, HTML, and XLSX (from local files or URLs) into clean Markdown before it enters the model context. The conversion happens on-device, so only compact Markdown reaches the API — fewer tokens billed and large, text-heavy documents become readable to the agent.</p>
-                <div class="tags">
-                    <span class="tag">MCP Protocol</span>
-                    <span class="tag">markitdown</span>
-                    <span class="tag">Document Conversion</span>
-                    <span class="tag">Token Efficiency</span>
-                    <span class="tag">Local Process</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <span class="category cat-tooling">Tooling</span>
-                <h3>Open-Source Coding Agent Setup (OpenCode)</h3>
-                <p>Setup guide for running OpenCode — a fully open-source AI coding agent CLI — as a no-cost backup to keep development moving when a primary assistant hits session token caps. Connects to many LLM providers and free curated coding models, configured on Apple Silicon alongside the existing VS Code toolchain without disturbing it.</p>
-                <div class="tags">
-                    <span class="tag">OpenCode</span>
-                    <span class="tag">AI Coding Agent</span>
-                    <span class="tag">Open Source</span>
-                    <span class="tag">LLM Gateway</span>
-                    <span class="tag">Apple Silicon</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <span class="category cat-guide">Guide</span>
-                <h3>Porting Claude Code Skills to the Claude App</h3>
-                <p>Root-cause analysis and porting guide for moving a large Claude Code skill to the hosted Claude app. Maps the platform capability gaps — persistent file system, named MCP servers, cross-session memory files, and local script execution — that change skill behaviour when ported, and gives concrete fixes: trimming oversized skill instructions, replacing memory-dependent phases, and adapting document generation to the hosted code-execution sandbox.</p>
-                <div class="tags">
-                    <span class="tag">Claude Skills</span>
-                    <span class="tag">Skill Portability</span>
-                    <span class="tag">MCP Connectors</span>
-                    <span class="tag">Platform Gaps</span>
-                </div>
-            </div>
-
             <div class="card">
                 <span class="category cat-whitepaper">Whitepaper</span>
                 <h3>Claude Code Capabilities Reference</h3>
@@ -1178,6 +970,176 @@
                 </div>
             </div>
 
+        </div>
+    </section>
+
+    <!-- Guides &amp; How-tos -->
+    <section id="guides">
+        <h2>Guides &amp; How-tos <span class="count" aria-hidden="true">15</span></h2>
+        <p class="section-intro">Implementation and troubleshooting runbooks for Now Assist, Document Intelligence and AI Agent Studio.</p>
+        <div class="projects-grid">
+
+            <div class="card">
+                <span class="category cat-guide">Guide</span>
+                <h3><a href="Claude_Code_Capabilities_Guide.html" style="color:inherit;text-decoration:none;">Claude Code Capabilities</a></h3>
+                <p>Field guide to what Claude Code can do and how to steer it: built-in tools, subagents, agent teams and dynamic workflows, skills, plugins and hooks, permission modes, model choice, and headless runs in GitHub Actions and GitLab CI. Closes with a quick decision guide for common asks.</p>
+                <div class="tags">
+                    <span class="tag">Claude Code</span>
+                    <span class="tag">Subagents</span>
+                    <span class="tag">Skills &amp; Plugins</span>
+                    <span class="tag">Hooks</span>
+                    <span class="tag">CI Automation</span>
+                </div>
+            </div>
+            <div class="card">
+                <span class="category cat-guide">Guide</span>
+                <h3><a href="Claude_Code_File_Structure_Guide.html" style="color:inherit;text-decoration:none;">Claude Code File Structure and Configuration</a></h3>
+                <p>Practical map of where Claude Code keeps instructions, settings, MCP server configuration, skills, project state and credentials, and how personal and project scopes differ. Covers secret handling and the pitfalls of environment-variable expansion in MCP config, and ends with a decision guide for where each change belongs.</p>
+                <div class="tags">
+                    <span class="tag">Claude Code</span>
+                    <span class="tag">CLAUDE.md</span>
+                    <span class="tag">settings.json</span>
+                    <span class="tag">MCP Configuration</span>
+                    <span class="tag">Secrets Handling</span>
+                </div>
+            </div>
+            <div class="card">
+                <span class="category cat-guide">Guide</span>
+                <h3><a href="FastMCP_Server_ServiceNow_Guide.html" style="color:inherit;text-decoration:none;">FastMCP Server for ServiceNow Instances</a></h3>
+                <p>Runbook for a single Python FastMCP server that wraps the ServiceNow Table API as 60 MCP tools over stdio. The same script is registered once per instance and only its environment variables differ, so adding an instance needs no code change. Covers architecture, file inventory, step-by-step setup for two MCP clients, Basic Auth and optional OAuth, verification, troubleshooting, and a comparison with the native MCP Server Console.</p>
+                <div class="tags">
+                    <span class="tag">FastMCP</span>
+                    <span class="tag">MCP</span>
+                    <span class="tag">Python</span>
+                    <span class="tag">Table API</span>
+                    <span class="tag">Claude Code</span>
+                </div>
+            </div>
+            <div class="card">
+                <span class="category cat-guide">Guide</span>
+                <h3>DocIntel Custom Table Implementation</h3>
+                <p>End-to-end guide for implementing ServiceNow Document Intelligence on custom tables, addressing flow triggering, attachment handling, ML confidence thresholds, and two-flow orchestration pattern.</p>
+                <div class="tags">
+                    <span class="tag">Document Intelligence</span>
+                    <span class="tag">ML Processing</span>
+                    <span class="tag">Custom Tables</span>
+                </div>
+            </div>
+            <div class="card">
+                <span class="category cat-guide">Guide</span>
+                <h3>AI Agent Production Deployment Checklist</h3>
+                <p>Comprehensive 10-point production deployment checklist for five AI agents covering platform prerequisites, service accounts/RBAC, custom fields, agent configuration, monitoring, and rollback procedures.</p>
+                <div class="tags">
+                    <span class="tag">Production Readiness</span>
+                    <span class="tag">RBAC</span>
+                    <span class="tag">Audit Logging</span>
+                    <span class="tag">Safety Guardrails</span>
+                </div>
+            </div>
+            <div class="card">
+                <span class="category cat-guide">Guide</span>
+                <h3><a href="https://www.servicenow.com/community/intelligence-ml-articles/deep-dive-managing-and-optimizing-cache-for-now-assist-q-amp-a/ta-p/3454455" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">Deep Dive: Managing and Optimizing Cache for Now Assist Q&A Genius Results</a></h3>
+                <p>Technical guide covering cache management for Now Assist Q&A Genius Results — identifying stale cache entries, cleanup procedures, performance optimization, and troubleshooting common issues.</p>
+                <div class="tags">
+                    <span class="tag">Now Assist</span>
+                    <span class="tag">Genius Results</span>
+                    <span class="tag">Cache Management</span>
+                    <span class="tag">Performance</span>
+                </div>
+            </div>
+            <div class="card">
+                <span class="category cat-guide">Guide</span>
+                <h3><a href="https://www.servicenow.com/community/now-assist-articles/how-to-leverage-ootb-define-availability-of-the-now-assist/ta-p/3364852" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">How to Leverage OOTB 'Define Availability' of the Now Assist Skills</a></h3>
+                <p>Guide to using the out-of-the-box Define Availability feature in Now Assist Skills to conditionally activate skills based on custom logic with practical examples.</p>
+                <div class="tags">
+                    <span class="tag">Now Assist</span>
+                    <span class="tag">Skill Configuration</span>
+                    <span class="tag">Conditional Activation</span>
+                </div>
+            </div>
+            <div class="card">
+                <span class="category cat-guide">Guide</span>
+                <h3><a href="https://www.servicenow.com/community/now-assist-blog/suggested-steps-generation-in-now-assist-for-customer-service/ba-p/3337391" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">Suggested Steps Generation in Now Assist for CSM</a></h3>
+                <p>Resolution for the Record Clustering step failure during Now Assist skill activation — requires minimum 500 resolved cases, with workaround and configuration guidance.</p>
+                <div class="tags">
+                    <span class="tag">Now Assist</span>
+                    <span class="tag">CSM</span>
+                    <span class="tag">Skill Activation</span>
+                    <span class="tag">Record Clustering</span>
+                </div>
+            </div>
+            <div class="card">
+                <span class="category cat-guide">Guide</span>
+                <h3>Now Assist Document Intelligence — HRSD Form Field Extraction</h3>
+                <p>NADI implementation for HRSD Workforce Administration: auto-extracts structured field values from uploaded PDF forms (EPF/EPS membership answers) at case creation, writes results to case fields, and alerts the agent when extraction confidence is below threshold — eliminating manual transcription for every new-joiner onboarding case.</p>
+                <div class="tags">
+                    <span class="tag">Now Assist Document Intelligence</span>
+                    <span class="tag">HRSD</span>
+                    <span class="tag">PDF Extraction</span>
+                    <span class="tag">Flow Designer</span>
+                    <span class="tag">NADI Use Case</span>
+                </div>
+            </div>
+            <div class="card">
+                <span class="category cat-guide">Guide</span>
+                <h3>Now Assist Model Provider Troubleshooting</h3>
+                <p>Root-cause and remediation runbook for the Now Assist Admin &ldquo;Edit model provider — one or more property values are invalid&rdquo; error that blocks saving model-provider changes. Traces the failure to GenAI license-metadata records created under the wrong application scope, ships read-only detection scripts to find the mis-scoped records, and walks through moving them back to the correct scope and verifying the fix — restoring the ability to manage AI models.</p>
+                <div class="tags">
+                    <span class="tag">Now Assist Admin</span>
+                    <span class="tag">Model Providers</span>
+                    <span class="tag">Application Scope</span>
+                    <span class="tag">GenAI Metadata</span>
+                    <span class="tag">Troubleshooting</span>
+                </div>
+            </div>
+            <div class="card">
+                <span class="category cat-guide">Guide</span>
+                <h3>Local LLM Setup Guidebook</h3>
+                <p>Step-by-step runbook for running a local coding LLM on Apple Silicon — Ollama serving Qwen3-Coder, wired into VS Code and Claude Code, with an optional local RAG index for codebase-aware completions. Includes a side-by-side reference comparing the local model against frontier cloud models so you know when a local model is good enough and when to reach for the cloud.</p>
+                <div class="tags">
+                    <span class="tag">Local LLM</span>
+                    <span class="tag">Ollama</span>
+                    <span class="tag">Qwen3-Coder</span>
+                    <span class="tag">VS Code</span>
+                    <span class="tag">Claude Code</span>
+                </div>
+            </div>
+            <div class="card">
+                <span class="category cat-guide">Guide</span>
+                <h3>Group Action Framework — Activation &amp; Troubleshooting</h3>
+                <p>Practical guide to the Now Platform Group Action Framework (GAF) — the capability that clusters related records (incidents, cases, KB articles) with machine learning and runs LLM-driven actions across the cluster to generate summaries, resolution steps, and pattern-level insights. Covers what GAF is, why cluster-level context beats single-record reasoning for AI agents, and how to verify and troubleshoot GAF activation on an instance.</p>
+                <div class="tags">
+                    <span class="tag">Group Action Framework</span>
+                    <span class="tag">Record Clustering</span>
+                    <span class="tag">Machine Learning</span>
+                    <span class="tag">Now Assist</span>
+                    <span class="tag">Pattern Insights</span>
+                </div>
+            </div>
+            <div class="card">
+                <span class="category cat-guide">Guide</span>
+                <h3>Agentic AI Security &amp; Governance Checklist Response</h3>
+                <p>A documentation-grounded reference answering the architecture and security questions enterprise governance teams raise about ServiceNow AI Agents: whether a vector database is used, where short-term and long-term agent memory is stored (sn_aia_memory, instance-resident, on MariaDB or RaptorDB), inference data zero-persistence, and the observability stack — Generative AI Controller logs, Now Assist Guardian runtime safety, and AI Control Tower governance and anomaly signals. Every position is cited to published product documentation.</p>
+                <div class="tags">
+                    <span class="tag">AI Governance</span>
+                    <span class="tag">Security Review</span>
+                    <span class="tag">Agent Memory</span>
+                    <span class="tag">Now Assist Guardian</span>
+                    <span class="tag">AI Control Tower</span>
+                    <span class="tag">RaptorDB</span>
+                </div>
+            </div>
+            <div class="card">
+                <span class="category cat-guide">Guide</span>
+                <h3>Porting Claude Code Skills to the Claude App</h3>
+                <p>Root-cause analysis and porting guide for moving a large Claude Code skill to the hosted Claude app. Maps the platform capability gaps — persistent file system, named MCP servers, cross-session memory files, and local script execution — that change skill behaviour when ported, and gives concrete fixes: trimming oversized skill instructions, replacing memory-dependent phases, and adapting document generation to the hosted code-execution sandbox.</p>
+                <div class="tags">
+                    <span class="tag">Claude Skills</span>
+                    <span class="tag">Skill Portability</span>
+                    <span class="tag">MCP Connectors</span>
+                    <span class="tag">Platform Gaps</span>
+                </div>
+            </div>
             <div class="card">
                 <span class="category cat-guide">Guide</span>
                 <h3>AI Agent Studio — Tool Types Reference</h3>
@@ -1193,11 +1155,126 @@
         </div>
     </section>
 
+    <!-- Tooling &amp; MCP Servers -->
+    <section id="tooling">
+        <h2>Tooling &amp; MCP Servers <span class="count" aria-hidden="true">9</span></h2>
+        <p class="section-intro">MCP servers, developer tooling and Claude skills built to accelerate ServiceNow delivery.</p>
+        <div class="projects-grid">
+
+            <div class="card">
+                <span class="category cat-tooling">Tooling</span>
+                <h3>ServiceNow AI Charts</h3>
+                <p>Public web portal (azurecharts.com-style) visualising the ServiceNow AI product landscape — AI products catalogue, table inventory, and relationship graph. Built on Next.js + Tailwind + D3.js with live data from a personal ServiceNow instance via Table API and static docs.servicenow.com data.</p>
+                <div class="tags">
+                    <span class="tag">Next.js</span>
+                    <span class="tag">D3.js</span>
+                    <span class="tag">Tailwind CSS</span>
+                    <span class="tag">Table API</span>
+                    <span class="tag">Fuse.js</span>
+                </div>
+            </div>
+            <div class="card">
+                <span class="category cat-tooling">Tooling</span>
+                <h3>Genius Results in New Tab</h3>
+                <p>JavaScript customization enabling Genius Search results to open in new browser tabs instead of replacing the current window.</p>
+                <div class="tags">
+                    <span class="tag">Service Portal</span>
+                    <span class="tag">Genius Search</span>
+                    <span class="tag">JavaScript</span>
+                </div>
+            </div>
+            <div class="card">
+                <span class="category cat-tooling">Claude Skills</span>
+                <h3>Claude Code Custom Skills</h3>
+                <p>A growing suite of custom AI skills for ServiceNow delivery and productivity: AI Solution Design Generator (interactive runbook creation with a maker-checker quality pass, now also packaged as a standalone, installable Design and Runbook Generator with a 92-check quality gate), Markdown-to-DOCX Converter (branded Word documents with mermaid/Graphviz diagrams), Community Articles Creator (portal-formatted articles), branded PowerPoint generation, AI Agent instruction authoring and review, accomplishment-deck automation, an evidence-backed Now Assist entitlement and consumption report with a cited source on every figure, a Chunkwise Markdown Editor (applies many discrete revisions to large design docs and runbooks in small chunks, verifying each by diff and grep so no restated fact drifts out of sync), and a git commit-and-push helper. Each skill is self-contained with its own README and bundled scripts/templates.</p>
+                <div class="tags">
+                    <span class="tag">Claude Code</span>
+                    <span class="tag">Skill Authoring</span>
+                    <span class="tag">Python</span>
+                    <span class="tag">python-docx / pptx</span>
+                    <span class="tag">Mermaid / Graphviz</span>
+                </div>
+            </div>
+            <div class="card">
+                <span class="category cat-tooling">Tooling</span>
+                <h3>ServiceNow AI Agent Builder via Claude Desktop MCP</h3>
+                <p>PoC demonstrating Claude Desktop + a Python FastMCP server building fully-configured ServiceNow AI Agents through natural language — bypasses the KB2676985 routing prerequisite that gates the platform&rsquo;s native MCP Server Console path on many sandboxes and PDIs. Treat as a developer-tooling alternative for AI Agent authoring when native routing isn&rsquo;t available.</p>
+                <div class="tags">
+                    <span class="tag">MCP Protocol</span>
+                    <span class="tag">Claude Desktop</span>
+                    <span class="tag">Python FastMCP</span>
+                    <span class="tag">AI Agent Studio</span>
+                    <span class="tag">Natural-Language Build</span>
+                </div>
+            </div>
+            <div class="card">
+                <span class="category cat-tooling">Tooling</span>
+                <h3>AI Solution Designer MCP Server</h3>
+                <p>Self-contained Python MCP server packaging the AI Solution Design Generator V2 skill for distribution. Any Claude Code user can install via pip or uvx, configure two environment variables, and access the full V2 design capability — prompts, resources, and tools bundled with no dependency on personal memory paths or private MCP subscriptions.</p>
+                <div class="tags">
+                    <span class="tag">Python FastMCP</span>
+                    <span class="tag">MCP Protocol</span>
+                    <span class="tag">Claude Code</span>
+                    <span class="tag">PyPI Distribution</span>
+                    <span class="tag">AI Solution Design</span>
+                </div>
+            </div>
+            <div class="card">
+                <span class="category cat-tooling">Tooling</span>
+                <h3>ServiceNow Instance MCP Server</h3>
+                <p>Distributable Python FastMCP server exposing a ServiceNow instance&rsquo;s full AI Agent Studio, agentic workflows, tools, triggers, workers, execution logs, GenAI logs, and general-purpose table CRUD as MCP tools. Supports Basic Auth and OAuth 2.0 Client Credentials — configure two environment variables and get full read/write access from Claude Code without a native MCP subscription.</p>
+                <div class="tags">
+                    <span class="tag">Python FastMCP</span>
+                    <span class="tag">MCP Protocol</span>
+                    <span class="tag">ServiceNow REST APIs</span>
+                    <span class="tag">OAuth 2.0</span>
+                    <span class="tag">AI Agent Studio</span>
+                </div>
+            </div>
+            <div class="card">
+                <span class="category cat-tooling">Tooling</span>
+                <h3>Deep Research + Solution Design Writer — Multi-Agent MCP System</h3>
+                <p>Two-server multi-agent system built on Python FastMCP: a goal-directed Deep Research agent (ReAct loop over web search, web pages, and video transcripts that reflects on evidence gaps before compiling a research artifact) hands off to a constrained Solution Design Writer running an evaluator-optimizer (maker-checker) loop with deterministic structure checks, producing a ServiceNow AI Solution Design and Build Runbook. Clean separation of research from writing, hard stop conditions on every loop.</p>
+                <div class="tags">
+                    <span class="tag">Python FastMCP</span>
+                    <span class="tag">Multi-Agent</span>
+                    <span class="tag">ReAct Research Loop</span>
+                    <span class="tag">Evaluator-Optimizer</span>
+                    <span class="tag">Claude API</span>
+                </div>
+            </div>
+            <div class="card">
+                <span class="category cat-tooling">Tooling</span>
+                <h3>markitdown MCP — Local Document-to-Markdown</h3>
+                <p>Research and reference on running the markitdown MCP server as a local process to convert PDF, PPTX, DOCX, HTML, and XLSX (from local files or URLs) into clean Markdown before it enters the model context. The conversion happens on-device, so only compact Markdown reaches the API — fewer tokens billed and large, text-heavy documents become readable to the agent.</p>
+                <div class="tags">
+                    <span class="tag">MCP Protocol</span>
+                    <span class="tag">markitdown</span>
+                    <span class="tag">Document Conversion</span>
+                    <span class="tag">Token Efficiency</span>
+                    <span class="tag">Local Process</span>
+                </div>
+            </div>
+            <div class="card">
+                <span class="category cat-tooling">Tooling</span>
+                <h3>Open-Source Coding Agent Setup (OpenCode)</h3>
+                <p>Setup guide for running OpenCode — a fully open-source AI coding agent CLI — as a no-cost backup to keep development moving when a primary assistant hits session token caps. Connects to many LLM providers and free curated coding models, configured on Apple Silicon alongside the existing VS Code toolchain without disturbing it.</p>
+                <div class="tags">
+                    <span class="tag">OpenCode</span>
+                    <span class="tag">AI Coding Agent</span>
+                    <span class="tag">Open Source</span>
+                    <span class="tag">LLM Gateway</span>
+                    <span class="tag">Apple Silicon</span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
     <!-- Mainframe Technical Articles -->
     <section id="mainframe">
-        <h2>Mainframe Technical Articles</h2>
-        <p style="color: var(--text-muted); margin-bottom: 24px; margin-top: -16px; font-size: 0.9rem;">Technical articles written in 2007, covering COBOL, CICS, JCL, REXX, and z/OS utilities.</p>
-
+        <h2>Mainframe Technical Articles <span class="count" aria-hidden="true">28</span></h2>
+        <p class="section-intro">Technical articles written in 2007, covering COBOL, CICS, JCL, REXX, Xpediter and z/OS utilities.</p>
         <div class="sub-heading">COBOL Programming</div>
         <div class="articles-grid">
             <a class="article-card" href="articles/cobol-call-vs-cics-link.html">
@@ -1361,10 +1438,11 @@
                 <span class="arrow">Read article &#8594;</span>
             </a>
         </div>
-
     </section>
 
 </div>
+
+<p class="no-results" id="noResults" hidden>No projects or articles match that search.</p>
 
 <footer>
     <div class="container">
@@ -1424,36 +1502,53 @@
         sections.forEach(function (s) { spy.observe(s); });
     }
 
-    /* --- Live search filter --- */
-    var input = document.getElementById('search');
-    var status = document.getElementById('searchStatus');
-    var sectionEls = Array.prototype.slice.call(document.querySelectorAll('section'));
-
-    /* Cache lowercased searchable text per card */
+    /* --- Category tagging (one source of truth for the filter) --- */
+    var CAT_RE = /\bcat-([a-z]+)\b/;
     cards.forEach(function (c) {
+        var cat = 'mainframe';
+        if (c.classList.contains('card')) {
+            var badge = c.querySelector('.category');
+            var m = badge && CAT_RE.exec(badge.className);
+            cat = m ? m[1] : 'other';
+        }
+        c.dataset.cat = cat;
+        /* Cache lowercased searchable text per card */
         c.dataset.search = (c.textContent || '').toLowerCase().replace(/\s+/g, ' ');
     });
 
+    /* --- Live search + category filter --- */
+    var input = document.getElementById('search');
+    var status = document.getElementById('searchStatus');
+    var noResults = document.getElementById('noResults');
+    var sectionEls = Array.prototype.slice.call(document.querySelectorAll('section'));
+    var chips = Array.prototype.slice.call(document.querySelectorAll('.chip'));
+    var activeCat = 'all';
+
     function applyFilter() {
-        var q = input.value.trim().toLowerCase();
+        var q = input ? input.value.trim().toLowerCase() : '';
         var matches = 0;
 
         cards.forEach(function (c) {
-            var hit = !q || c.dataset.search.indexOf(q) !== -1;
+            var hit = (!q || c.dataset.search.indexOf(q) !== -1) &&
+                      (activeCat === 'all' || c.dataset.cat === activeCat);
             c.style.display = hit ? '' : 'none';
             if (hit) { matches++; }
         });
 
-        /* Hide section headings / sub-headings that have no visible cards */
+        /* Hide sections with no visible cards; keep each count badge in step */
         sectionEls.forEach(function (sec) {
-            var visible = sec.querySelectorAll('.card, .article-card');
-            var anyVisible = Array.prototype.some.call(visible, function (c) {
-                return c.style.display !== 'none';
+            var secCards = sec.querySelectorAll('.card, .article-card');
+            var shown = 0;
+            Array.prototype.forEach.call(secCards, function (c) {
+                if (c.style.display !== 'none') { shown++; }
             });
-            sec.style.display = anyVisible ? '' : 'none';
+            sec.style.display = shown ? '' : 'none';
+            var badge = sec.querySelector('h2 .count');
+            if (badge) { badge.textContent = shown; }
         });
 
-        /* Hide empty article sub-headings + their grids individually */
+        /* Hide empty article sub-headings + their grids individually.
+           NOTE: the sub-heading must stay the immediately preceding sibling of its grid. */
         document.querySelectorAll('.articles-grid').forEach(function (grid) {
             var anyVisible = Array.prototype.some.call(
                 grid.querySelectorAll('.article-card'),
@@ -1466,12 +1561,18 @@
             }
         });
 
-        if (q) {
-            status.hidden = false;
-            status.textContent = matches + (matches === 1 ? ' result' : ' results') + ' for “' + input.value.trim() + '”';
-        } else {
-            status.hidden = true;
-            status.textContent = '';
+        if (noResults) { noResults.hidden = matches !== 0; }
+
+        if (status) {
+            if (q || activeCat !== 'all') {
+                status.hidden = false;
+                status.textContent = matches + (matches === 1 ? ' result' : ' results') +
+                    (q ? ' for \u201c' + input.value.trim() + '\u201d' : '') +
+                    (activeCat !== 'all' ? ' in ' + activeCat : '');
+            } else {
+                status.hidden = true;
+                status.textContent = '';
+            }
         }
     }
 
@@ -1482,6 +1583,19 @@
             if (e.key === 'Escape') { input.value = ''; applyFilter(); }
         });
     }
+
+    chips.forEach(function (chip) {
+        chip.addEventListener('click', function () {
+            var next = chip.dataset.filter;
+            activeCat = (activeCat === next && next !== 'all') ? 'all' : next;
+            chips.forEach(function (c) {
+                c.setAttribute('aria-pressed', String(c.dataset.filter === activeCat));
+            });
+            applyFilter();
+        });
+    });
+
+    applyFilter();
 })();
 </script>
 
