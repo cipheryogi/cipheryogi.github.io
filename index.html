@@ -493,14 +493,15 @@
             <a href="https://github.com/cipheryogi">GitHub</a>
             <a href="https://www.linkedin.com/in/ypshinde/">LinkedIn</a>
             <a href="https://www.servicenow.com/community/user/viewprofilepage/user-id/289739" target="_blank" rel="noopener">SN Community</a>
+            <a href="https://www.credly.com/users/yogesh-shinde.813eacc4" target="_blank" rel="noopener">Credly</a>
         </div>
         <ul class="hero-stats">
-            <li><b>20</b> AI agents</li>
-            <li><b>8</b> integrations</li>
-            <li><b>4</b> whitepapers</li>
-            <li><b>15</b> guides</li>
-            <li><b>9</b> tools &amp; MCP servers</li>
-            <li><b>28</b> mainframe articles</li>
+            <li>AI agents</li>
+            <li>integrations</li>
+            <li>whitepapers</li>
+            <li>guides</li>
+            <li>tools &amp; MCP servers</li>
+            <li>mainframe articles</li>
         </ul>
         <div class="notice">The source repository is <strong>private</strong>. Access to specific projects, agents, or integrations can be enabled on request.</div>
     </div>
@@ -539,7 +540,7 @@
 
     <!-- AI Agents &amp; Agentic Workflows -->
     <section id="agents">
-        <h2>AI Agents &amp; Agentic Workflows <span class="count" aria-hidden="true">20</span></h2>
+        <h2>AI Agents &amp; Agentic Workflows</h2>
         <p class="section-intro">Production-grade ServiceNow AI agents, agentic workflows and multi-agent solution designs.</p>
         <div class="projects-grid">
 
@@ -786,7 +787,7 @@
 
     <!-- Now Assist Custom Skills -->
     <section id="skills">
-        <h2>Now Assist Custom Skills <span class="count" aria-hidden="true">2</span></h2>
+        <h2>Now Assist Custom Skills</h2>
         <p class="section-intro">Custom Now Assist skills built on Skill Kit and the OneExtend framework.</p>
         <div class="projects-grid">
 
@@ -817,7 +818,7 @@
 
     <!-- Platform Integrations -->
     <section id="integrations">
-        <h2>Platform Integrations <span class="count" aria-hidden="true">8</span></h2>
+        <h2>Platform Integrations</h2>
         <p class="section-intro">MCP, A2A and vendor integrations connecting ServiceNow to external agents and search.</p>
         <div class="projects-grid">
 
@@ -918,7 +919,7 @@
 
     <!-- Research &amp; Whitepapers -->
     <section id="research">
-        <h2>Research &amp; Whitepapers <span class="count" aria-hidden="true">4</span></h2>
+        <h2>Research &amp; Whitepapers</h2>
         <p class="section-intro">Deep dives on the mechanics behind agentic AI — embeddings, context windows, protocols and runtimes.</p>
         <div class="projects-grid">
 
@@ -968,6 +969,18 @@
                     <span class="tag">Skills</span>
                     <span class="tag">Developer Reference</span>
                 </div>
+            <div class="card">
+                <span class="category cat-whitepaper">Whitepaper</span>
+                <h3>ServiceNow Domain Separation — When It Is Necessary and When It Is Not</h3>
+                <p>A practical decision paper for architects who have never needed domain separation. Explains what it adds over dedicated instances, sets out four tests that must all be true before it is the right design (contractual separation, client fulfillers, cross-client operation and reporting, only moderate process variation), and shows why ACLs, roles, query business rules and CSM account separation fall short at managed-service-provider scale. Includes a decision flowchart and the common failure patterns seen in real reviews.</p>
+                <div class="tags">
+                    <span class="tag">Domain Separation</span>
+                    <span class="tag">Multi-Tenancy</span>
+                    <span class="tag">Platform Architecture</span>
+                    <span class="tag">Access Control</span>
+                    <span class="tag">Managed Service Providers</span>
+                </div>
+            </div>
             </div>
 
         </div>
@@ -975,7 +988,7 @@
 
     <!-- Guides &amp; How-tos -->
     <section id="guides">
-        <h2>Guides &amp; How-tos <span class="count" aria-hidden="true">15</span></h2>
+        <h2>Guides &amp; How-tos</h2>
         <p class="section-intro">Implementation and troubleshooting runbooks for Now Assist, Document Intelligence and AI Agent Studio.</p>
         <div class="projects-grid">
 
@@ -1150,6 +1163,42 @@
                     <span class="tag">Orchestration</span>
                     <span class="tag">Now Assist</span>
                 </div>
+            <div class="card">
+                <span class="category cat-guide">Guide</span>
+                <h3>Now Assist Assists Consumption Monitoring for AI Agents</h3>
+                <p>Where to see how many assists AI agents and agentic workflows consume, and which source to trust for which question: the AI Agent Analytics assist consumption dashboard, the per-call generative AI usage log, and the daily per-feature subscription rollup. Covers how the numbers relate, why totals differ across sources, and how to tie consumption back to individual triggers and workflows.</p>
+                <div class="tags">
+                    <span class="tag">Now Assist</span>
+                    <span class="tag">Assist Consumption</span>
+                    <span class="tag">AI Agent Analytics</span>
+                    <span class="tag">Licensing</span>
+                    <span class="tag">Monitoring</span>
+                </div>
+            </div>
+            <div class="card">
+                <span class="category cat-guide">Guide</span>
+                <h3>Triggered Agentic Workflows Stuck in Ready — Root-Cause Analysis</h3>
+                <p>Step-by-step diagnosis of an instance-wide issue where every trigger-started agentic workflow created an execution plan that never left the Ready state when the newer Now Assist panel chat experience was enabled, while the same workflows ran fine from Studio test mode. Traces the request path end to end to a character-encoding fault in asynchronous outbound messaging, with a plain-language explanation, the conditions that must all be present, and a safe workaround.</p>
+                <div class="tags">
+                    <span class="tag">AI Agent Studio</span>
+                    <span class="tag">Agentic Workflows</span>
+                    <span class="tag">Troubleshooting</span>
+                    <span class="tag">Now Assist Panel</span>
+                    <span class="tag">Root-Cause Analysis</span>
+                </div>
+            </div>
+            <div class="card">
+                <span class="category cat-guide">Guide</span>
+                <h3>ngrok Tunnelling for Local MCP and Webhook Development</h3>
+                <p>How to use a public HTTPS tunnel to reach services running on a laptop during development: pointing a ServiceNow MCP client at a local FastMCP server, receiving messaging-platform and chat-app webhooks, and letting platform REST calls reach a local agent or A2A endpoint. Separates the vendor MCP server from tunnelling your own MCP server, and covers security policy, static URLs, authentication and when to move to a MID Server or hosted endpoint instead.</p>
+                <div class="tags">
+                    <span class="tag">ngrok</span>
+                    <span class="tag">MCP</span>
+                    <span class="tag">Webhooks</span>
+                    <span class="tag">A2A</span>
+                    <span class="tag">Local Development</span>
+                </div>
+            </div>
             </div>
 
         </div>
@@ -1157,7 +1206,7 @@
 
     <!-- Tooling &amp; MCP Servers -->
     <section id="tooling">
-        <h2>Tooling &amp; MCP Servers <span class="count" aria-hidden="true">9</span></h2>
+        <h2>Tooling &amp; MCP Servers</h2>
         <p class="section-intro">MCP servers, developer tooling and Claude skills built to accelerate ServiceNow delivery.</p>
         <div class="projects-grid">
 
@@ -1186,7 +1235,7 @@
             <div class="card">
                 <span class="category cat-tooling">Claude Skills</span>
                 <h3>Claude Code Custom Skills</h3>
-                <p>A growing suite of custom AI skills for ServiceNow delivery and productivity: AI Solution Design Generator (interactive runbook creation with a maker-checker quality pass, now also packaged as a standalone, installable Design and Runbook Generator with a 92-check quality gate), Markdown-to-DOCX Converter (branded Word documents with mermaid/Graphviz diagrams), Community Articles Creator (portal-formatted articles), branded PowerPoint generation, AI Agent instruction authoring and review, accomplishment-deck automation, an evidence-backed Now Assist entitlement and consumption report with a cited source on every figure, a Chunkwise Markdown Editor (applies many discrete revisions to large design docs and runbooks in small chunks, verifying each by diff and grep so no restated fact drifts out of sync), and a git commit-and-push helper. Each skill is self-contained with its own README and bundled scripts/templates.</p>
+                <p>A growing suite of custom AI skills for ServiceNow delivery and productivity: AI Solution Design Generator (interactive runbook creation with a maker-checker quality pass, now also packaged as a standalone, installable Design and Runbook Generator with a 92-check quality gate), Markdown-to-DOCX Converter (branded Word documents with mermaid/Graphviz diagrams), Community Articles Creator (portal-formatted articles), branded PowerPoint generation, AI Agent instruction authoring and review, accomplishment-deck automation, an evidence-backed Now Assist entitlement and consumption report with a cited source on every figure, a Chunkwise Markdown Editor (applies many discrete revisions to large design docs and runbooks in small chunks, verifying each by diff and grep so no restated fact drifts out of sync), a weekly status report generator that researches Teams, Outlook, calendar and support activity to draft a per-account update, and a git commit-and-push helper. Each skill is self-contained with its own README and bundled scripts/templates.</p>
                 <div class="tags">
                     <span class="tag">Claude Code</span>
                     <span class="tag">Skill Authoring</span>
@@ -1266,6 +1315,18 @@
                     <span class="tag">LLM Gateway</span>
                     <span class="tag">Apple Silicon</span>
                 </div>
+            <div class="card">
+                <span class="category cat-tooling">Tooling</span>
+                <h3>AI Readiness Evaluation — Agentic Workflow Impact Analyzer</h3>
+                <p>A read-only background script that turns the platform AI Readiness Evaluation results into a deployment decision for one specific agentic workflow. It reads the latest evaluation run, opens the exact records each finding points to, rates each customization by its real impact on the fields the workflow reads and writes, and checks the prerequisites the workflow depends on: plugins, agents, tools, trigger, run-as user, AI Search profile, semantic indexes and data fit.</p>
+                <div class="tags">
+                    <span class="tag">AI Readiness</span>
+                    <span class="tag">Agentic Workflows</span>
+                    <span class="tag">Background Script</span>
+                    <span class="tag">Upgrade Impact</span>
+                    <span class="tag">ITSM</span>
+                </div>
+            </div>
             </div>
 
         </div>
@@ -1273,7 +1334,7 @@
 
     <!-- Mainframe Technical Articles -->
     <section id="mainframe">
-        <h2>Mainframe Technical Articles <span class="count" aria-hidden="true">28</span></h2>
+        <h2>Mainframe Technical Articles</h2>
         <p class="section-intro">Technical articles written in 2007, covering COBOL, CICS, JCL, REXX, Xpediter and z/OS utilities.</p>
         <div class="sub-heading">COBOL Programming</div>
         <div class="articles-grid">
