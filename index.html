@@ -176,24 +176,6 @@
             font-size: 0.95rem;
         }
         .header-links a:hover { text-decoration: underline; }
-        .hero-stats {
-            list-style: none;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            margin: 22px 0 0;
-            padding: 0;
-        }
-        .hero-stats li {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 999px;
-            padding: 6px 15px;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-        .hero-stats b { color: var(--accent); font-weight: 650; }
         .notice {
             margin-top: 20px;
             padding: 12px 20px;
@@ -476,7 +458,6 @@
             .search-wrap { flex-basis: auto; }
             .navlinks a { font-size: 0.82rem; padding: 6px 11px; }
             .filterbar { padding: 0 16px 10px; }
-            .hero-stats { gap: 8px; }
             section h2 { font-size: 1.22rem; }
         }
     </style>
@@ -495,14 +476,6 @@
             <a href="https://www.servicenow.com/community/user/viewprofilepage/user-id/289739" target="_blank" rel="noopener">SN Community</a>
             <a href="https://www.credly.com/users/yogesh-shinde.813eacc4" target="_blank" rel="noopener">Credly</a>
         </div>
-        <ul class="hero-stats">
-            <li>AI agents</li>
-            <li>integrations</li>
-            <li>whitepapers</li>
-            <li>guides</li>
-            <li>tools &amp; MCP servers</li>
-            <li>mainframe articles</li>
-        </ul>
         <div class="notice">The source repository is <strong>private</strong>. Access to specific projects, agents, or integrations can be enabled on request.</div>
     </div>
 </header>
@@ -1315,18 +1288,18 @@
                     <span class="tag">LLM Gateway</span>
                     <span class="tag">Apple Silicon</span>
                 </div>
+            </div>
             <div class="card">
                 <span class="category cat-tooling">Tooling</span>
-                <h3>AI Readiness Evaluation — Agentic Workflow Impact Analyzer</h3>
-                <p>A read-only background script that turns the platform AI Readiness Evaluation results into a deployment decision for one specific agentic workflow. It reads the latest evaluation run, opens the exact records each finding points to, rates each customization by its real impact on the fields the workflow reads and writes, and checks the prerequisites the workflow depends on: plugins, agents, tools, trigger, run-as user, AI Search profile, semantic indexes and data fit.</p>
+                <h3>Agentic Readiness Analyzer — Pre-Go-Live Audit App</h3>
+                <p>A ServiceNow scoped app that audits an AI agent, an agentic workflow or a Now Assist skill before go-live. Discovery parses the target's scripts to map the tables and fields it reads and writes, a person confirms that footprint, then 44 read-only checks across 12 families (triggers, identity, access, save rules, side effects, data quality, AI Search, assists consumption, execution history and more) rate every issue as Blocker, Quality or Confirm. A companion Lux (AIUX) app presents the customer report with Word export. Ships as two update sets with an ATF suite that verifies nothing outside the app is ever changed.</p>
                 <div class="tags">
-                    <span class="tag">AI Readiness</span>
+                    <span class="tag">Scoped App</span>
                     <span class="tag">Agentic Workflows</span>
-                    <span class="tag">Background Script</span>
-                    <span class="tag">Upgrade Impact</span>
-                    <span class="tag">ITSM</span>
+                    <span class="tag">Now Assist</span>
+                    <span class="tag">Lux (AIUX)</span>
+                    <span class="tag">ATF</span>
                 </div>
-            </div>
             </div>
 
         </div>
